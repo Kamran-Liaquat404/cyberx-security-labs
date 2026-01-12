@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Text Encrypter / Decrypter — Ethical Hacking Zone</title>
+<meta name="description" content="Client-side real encryption (AES-GCM via PBKDF2, RSA-OAEP). All crypto runs in browser Web Crypto API. Educational/demo only."/>
+<style>
+  :root{
+    --bg:#000; --neon:#ff3b3b; --accent:#00ff88; --muted:#9fb3a0;
+    --panel:rgba(6,8,10,0.72); --glass:rgba(255,255,255,0.03);
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace; --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0;background:#000;color:#dfffe6;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+  canvas#matrix{position:fixed;inset:0;z-index:-3;display:block;filter:contrast(1.05)}
+  .overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.45),rgba(0,0,0,0.95));z-index:-2}
+  .wrap{max-width:1100px;margin:28px auto;padding:18px;position:relative;z-index:2}
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .brand{font-weight:900;color:var(--neon);letter-spacing:1px;font-size:20px}
+  .sub{color:var(--muted);font-size:13px}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--panel);padding:16px;border-radius:var(--radius);border:1px solid var(--glass)}
+  h1{margin:0;color:var(--accent);font-size:22px}
+  p.lead{color:var(--muted);margin-top:8px}
+  textarea,input,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-family:var(--mono);font-size:14px}
+  .row{display:flex;gap:8px;align-items:center;margin-top:8px}
+  .btn{padding:10px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:800}
+  .btn.primary{background:linear-gradient(90deg,var(--neon),#990000);color:#fff}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  .small{font-size:13px;color:var(--muted)}
+  .log{margin-top:10px;font-family:var(--mono);font-size:13px;color:var(--muted);max-height:160px;overflow:auto;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px}
+  table{width:100%;border-collapse:collapse}
+  td,th{padding:8px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
+  .notice{color:#ffd9d9;font-size:13px;margin-top:8px}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  footer{margin-top:18px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+  <div class="overlay" aria-hidden="true"></div>
+
+  <div class="wrap" role="application" aria-label="Text Encrypter Decrypter">
+    <header>
+      <div>
+        <div class="brand">Text Encrypter & Decrypter</div>
+        <div class="sub">AES-GCM (PBKDF2) • RSA-OAEP • Utilities — Client-side only</div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- main panel -->
+      <section class="panel" aria-labelledby="mainTitle">
+        <h1 id="mainTitle">Encrypt / Decrypt — Symmetric & Asymmetric</h1>
+        <p class="lead">All crypto runs in your browser using the Web Crypto API. For real secure usage keep keys secret and back them up. This tool is educational; do not send sensitive secrets to untrusted services.</p>
+
+        <!-- input text -->
+        <label class="small" for="plaintext">Plaintext (or ciphertext for decrypt)</label>
+        <textarea id="plaintext" rows="6" placeholder="Type or paste text here..."></textarea>
+
+        <!-- symm options -->
+        <div style="margin-top:10px;font-weight:800">Symmetric (AES-GCM via password)</div>
+        <div class="row" aria-label="symmetric controls">
+          <input id="symPassword" type="text" placeholder="Passphrase for AES (keep secret)" aria-label="passphrase"/>
+          <select id="symAlgo">
+            <option value="aes-gcm-256">AES-GCM (256)</option>
+            <option value="aes-gcm-128">AES-GCM (128)</option>
+          </select>
+          <button id="symEncrypt" class="btn primary">Encrypt</button>
+          <button id="symDecrypt" class="btn ghost">Decrypt</button>
+        </div>
+        <div class="small">Uses PBKDF2 (SHA-256) with random salt and AES-GCM. Output is Base64 JSON package.</div>
+
+        <hr style="margin:12px 0;border:none;border-top:1px dashed rgba(255,255,255,0.04)"/>
+
+        <!-- asymm -->
+        <div style="font-weight:800;margin-top:6px">Asymmetric (RSA-OAEP)</div>
+        <div class="row" style="margin-top:6px">
+          <button id="genRsa" class="btn primary">Generate RSA Keypair (2048)</button>
+          <button id="exportPub" class="btn ghost" disabled>Export Public PEM</button>
+          <button id="exportPriv" class="btn ghost" disabled>Export Private PEM</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <textarea id="rsaPubArea" rows="3" placeholder="Paste recipient public PEM here to encrypt (or export from above)"></textarea>
+        </div>
+        <div class="row" style="margin-top:6px">
+          <button id="rsaEncrypt" class="btn primary">Encrypt with Public Key</button>
+          <button id="rsaDecrypt" class="btn ghost">Decrypt with Private Key</button>
+        </div>
+        <div class="small">RSA-OAEP (SHA-256). RSA can encrypt small plaintexts (size limited by key and padding). For large data use AES + RSA key wrap.</div>
+
+        <hr style="margin:12px 0;border:none;border-top:1px dashed rgba(255,255,255,0.04)"/>
+
+        <!-- utilities -->
+        <div style="font-weight:800;margin-top:6px">Utilities</div>
+        <div class="row">
+          <select id="utilSelect">
+            <option value="base64-encode">Base64 Encode</option>
+            <option value="base64-decode">Base64 Decode</option>
+            <option value="hex-encode">Hex Encode</option>
+            <option value="hex-decode">Hex Decode</option>
+            <option value="reverse">Reverse Text</option>
+            <option value="caesar-3">Caesar Cipher (shift 3)</option>
+          </select>
+          <button id="utilRun" class="btn ghost">Run</button>
+          <button id="clearBtn" class="btn ghost">Clear</button>
+        </div>
+
+        <div class="controls" style="margin-top:12px">
+          <button id="copyOut" class="btn ghost">Copy Output</button>
+          <button id="downloadOut" class="btn ghost">Download Output (.txt)</button>
+        </div>
+
+        <div class="log" id="log" aria-live="polite">Ready. All operations local to your browser.</div>
+
+        <div class="notice">
+          <strong>Security note:</strong> AES uses random salt & IV. RSA private keys should remain secret — do not paste private PEMs into untrusted sites. This tool is for learning & safe demos.
+        </div>
+      </section>
+
+      <!-- sidebar -->
+      <aside class="panel" aria-labelledby="helpTitle">
+        <h3 id="helpTitle" style="color:var(--accent)">Help & Key Management</h3>
+        <p class="small">Symmetric encrypt output format (Base64 JSON): contains salt, iv, alg and ciphertext. To decrypt supply the same passphrase.</p>
+
+        <p style="margin-top:8px;font-weight:800">Examples / Quicktips</p>
+        <ul class="small" style="margin-top:6px">
+          <li>To encrypt long text: use AES (Symmetric). Share passphrase securely.</li>
+          <li>To share securely with someone: generate RSA keypair, export their public key, use RSA to encrypt AES key (hybrid). This UI shows direct RSA for small text.</li>
+          <li>Always verify keys, backup private keys securely (offline).</li>
+        </ul>
+
+        <h4 style="margin-top:12px;color:var(--accent)">Download / Import</h4>
+        <p class="small">Exported PEM files can be saved. To import keys extend: (not implemented) — import PEM -> CryptoKey using helper.</p>
+
+        <h4 style="margin-top:12px;color:var(--accent)">Legal</h4>
+        <p class="small">Use responsibly. Do not encrypt to conceal illegal activity. This UI does not transmit data anywhere.</p>
+      </aside>
+    </main>
+
+<script>
+/* ===========================
+   Helper binary/string utils
+   =========================== */
+function str2ab(str){ return new TextEncoder().encode(str); }
+function ab2str(ab){ return new TextDecoder().decode(ab); }
+function ab2b64(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+function b642ab(b64){ const bin = atob(b64); const len = bin.length; const arr = new Uint8Array(len); for(let i=0;i<len;i++) arr[i]=bin.charCodeAt(i); return arr.buffer; }
+function buf2hex(buffer){ return Array.from(new Uint8Array(buffer)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+function hex2buf(hex){ const bytes = new Uint8Array(hex.match(/.{1,2}/g).map(b=>parseInt(b,16))); return bytes.buffer; }
+function log(msg){ const el = document.getElementById('log'); el.textContent = (new Date()).toLocaleTimeString()+ ' • ' + msg + '\n' + el.textContent; }
+
+/* ===========================
+   Symmetric: PBKDF2 -> AES-GCM
+   =========================== */
+async function deriveKeyFromPassword(password, salt, keyLen=256){
+  // password: string, salt: Uint8Array
+  const baseKey = await crypto.subtle.importKey('raw', str2ab(password), 'PBKDF2', false, ['deriveKey']);
+  const derived = await crypto.subtle.deriveKey({
+    name:'PBKDF2',
+    salt: salt,
+    iterations: 200000, // high iter for security (adjust per perf)
+    hash:'SHA-256'
+  }, baseKey, { name: 'AES-GCM', length: keyLen }, false, ['encrypt','decrypt']);
+  return derived;
+}
+async function aesEncrypt(password, plaintext, alg='aes-gcm-256'){
+  const keyLen = alg.includes('256') ? 256 : 128;
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKeyFromPassword(password, salt, keyLen);
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv: iv}, key, str2ab(plaintext));
+  // package metadata
+  const out = {
+    v:1,
+    alg: alg,
+    salt: ab2b64(salt.buffer),
+    iv: ab2b64(iv.buffer),
+    ct: ab2b64(ct)
+  };
+  return btoa(JSON.stringify(out)); // double-encoded for easy paste
+}
+async function aesDecrypt(password, pkgB64){
+  try{
+    const json = atob(pkgB64);
+    const obj = JSON.parse(json);
+    const salt = new Uint8Array(b642ab(obj.salt));
+    const iv = new Uint8Array(b642ab(obj.iv));
+    const ct = b642ab(obj.ct);
+    const keyLen = obj.alg.includes('256') ? 256 : 128;
+    const key = await deriveKeyFromPassword(password, salt, keyLen);
+    const ptab = await crypto.subtle.decrypt({name:'AES-GCM', iv: iv}, key, ct);
+    return ab2str(ptab);
+  }catch(e){
+    throw new Error('Decrypt failed: '+ (e.message || e));
+  }
+}
+
+/* ===========================
+   Asymmetric: RSA-OAEP (PEM export/import)
+   =========================== */
+let rsaKeyPair = null;
+
+async function generateRsaKey(){
+  rsaKeyPair = await crypto.subtle.generateKey({
+    name: "RSA-OAEP",
+    modulusLength: 2048,
+    publicExponent: new Uint8Array([1,0,1]),
+    hash: "SHA-256"
+  }, true, ["encrypt","decrypt"]);
+  log('RSA keypair generated (2048-bit).');
+  document.getElementById('exportPub').disabled = false;
+  document.getElementById('exportPriv').disabled = false;
+}
+
+// Export CryptoKey -> PEM
+async function exportPublicKeyToPem(pubKey){
+  const spki = await crypto.subtle.exportKey('spki', pubKey);
+  const b64 = ab2b64(spki);
+  const pem = '-----BEGIN PUBLIC KEY-----\n' + b64.match(/.{1,64}/g).join('\n') + '\n-----END PUBLIC KEY-----';
+  return pem;
+}
+async function exportPrivateKeyToPem(privKey){
+  const pkcs8 = await crypto.subtle.exportKey('pkcs8', privKey);
+  const b64 = ab2b64(pkcs8);
+  const pem = '-----BEGIN PRIVATE KEY-----\n' + b64.match(/.{1,64}/g).join('\n') + '\n-----END PRIVATE KEY-----';
+  return pem;
+}
+
+// Import PEM -> CryptoKey (public)
+async function importPublicKeyFromPem(pem){
+  const b64 = pem.replace(/-----.*KEY-----/g,'').replace(/\s+/g,'');
+  const binary = b642ab(b64);
+  return crypto.subtle.importKey('spki', binary, {name:'RSA-OAEP', hash:'SHA-256'}, true, ['encrypt']);
+}
+// Import private PEM
+async function importPrivateKeyFromPem(pem){
+  const b64 = pem.replace(/-----.*KEY-----/g,'').replace(/\s+/g,'');
+  const binary = b642ab(b64);
+  return crypto.subtle.importKey('pkcs8', binary, {name:'RSA-OAEP', hash:'SHA-256'}, true, ['decrypt']);
+}
+
+// RSA encrypt/decrypt (small payloads)
+async function rsaEncryptWithPem(pubPem, plaintext){
+  const pub = await importPublicKeyFromPem(pubPem);
+  const ct = await crypto.subtle.encrypt({name:'RSA-OAEP'}, pub, str2ab(plaintext));
+  return ab2b64(ct);
+}
+async function rsaDecryptWithPrivateKey(privKeyObj, b64ct){
+  // privKeyObj: CryptoKey or PEM import outside
+  const ct = b642ab(b64ct);
+  const ptab = await crypto.subtle.decrypt({name:'RSA-OAEP'}, privKeyObj, ct);
+  return ab2str(ptab);
+}
+
+/* ===========================
+   UI Bindings
+   =========================== */
+document.getElementById

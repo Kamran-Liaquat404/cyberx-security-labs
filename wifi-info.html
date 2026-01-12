@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Wireless Network Simulator (Education)</title>
+
+<meta name="description" content="Frontend-only Wi-Fi (IEEE 802.11) educational simulator. Visualizes how wireless networks work using simulated data. No real scanning. No backend." />
+
+<style>
+:root{
+  --bg:#050505;
+  --neon:#ff3b3b;
+  --accent:#00ff88;
+  --muted:#9fb3a0;
+  --panel:rgba(10,10,10,0.85);
+  --glass:rgba(255,255,255,0.04);
+  --mono: ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+  background:linear-gradient(180deg,#000,#040404 70%);
+  color:#e8fff3;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+}
+.wrap{max-width:1200px;margin:20px auto;padding:20px}
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+.brand{
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:1px;
+  color:var(--neon);
+}
+.sub{color:var(--muted);font-size:14px}
+
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  font-weight:800;
+  background:rgba(255,0,0,.15);
+  color:#ff6b6b;
+  border:1px solid rgba(255,0,0,.3);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 360px;
+  gap:18px;
+  margin-top:18px;
+}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+
+.panel{
+  background:var(--panel);
+  border-radius:var(--radius);
+  padding:16px;
+  border:1px solid var(--glass);
+  box-shadow:0 20px 40px rgba(0,0,0,.6);
+}
+
+h1{margin:0;color:var(--accent);font-size:22px}
+h3{margin:0;color:var(--neon);font-size:15px}
+
+.card{
+  margin-top:14px;
+  padding:12px;
+  border-radius:12px;
+  background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.03);
+}
+
+.controls{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+button{
+  padding:10px 14px;
+  border-radius:10px;
+  border:none;
+  cursor:pointer;
+  font-weight:800;
+}
+.btn-main{
+  background:linear-gradient(90deg,#00cc66,#00ff88);
+  color:#003319;
+}
+.btn-ghost{
+  background:transparent;
+  color:var(--muted);
+  border:1px solid rgba(255,255,255,.06);
+}
+
+.table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:8px;
+  font-family:var(--mono);
+  font-size:13px;
+}
+.table th,.table td{
+  padding:8px;
+  border-bottom:1px dashed rgba(255,255,255,.04);
+}
+.table th{color:var(--accent)}
+
+.signal{
+  height:6px;
+  background:#222;
+  border-radius:4px;
+  overflow:hidden;
+}
+.signal span{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,#00ff88,#ff3b3b);
+}
+
+.client{
+  padding:8px;
+  border-bottom:1px dashed rgba(255,255,255,.05);
+  font-family:var(--mono);
+  font-size:13px;
+}
+
+.small{font-size:13px;color:var(--muted)}
+
+.log{
+  margin-top:12px;
+  padding:10px;
+  background:rgba(255,255,255,.03);
+  border-radius:8px;
+  font-family:var(--mono);
+  font-size:13px;
+  max-height:140px;
+  overflow:auto;
+}
+
+footer{
+  margin-top:14px;
+  font-size:12px;
+  color:var(--muted);
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <div class="brand">Wireless Network Simulator</div>
+    <div class="sub">IEEE 802.11 • Educational Visualization</div>
+  </div>
+</header>
+
+<main class="grid">
+
+<!-- LEFT -->
+<section class="panel">
+<h1>Wi-Fi Environment (Simulated)</h1>
+
+<div class="controls">
+  <button class="btn-main" id="btnGenerate">Generate New Scenario</button>
+  <button class="btn-ghost" id="btnExplain">Explain Fields</button>
+</div>
+
+<div class="card">
+<h3>Access Point (Simulated)</h3>
+<table class="table">
+<tr><th>SSID</th><td id="ssid">—</td></tr>
+<tr><th>BSSID</th><td id="bssid">—</td></tr>
+<tr><th>Channel</th><td id="channel">—</td></tr>
+<tr><th>Encryption</th><td id="security">—</td></tr>
+<tr>
+<th>Signal Strength</th>
+<td>
+  <div class="signal"><span id="signalBar"></span></div>
+  <span id="signalText"></span>
+</td>
+</tr>
+<tr><th>Throughput</th><td id="txrate">—</td></tr>
+<tr><th>Local IP</th><td id="localip">—</td></tr>
+<tr><th>Gateway</th><td id="gateway">—</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Associated Stations (Clients)</h3>
+<div class="small">Simulated devices connected to the access point</div>
+<div id="clients"></div>
+</div>
+
+<div class="log" id="log">
+Simulation ready. No real Wi-Fi data is accessed.
+</div>
+</section>
+
+<!-- RIGHT -->
+<aside class="panel">
+<div class="card">
+<h3>How Wi-Fi Works</h3>
+<ul class="small">
+<li><b>SSID</b> – Network name broadcasted by router</li>
+<li><b>BSSID</b> – MAC address of access point</li>
+<li><b>Channel</b> – Radio frequency path</li>
+<li><b>WPA2/WPA3</b> – Encryption standards</li>
+<li><b>Signal</b> – Depends on distance & interference</li>
+</ul>
+</div>
+
+<div class="card">
+<h3>Legal & Ethics</h3>
+<p class="small">
+This simulator does NOT scan real networks.<br>
+It generates fake data for learning purposes only.<br>
+No hacking, no monitoring, no exploitation.
+</p>
+</div>
+
+<div class="card">
+<h3>Use Cases</h3>
+<ul class="small">
+<li>Cybersecurity fundamentals</li>
+<li>Wi-Fi architecture learning</li>
+<li>Classroom & demo labs</li>
+<li>Concept visualization</li>
+</ul>
+</div>
+</aside>
+
+</main>
+
+<footer>
+Educational Wi-Fi Simulator
+</footer>
+
+</div>
+
+<script>
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function mac(){return Array.from({length:6},()=>("0"+Math.floor(Math.random()*256).toString(16)).slice(-2)).join(":")}
+
+function generate(){
+  const ssids=["HomeNet","CampusWiFi","SecureLab","IoT-Zone","GuestNet"];
+  const sec=["WPA2-PSK","WPA3-SAE","WPA2/WPA3"];
+  const ch=[1,6,11,36,40,44];
+  const signal=Math.floor(40+Math.random()*60);
+
+  document.getElementById("ssid").textContent=rand(ssids);
+  document.getElementById("bssid").textContent=mac();
+  document.getElementById("channel").textContent=rand(ch);
+  document.getElementById("security").textContent=rand(sec);
+  document.getElementById("txrate").textContent=(50+Math.floor(Math.random()*400))+" Mbps";
+  document.getElementById("localip").textContent="192.168.1."+Math.floor(Math.random()*100+20);
+  document.getElementById("gateway").textContent="192.168.1.1";
+  document.getElementById("signalText").textContent=signal+"%";
+  document.getElementById("signalBar").style.width=signal+"%";
+
+  const clients=document.getElementById("clients");
+  clients.innerHTML="";
+  const count=Math.floor(Math.random()*5)+1;
+  for(let i=0;i<count;i++){
+    const d=document.createElement("div");
+    d.className="client";
+    d.innerHTML=`IP: 192.168.1.${100+i} • MAC: ${mac()} • Device: ${rand(["Phone","Laptop","TV","Camera","IoT"])}`;
+    clients.appendChild(d);
+  }
+
+  log("New simulated Wi-Fi scenario generated.");
+}
+
+function log(t){
+  const l=document.getElementById("log");
+  l.textContent=new Date().toLocaleTimeString()+" • "+t+"\n"+l.textContent;
+}
+
+document.getElementById("btnGenerate").onclick=generate;
+document.getElementById("btnExplain").onclick=()=>alert("This tool visually explains how Wi-Fi networks work using simulated data only.");
+
+generate();
+</script>
+</body>
+</html>

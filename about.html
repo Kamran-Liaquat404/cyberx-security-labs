@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About CyberX | Ethical Security Platform</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:#000;
+  color:#fff;
+  font-family:"Courier New", monospace;
+  line-height:1.6;
+  overflow-x:hidden;
+}
+
+/* ===== HEADER ===== */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 24px;
+  border-bottom:1px solid #111;
+}
+
+.logo{
+  font-size:22px;
+  letter-spacing:2px;
+  font-weight:bold;
+}
+.logo span{color:#0f0}
+
+/* ===== THREE DOT MENU ===== */
+.menu-btn{
+  font-size:26px;
+  cursor:pointer;
+  user-select:none;
+}
+
+/* ===== DROPDOWN ===== */
+.dropdown{
+  position:fixed;
+  top:0;
+  right:18px;
+  width:220px;
+  background:#050505;
+  border:1px solid #222;
+  transform:translateY(-120%);
+  transition:0.35s ease;
+  z-index:999;
+  box-shadow:0 15px 40px rgba(0,0,0,0.8);
+}
+.dropdown.active{transform:translateY(60px)}
+.dropdown a{
+  display:block;
+  padding:12px 16px;
+  color:#ccc;
+  text-decoration:none;
+  border-bottom:1px solid #111;
+}
+.dropdown a:hover{
+  background:#0a0a0a;
+  color:#0f0;
+}
+
+/* ===== CONTAINER ===== */
+.container{
+  max-width:950px;
+  margin:40px auto;
+  padding:0 18px;
+}
+
+/* ===== SECTION ===== */
+.section{
+  margin-top:35px;
+  padding:24px;
+  background:#050505;
+  border:1px solid #111;
+  border-radius:6px;
+}
+.section h2{
+  color:#0f0;
+  margin-bottom:12px;
+  letter-spacing:1px;
+}
+.section p{
+  color:#ccc;
+  font-size:14px;
+  margin-bottom:12px;
+}
+
+/* HIGHLIGHT */
+.section span{
+  color:#ff4444;
+  font-weight:bold;
+}
+
+/* ===== FOOTER ===== */
+footer{
+  margin-top:60px;
+  padding:16px 24px;
+  text-align:center;
+  border-top:1px solid #111;
+  font-size:14px;
+  color:#ccc;
+}
+footer a{
+  color:#0f0;
+  text-decoration:none;
+  margin:0 10px;
+}
+footer a:hover{color:#ff4444}
+
+/* ===== BUTTON-LIKE LINKS ===== */
+.link-btn{
+  display:inline-block;
+  padding:8px 14px;
+  margin:4px 4px;
+  color:#0f0;
+  border:1px solid #0f0;
+  border-radius:4px;
+  text-decoration:none;
+  font-size:14px;
+  transition:0.2s ease;
+}
+.link-btn:hover{
+  color:#ff4444;
+  border-color:#ff4444;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Cyber<span>X</span></div>
+  <div class="menu-btn" id="menuBtn">⋮</div>
+</header>
+
+<!-- DROPDOWN -->
+<div class="dropdown" id="dropdown">
+  <a href="index.html">Dashboard</a>
+  <a href="about.html">About</a>
+  <a href="terms.html">Terms & Policies</a>
+  <a href="contact.html">Contact</a>
+  <a href="support&donation.html">Support & Donation</a>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="container">
+
+  <!-- SECTION 1: INTRODUCTION -->
+  <div class="section">
+    <h2>ABOUT CYBERX</h2>
+    <p>
+      CyberX is a fully <span>legal</span> ethical security platform, built for learners who want to explore the world of cybersecurity in a safe environment.
+      It was founded by <span>Kamran Liaquat</span> in <span>2023</span> to provide an educational hub for anyone interested in ethical hacking and digital security.
+    </p>
+    <p>
+      The platform simulates real-world security tools and concepts, allowing beginners and intermediate learners to understand networks, systems, and cybersecurity threats without risking real systems.
+    </p>
+  </div>
+
+  <!-- SECTION 2: FEATURES -->
+  <div class="section">
+    <h2>FEATURES & LEARNING</h2>
+    <p>
+      CyberX provides a <span>terminal-inspired interface</span> and practical modules including:
+      <ul style="margin:6px 0 6px 20px; color:#ccc;">
+        <li>Ethical Hacking Labs</li>
+        <li>Linux Lab Simulations</li>
+        <li>Email Breach & Password Checker</li>
+        <li>Port Scanning & IP Tracking</li>
+        <li>Text Encryption & Decryption Tools</li>
+        <li>Cryptography Labs & Simulations</li>
+        <li>Cybersecurity News & Dark Web Awareness</li>
+      </ul>
+    </p>
+    <p>
+      Each module is designed for <span>beginner-friendly learning</span> but also valuable for intermediate students. 
+      Users can follow a clear <span>ethical hacking roadmap</span> and gradually improve their cybersecurity skills in a safe environment.
+    </p>
+  </div>
+
+  <!-- SECTION 3: ETHICAL NOTICE -->
+  <div class="section">
+    <h2>ETHICAL NOTICE</h2>
+    <p>
+      All activities on CyberX are <span>100% legal</span>. This platform is intended for learning purposes only.
+      Any attempt to misuse tools in real-world illegal activities is strictly discouraged. The goal is <span>knowledge building and awareness</span>.
+    </p>
+    <p>
+      By supporting this platform via <a class="link-btn" href="support&donation.html">donation</a>, you help us continue developing free and safe learning resources.
+    </p>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a href="contact.html">Contact</a> |
+  <a href="terms.html">Terms & Policies</a> |
+  <a href="about.html">About</a> |
+  <a href="support&donation.html">Support & Donation</a>
+  <p style="margin-top:6px;">&copy; 2026 CyberX All Rights Reserved</p>
+</footer>
+
+<script>
+const menuBtn = document.getElementById("menuBtn");
+const dropdown = document.getElementById("dropdown");
+
+menuBtn.onclick = () => {
+  dropdown.classList.toggle("active");
+};
+
+document.addEventListener("click", (e) => {
+  if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.remove("active");
+  }
+});
+</script>
+
+</body>
+</html>

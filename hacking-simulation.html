@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>BlackHat Simulator — Fun / Fake Hacker Terminal</title>
+<meta name="description" content="BlackHat Simulator — purely visual, fake-only hacker terminal for entertainment. No real hacking performed." />
+<style>
+  :root{
+    --bg:#000;
+    --panel:rgba(12,12,12,0.78);
+    --neon-green:#00ff6a;
+    --neon-red:#ff3b3b;
+    --muted:#9fb3a0;
+    --glass: rgba(255,255,255,0.03);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0;background:#000;color:#cfeee1;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+  /* matrix background */
+  canvas#matrix{position:fixed;inset:0;z-index:-3;display:block;filter:contrast(1.02) blur(.15px)}
+  .overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.25),rgba(0,0,0,0.92));z-index:-2}
+  .wrap{max-width:1200px;margin:18px auto;padding:18px;position:relative;z-index:3}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{font-weight:900;color:var(--neon-red);letter-spacing:1px;font-size:20px;text-shadow:0 0 20px rgba(255,60,60,0.06)}
+  .sub{color:var(--muted);font-size:13px}
+
+  .grid{display:grid;grid-template-columns:1fr 420px;gap:18px;margin-top:14px}
+  @media(max-width:980px){ .grid{grid-template-columns:1fr} }
+
+  .panel{background:var(--panel);padding:12px;border-radius:var(--radius);border:1px solid var(--glass);box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+  .terminal{background:#000;border-radius:10px;padding:12px;box-shadow:inset 0 0 60px rgba(0,0,0,0.6);font-family:var(--mono);font-size:13px;color:var(--neon-green);line-height:1.45;overflow:auto;max-height:540px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+  button{padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:800}
+  .btn-red{background:linear-gradient(90deg,var(--neon-red),#990000);color:#fff}
+  .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  .btn-green{background:linear-gradient(90deg,#00cc66,var(--neon-green));color:#002a10}
+  .module{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .card{background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+  .progress{height:12px;background:rgba(255,255,255,0.03);border-radius:999px;overflow:hidden;margin-top:8px}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,#00ff66,#66ffcc);width:0%;transition:width .34s linear}
+  .faux-output{font-family:var(--mono);font-size:13px;white-space:pre-wrap;color:#bfffd6}
+  .danger{color:var(--neon-red);font-weight:900}
+  .muted{color:var(--muted)}
+  .kbd{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:6px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .toggle{display:inline-flex;align-items:center;gap:6px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
+  .small{font-size:13px;color:var(--muted)}
+  .danger-flash{animation:flash 1.2s linear infinite}
+  @keyframes flash{0%{opacity:1}50%{opacity:.35}100%{opacity:1}}
+  .theme-toggle{display:flex;gap:8px;align-items:center}
+  .theme-dot{width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid rgba(255,255,255,0.06)}
+  .green-dot{background:var(--neon-green)} .red-dot{background:var(--neon-red)}
+  footer{margin-top:18px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+  .sr-only{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+  <div class="overlay" aria-hidden="true"></div>
+
+  <div class="wrap" role="application" aria-label="BlackHat Simulator (Fake)">
+    <header>
+      <div>
+        <div class="brand">BlackHat Simulator — Entertainment (Fake)</div>
+        <div class="sub">All simulated, for show only — no real hacking or network actions</div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center">
+        <div class="theme-toggle" title="Theme">
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- LEFT: Terminal & Modules -->
+      <section class="panel" aria-labelledby="terminalTitle">
+        <h2 id="terminalTitle" style="margin:0;color:var(--neon-green)">Terminal Simulator</h2>
+        <p class="small">This page is an advanced **visual simulation**. Nothing on this page performs real attacks or accesses external systems.</p>
+
+        <div class="toolbar" role="toolbar" aria-label="Simulator controls">
+          <div style="display:flex;gap:8px">
+            <button id="startAll" class="btn-red" aria-label="Start full simulation sequence">START SHOW</button>
+            <button id="pauseBtn" class="btn-ghost" aria-label="Pause current sequence">PAUSE</button>
+            <button id="restartBtn" class="btn-green" aria-label="Restart simulation">RESTART</button>
+          </div>
+
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+            <label class="toggle" title="Enable sound"><input id="soundToggle" type="checkbox" /> Sound</label>
+            <label class="toggle" title="Auto-run minor commands"><input id="autoCmd" type="checkbox" /> Auto commands</label>
+            <button id="dumpLog" class="btn-ghost" aria-label="Export log">Export Log</button>
+          </div>
+        </div>
+
+        <div id="terminal" class="terminal" role="log" aria-live="polite" tabindex="0" aria-label="Simulation terminal">
+          <!-- programmatic text goes here -->
+        </div>
+
+        <div class="module">
+          <div class="card">
+            <strong>Fake Modules</strong>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+              <button class="btn-ghost" data-module="wifi">WiFi Breach (SIM)</button>
+              <button class="btn-ghost" data-module="social">Social Media Takeover (SIM)</button>
+              <button class="btn-ghost" data-module="payments">Payment Scan (SIM)</button>
+              <button class="btn-ghost" data-module="proxy">Proxy Chain (SIM)</button>
+              <button class="btn-ghost" data-module="payload">Payload Packager (SIM)</button>
+              <button class="btn-ghost" data-module="darkweb">Dark Web Tunnel (SIM)</button>
+            </div>
+            <div class="small muted" style="margin-top:8px">Click a module to see its visual sequence. All steps are synthetic and safe.</div>
+          </div>
+
+          <div id="modulePanel" class="card" style="min-height:120px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <strong id="moduleTitle">Idle</strong>
+              <div class="small">Status: <span id="moduleStatus" class="muted">waiting</span></div>
+            </div>
+            <div id="moduleBody" class="faux-output" style="margin-top:10px">Select a module to run a simulated demo.</div>
+            <div class="progress" aria-hidden="true"><i id="moduleProgress"></i></div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap">
+          <div class="card" style="flex:1">
+            <strong>Quick Actions</strong>
+            <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+              <button id="runSequence" class="btn-ghost">Play Cinematic</button>
+              <button id="runTyping" class="btn-ghost">Typing Demo</button>
+              <button id="panicBtn" class="btn-red">CINEMATIC ALERT</button>
+            </div>
+            <div class="small muted" style="margin-top:8px">Use these for a dramatic demo — safe and local-only.</div>
+          </div>
+
+          <div class="card" style="width:300px">
+            <strong>Session Stats</strong>
+            <table>
+              <tbody>
+                <tr><th>Uptime</th><td id="statUptime">0s</td></tr>
+                <tr><th>Modules run</th><td id="statModules">0</td></tr>
+                <tr><th>Lines generated</th><td id="statLines">0</td></tr>
+                <tr><th>Last event</th><td id="statLast">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="footer-note" role="note">
+      </section>
+
+      <!-- RIGHT: Visuals, Controls, Replay -->
+      <aside class="panel" aria-labelledby="visualTitle">
+        <h3 id="visualTitle" style="color:var(--neon-green)">Visual & Audio Controls</h3>
+
+        <div class="card">
+          <strong>Typing & Display</strong>
+          <div style="margin-top:8px">
+            <label class="small">Typing speed (ms per char): <span id="speedLabel">35</span></label>
+            <input id="speedRange" type="range" min="5" max="120" value="35" style="width:100%" />
+            <label class="small" style="margin-top:8px">Terminal font size: <span id="fontLabel">13</span>px</label>
+            <input id="fontRange" type="range" min="11" max="18" value="13" style="width:100%" />
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Sounds</strong>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="playType" class="btn-ghost">Play Type Sound</button>
+            <button id="playSuccess" class="btn-ghost">Play Success Tone</button>
+          </div>
+          <div class="small muted" style="margin-top:8px">Enable sound above to hear effects while typing.</div>
+        </div>
+
+        <div class="card">
+          <strong>Save & Replay</strong>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button id="saveReplay" class="btn-green">Save Replay</button>
+            <button id="loadReplay" class="btn-ghost">Load Replay</button>
+            <button id="screenshot" class="btn-ghost">Export Snapshot</button>
+          </div>
+          <div class="small muted" style="margin-top:8px">Replays are stored in localStorage (local to your browser).</div>
+        </div>
+
+        <div class="card">
+          <strong>Fake Module Descriptions</strong>
+          <div class="small muted" style="margin-top:8px">
+            - WiFi (visual handshake + progress)<br/>
+            - Social Media (fake token emulation + read-only feed)<br/>
+            - Payments (synthetic BIN scan examples; no real cards)<br/>
+            - Proxy (animated hop chain)<br/>
+            - Payload (packaging demo, no execution)<br/>
+            - Dark Web (visual-only tunnel)
+          </div>
+        </div>
+      </aside>
+    </main>
+
+<script>
+/* ============================
+   BlackHat Simulator — English / Upgraded
+   Purely visual & client-side fake simulator
+   ============================ */
+
+
+/* ---------- Utilities & state ---------- */
+const terminal = document.getElementById('terminal');
+const moduleTitle = document.getElementById('moduleTitle');
+const moduleBody = document.getElementById('moduleBody');
+const moduleStatus = document.getElementById('moduleStatus');
+const moduleProgress = document.getElementById('moduleProgress');
+const statUptime = document.getElementById('statUptime');
+const statModules = document.getElementById('statModules');
+const statLines = document.getElementById('statLines');
+const statLast = document.getElementById('statLast');
+
+let session = {
+  start: Date.now(),
+  modulesRun: 0,
+  lines: 0,
+  running: false,
+  autoCmd: false,
+  sound: false
+};
+
+function formatTime(s){ return s + 's'; }
+
+/* ---------- Logging & terminal ---------- */
+function appendLine(text, options = {}) {
+  const time = new Date().toLocaleTimeString();
+  const d = document.createElement('div');
+  d.textContent = `[${time}] ${text}`;
+  if(options.color === 'red') d.style.color = 'var(--neon-red)';
+  if(options.color === 'green') d.style.color = 'var(--neon-green)';
+  if(options.blink) d.classList.add('danger-flash');
+  terminal.appendChild(d);
+  terminal.scrollTop = terminal.scrollHeight;
+  session.lines++;
+  document.getElementById('statLines').textContent = session.lines;
+  statLast.textContent = text.slice(0,80);
+}
+function clearTerminal(){ terminal.innerHTML=''; session.lines = 0; document.getElementById('statLines').textContent = 0; }
+
+/* ---------- Typing effect ---------- */
+function getSpeed(){ return Number(localStorage.getItem('sim_speed') || document.getElementById('speedRange').value || 35); }
+function typeText(text, color){
+  return new Promise(resolve=>{
+    let i = 0;
+    const el = document.createElement('div');
+    terminal.appendChild(el);
+    function step(){
+      if(i >= text.length){ session.lines++; document.getElementById('statLines').textContent = session.lines; terminal.scrollTop = terminal.scrollHeight; resolve(); return; }
+      el.textContent = text.slice(0,i+1);
+      if(color) el.style.color = color;
+      i++;
+      terminal.scrollTop = terminal.scrollHeight;
+      if(session.sound) playTypeSound();
+      setTimeout(step, getSpeed());
+    }
+    step();
+  });
+}
+
+/* ---------- Sound functions ---------- */
+const audioCtx = (typeof AudioContext !== 'undefined') ? new AudioContext() : null;
+function beep(freq=880, dur=0.08){
+  if(!audioCtx) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = 'sine'; o.frequency.value = freq;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start();
+  g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+  o.stop(audioCtx.currentTime + dur + 0.02);
+}
+function playTypeSound(){ beep(1200,0.02); }
+function playSuccess(){ beep(1500,0.12); setTimeout(()=>beep(980,0.07),160); }
+
+/* ---------- Fake module sequences ---------- */
+const modules = {
+  wifi: {
+    title: 'WiFi Breach (SIMULATED)',
+    seq: [
+      {t:'Scanning local wireless interfaces...', wait:600},
+      {t:'Found access points: [HomeNet] [Office] [SpideZone] ...', wait:800},
+      {t:'Target selected: SpideZone (5GHz) BSSID: DE:AD:BE:EF:01', wait:1000},
+      {t:'Simulating handshake fuzzing (visual only)...', wait:1200},
+      {t:'Cracking handshake — synthetic progress [18%]', wait:950, prog:18},
+      {t:'Progress: synthetic update [45%]', wait:900, prog:45},
+      {t:'Progress: synthetic update [72%]', wait:900, prog:72},
+      {t:'Handshake simulated -> session token (fake): s3ss_FAKE_01', wait:700, col:'green'},
+      {t:'Opening read-only demo session (no real access)', wait:700}
+    ]
+  },
+  social: {
+    title: 'Social Media Takeover (SIMULATED)',
+    seq: [
+      {t:'Launching OAuth simulation...', wait:700},
+      {t:'Generating demo token: tk_demo_7b2d...', wait:600},
+      {t:'Simulating session replay visualization (read-only)', wait:900, col:'green'},
+      {t:'Enumerating fake followers list (simulated): 1,230 entries', wait:700}
+    ]
+  },
+  payments: {
+    title: 'Payment Scan (SIMULATED)',
+    seq: [
+      {t:'Loading BIN scanner (demo)...', wait:600},
+      {t:'Scanning BIN range 400000-400999 (synthetic)', wait:1100},
+      {t:'Results: 6 synthetic BINs (placeholders only)', wait:800},
+      {t:'Masking numbers: 400000xxxxxx1234 (FAKE demo)', wait:700}
+    ]
+  },
+  proxy: {
+    title: 'Proxy Chain (SIMULATED)',
+    seq: [
+      {t:'Spawning virtual proxy chain (3 hops)...', wait:600},
+      {t:'[hop1] node-32.fake -> [hop2] node-77.fake -> [hop3] node-09.fake', wait:900},
+      {t:'Establishing visual tunnel: heartbeat OK', wait:700, col:'green'}
+    ]
+  },
+  payload: {
+    title: 'Payload Packager (SIMULATED)',
+    seq: [
+      {t:'Compiling demo payload...', wait:700},
+      {t:'Obfuscating payload (visual only)...', wait:900},
+      {t:'Packaging into container: fake_container_01', wait:700},
+      {t:'Staging complete (no execution performed)', wait:700, col:'green'}
+    ]
+  },
+  darkweb: {
+    title: 'Dark Web Tunnel (SIMULATED)',
+    seq: [
+      {t:'Initializing onion-like tunnel (demo)...', wait:900},
+      {t:'Selecting rendezvous nodes...', wait:700},
+      {t:'Connecting: node-a -> node-b -> node-c (visual only)', wait:1000},
+      {t:'Handshake complete (demo) — traffic not routed', wait:700}
+    ]
+  }
+};
+
+/* ---------- Module runner ---------- */
+let currentTask = null;
+async function runModule(key){
+  if(!modules[key]) return;
+  if(currentTask && currentTask.cancel){ currentTask.cancel = true; }
+  currentTask = {cancel:false};
+  const mod = modules[key];
+  moduleTitle.textContent = mod.title;
+  moduleBody.textContent = '';
+  moduleStatus.textContent = 'running';
+  moduleProgress.style.width = '0%';
+  session.modulesRun++; statModules.textContent = session.modulesRun;
+
+  for(let i=0;i<mod.seq.length;i++){
+    if(currentTask.cancel) break;
+    const step = mod.seq[i];
+    if(step.prog !== undefined){
+      const pct = Math.floor(step.prog);
+      moduleProgress.style.width = pct + '%';
+    }
+    // type to terminal
+    await typeText(step.t + (step.prog ? ` [${Math.floor(step.prog)}%]` : ''), step.col === 'green' ? 'green' : null);
+    moduleBody.textContent = step.t;
+    if(session.sound && step.col === 'green') playSuccess();
+    await new Promise(r => setTimeout(r, step.wait || 600));
+  }
+
+  if(!currentTask.cancel){
+    moduleStatus.textContent = 'complete';
+    moduleProgress.style.width = '100%';
+    appendLine(`${mod.title} — sequence complete`, {color:'green'});
+  } else {
+    moduleStatus.textContent = 'aborted';
+    appendLine(`${mod.title} — aborted`, {color:'red', blink:true});
+  }
+  currentTask = null;
+}
+
+/* ---------- Button wiring ---------- */
+document.querySelectorAll('[data-module]').forEach(btn => {
+  btn.addEventListener('click', () => runModule(btn.getAttribute('data-module')));
+});
+
+document.getElementById('startAll').addEventListener('click', async () => {
+  if(session.running) return;
+  session.running = true;
+  appendLine('Show started (cinematic mode)');
+  const order = ['wifi','proxy','social','payments','payload','darkweb'];
+  for(const k of order){
+    if(!session.running) break;
+    appendLine(`> Launching module: ${k}`);
+    await runModule(k);
+    await new Promise(r => setTimeout(r, 600));
+  }
+  appendLine('Full cinematic sequence complete', {color:'green'});
+  session.running = false;
+});
+
+document.getElementById('restartBtn').addEventListener('click', () => {
+  clearTerminal();
+  resetModuleUI();
+  session = {start: Date.now(), modulesRun:0, lines:0, running:false, autoCmd:session.autoCmd, sound:session.sound};
+  updateStats();
+  appendLine('Simulator restarted (clean)');
+});
+
+document.getElementById('pauseBtn').addEventListener('click', () => {
+  if(currentTask) currentTask.cancel = true;
+  session.running = false;
+  appendLine('Pause/abort requested', {color:'red'});
+});
+
+document.getElementById('runSequence').addEventListener('click', () => document.getElementById('startAll').click());
+document.getElementById('runTyping').addEventListener('click', async () => {
+  await typeText('> connecting to 45.12.33.7 ...');
+  await typeText('> handshake simulated...');
+  await typeText('> ACCESS GRANTED [SIMULATION]', 'green');
+  if(session.sound) playSuccess();
+});
+
+document.getElementById('panicBtn').addEventListener('click', () => {
+  appendLine('!!! CINEMATIC ALERT !!!', {color:'red', blink:true});
+  document.body.style.background = 'linear-gradient(180deg,#301010,#000)';
+  setTimeout(()=>{ document.body.style.background=''; }, 2600);
+});
+
+document.getElementById('dumpLog').addEventListener('click', () => {
+  const text = Array.from(terminal.children).map(c => c.textContent).join('\n');
+  const blob = new Blob([text], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'sim-log.txt'; a.click(); a.remove(); URL.revokeObjectURL(a.href);
+});
+
+document.getElementById('playType').addEventListener('click', ()=> playTypeSound());
+document.getElementById('playSuccess').addEventListener('click', ()=> playSuccess());
+
+/* ---------- Controls: speed, font, sound ---------- */
+const speedRange = document.getElementById('speedRange');
+const speedLabel = document.getElementById('speedLabel');
+const fontRange = document.getElementById('fontRange');
+const fontLabel = document.getElementById('fontLabel');
+
+speedRange.addEventListener('input', ()=> { speedLabel.textContent = speedRange.value; localStorage.setItem('sim_speed', speedRange.value); });
+fontRange.addEventListener('input', ()=> { fontLabel.textContent = fontRange.value; document.querySelector('.terminal').style.fontSize = fontRange.value + 'px'; });
+
+document.getElementById('soundToggle').addEventListener('change', (e) => { session.sound = e.target.checked; });
+document.getElementById('autoCmd').addEventListener('change', (e) => { session.autoCmd = e.target.checked; });
+
+/* ---------- Stats update ---------- */
+function updateStats(){
+  const up = Math.floor((Date.now() - session.start)/1000);
+  statUptime.textContent = formatTime(up);
+  statModules.textContent = session.modulesRun;
+  statLines.textContent = session.lines;
+}
+setInterval(updateStats, 1000);
+
+/* ---------- Module UI helpers ---------- */
+function resetModuleUI(){
+  moduleTitle.textContent = 'Idle';
+  moduleBody.textContent = 'Select a module to run a simulated demo.';
+  moduleStatus.textContent = 'waiting';
+  moduleProgress.style.width = '0%';
+}
+resetModuleUI();
+
+/* ---------- Replay save/load ---------- */
+document.getElementById('saveReplay').addEventListener('click', ()=>{
+  const lines = Array.from(terminal.children).map(c=>c.textContent);
+  localStorage.setItem('sim_replay_v2', JSON.stringify({savedAt: new Date().toISOString(), lines}));
+  alert('Replay saved locally.');
+});
+document.getElementById('loadReplay').addEventListener('click', ()=>{
+  const data = JSON.parse(localStorage.getItem('sim_replay_v2') || 'null');
+  if(!data){ alert('No replay found'); return; }
+  clearTerminal();
+  data.lines.forEach(l => {
+    const d = document.createElement('div'); d.textContent = l; terminal.appendChild(d);
+  });
+  terminal.scrollTop = terminal.scrollHeight;
+  alert('Replay loaded.');
+});
+
+/* ---------- Screenshot export (text snapshot) ---------- */
+document.getElementById('screenshot').addEventListener('click', ()=>{
+  const text = Array.from(terminal.children).map(c=>c.textContent).join('\n');
+  const blob = new Blob([text], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'terminal-snapshot.txt'; a.click(); a.remove(); URL.revokeObjectURL(a.href);
+  alert('Text snapshot saved.');
+});
+
+/* ---------- Auto commands (toy) ---------- */
+setInterval(()=>{
+  if(session.autoCmd && !session.running){
+    const demos = [
+      '> pinging 10.0.0.1 ... time=12ms',
+      '> enumerating subnets ... [ok]',
+      '> forging simulated session... [demo]'
+    ];
+    const line = demos[Math.floor(Math.random()*demos.length)];
+    typeText(line);
+  }
+}, 4500);
+
+/* ---------- Theme toggle ---------- */
+function setTheme(color){
+  const root = document.documentElement;
+  if(color === 'red'){
+    root.style.setProperty('--neon-green', '#ff6b6b');
+    root.style.setProperty('--neon-red', '#ff3b3b');
+    document.querySelectorAll('.terminal').forEach(t=> t.style.color = '#ff6b6b');
+  } else {
+    root.style.setProperty('--neon-green', '#00ff6a');
+    root.style.setProperty('--neon-red', '#ff3b3b');
+    document.querySelectorAll('.terminal').forEach(t=> t.style.color = '#00ff6a');
+  }
+}
+document.getElementById('themeGreen').addEventListener('click', ()=> setTheme('green'));
+document.getElementById('themeRed').addEventListener('click', ()=> setTheme('red'));
+
+/* ---------- Keyboard shortcuts ---------- */
+document.addEventListener('keydown', (e)=>{
+  if(e.ctrlKey && e.key === 'Enter'){ document.getElementById('runTyping').click(); }
+  if(e.key === 'r' || e.key === 'R'){ document.getElementById('restartBtn').click(); }
+  if(e.code === 'Space'){ e.preventDefault(); document.getElementById('pauseBtn').click(); }
+});
+
+/* ---------- Initial setup ---------- */
+document.querySelector('.terminal').style.fontSize = fontRange.value + 'px';
+speedLabel.textContent = speedRange.value;
+fontLabel.textContent = fontRange.value;
+appendLine('BlackHat Simulator (EN) ready — all simulated and local-only.');
+updateStats();
+</script>
+</body>
+</html>

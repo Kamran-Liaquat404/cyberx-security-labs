@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Sellable frontend: ethical hacking roadmap, labs, simulators & practice — demo-only, educational."/>
+  <meta name="theme-color" content="#060607" />
+  <style>
+    
+    /* ---------- THEME: Dark + Dangerous (professional) ---------- */
+    :root{
+      --bg:#040405;
+      --panel:#0b0e10;
+      --accent:#ff6b2f;
+      --accent-2:#ff2b2b;
+      --muted:#9db0b1;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      --maxw:1200px;
+      --gap:18px;
+      --success:#6ee7b7;
+      --danger:#ff6b6b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;padding:0}
+    body{
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(circle at 6% 8%, rgba(255,100,30,0.03), transparent 6%), linear-gradient(180deg,#000,#060607 60%);
+      color:#e6eef0;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:24px;
+      display:flex;
+      justify-content:center;
+    }
+    .container{width:100%;max-width:var(--maxw);display:grid;grid-template-columns:320px 1fr;gap:var(--gap);align-items:start}
+    @media (max-width:960px){ .container{grid-template-columns:1fr;padding:12px} }
+
+    /* Matrix background canvas sits under everything */
+    canvas#matrix{position:fixed;inset:0;z-index:-3;display:block;filter:contrast(1.05) saturate(0.95)}
+    .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.33), rgba(0,0,0,0.6));z-index:-2}
+
+    /* Sidebar */
+    aside{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:var(--radius);border:1px solid var(--glass);box-shadow:0 12px 36px rgba(0,0,0,0.7)}
+    .brand{font-weight:800;color:var(--accent);font-size:18px;letter-spacing:0.6px}
+    .sub{color:var(--muted);font-size:13px;margin-top:6px}
+    nav{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+    .nav-btn{background:transparent;color:inherit;border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:10px;text-align:left;cursor:pointer;font-weight:700}
+    .nav-btn:focus-visible{outline:3px solid rgba(255,107,44,0.14);outline-offset:3px}
+
+    /* Main area */
+    main{min-height:60vh}
+    .hero{background:linear-gradient(180deg, rgba(255,107,44,0.03), transparent);padding:18px;border-radius:var(--radius);border:1px solid rgba(255,255,255,0.02);box-shadow:0 10px 40px rgba(0,0,0,0.65)}
+    .hero-head{display:flex;justify-content:space-between;align-items:center}
+    .title{font-weight:900;font-size:20px}
+    .subtitle{color:var(--muted);font-size:13px}
+
+    .big-cta{display:flex;gap:10px}
+    .btn{padding:10px 12px;border-radius:10px;border:0;font-weight:800;cursor:pointer}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 10px 25px rgba(255,80,20,0.08)}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+
+    /* Roadmap */
+    .roadmap{margin-top:16px;display:grid;gap:10px}
+    .step{display:grid;grid-template-columns:56px 1fr 120px;gap:12px;align-items:center;padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.02)}
+    @media (max-width:640px){ .step{grid-template-columns:44px 1fr auto} }
+    .num{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;background:linear-gradient(180deg,var(--accent),var(--accent-2));box-shadow:0 8px 20px rgba(255,110,60,0.08)}
+    .step h4{margin:0;font-size:15px}
+    .step p{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .step .actions{display:flex;gap:8px;justify-content:flex-end}
+
+    /* Tools grid */
+    .tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+    .tool-card{padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+    .tool-card h5{margin:0;font-size:15px}
+    .tool-card p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    /* Command / code block */
+    pre.cmd{background:rgba(0,0,0,0.45);padding:10px;border-radius:8px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;color:#dfffdc;position:relative}
+    .copy{position:absolute;right:10px;top:8px;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,0.03);cursor:pointer;border:1px solid rgba(255,255,255,0.02);font-weight:700}
+
+    /* Modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:60}
+    .modal.show{display:flex}
+    .modal .panel{width:calc(100% - 40px);max-width:900px;background:linear-gradient(180deg,#071114,#0b1516);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 30px 80px rgba(0,0,0,0.8)}
+    .modal .panel h3{margin:0 0 8px 0}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* Terminal simulator */
+    .terminal{background:#020202;border-radius:8px;padding:12px;color:#9fffad;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;height:260px;overflow:auto;border:1px solid rgba(255,255,255,0.02)}
+    .term-input{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;margin-top:8px}
+
+    /* Quiz */
+    .quiz{display:flex;flex-direction:column;gap:12px}
+    .qcard{padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+    .options{display:flex;flex-direction:column;gap:8px}
+
+    /* Crypto */
+    .io-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .io-row textarea{flex:1;min-height:120px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
+
+   /* progress chips */
+    .tracker{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+    .chip{padding:8px 10px;border-radius:999px;background:rgba(255,255,255,0.02);color:var(--muted);font-weight:700}
+    .chip.done{background:linear-gradient(90deg, rgba(110,231,183,0.12), rgba(110,231,183,0.04));color:var(--success);border-color:rgba(110,231,183,0.06)}
+
+    /* footer note */
+    .legal{margin-top:12px;color:var(--muted);font-size:13px}
+
+    @media (max-width:520px){ .step{grid-template-columns:36px 1fr} .step .actions{display:none} }
+  </style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+  <div class="overlay" aria-hidden="true"></div>
+
+  <div class="container" role="application" aria-label="Ethical Hacking Lab">
+    
+    <!-- Sidebar -->
+    <aside aria-labelledby="brand">
+      <div id="brand" class="brand">Ethical Hacking</div>
+      <div class="sub">Complete Roadmap • Lab environment</div>
+
+      <nav aria-label="quick links">
+        <button class="nav-btn" data-scroll="roadmap">Roadmap</button>
+        <button class="nav-btn" data-scroll="tools">Tools</button>
+        <button class="nav-btn" data-scroll="practice">Practice</button>
+        <button class="nav-btn" data-scroll="license">License</button>
+      </nav>
+
+      <div style="margin-top:12px;font-size:13px;color:var(--muted)">
+        <strong>Courses Included</strong>
+        <ul style="padding-left:18px;margin-top:8px;color:var(--muted);line-height:1.5">
+          <li>Urdu/Hindi Complete Course</li>
+          <li>English Complete Course</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main>
+      <section class="hero">
+        <div class="hero-head">
+          <div>
+          </div>
+
+          <div class="big-cta">
+            <button id="saveProgress" class="btn btn-ghost" title="Save progress to browser">Save</button>
+            <button id="resetProgress" class="btn btn-ghost">Reset</button>
+            <button id="exportProgress" class="btn btn-primary">Export</button>
+          </div>
+        </div>
+
+        <!-- embedded course links -->
+        <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+          <a href="https://youtu.be/cKEf8H9cQGM?si=qDTd8BHHAAeKTX4H" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">Urdu / Hindi Full Course</a>
+          <a href="https://youtu.be/dz7Ntp7KQGA?si=8rLq7pdQESWKUTJY" target="_blank" rel="noopener noreferrer" class="btn btn-ghost">English Full Course</a>
+          <button class="btn btn-primary" id="startTour">Interactive Tour</button>
+        </div>
+
+        <!-- search -->
+        <div style="margin-top:12px">
+          <input id="search" placeholder="Search roadmap (e.g. 'nmap', 'cryptography')" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit" />
+        </div>
+
+        <!-- Roadmap list -->
+        <div class="roadmap" id="roadmap" aria-live="polite">
+          <!-- JS will populate steps -->
+        </div>
+
+        <!-- tracker -->
+        <div class="tracker" id="tracker" aria-hidden="false"></div>
+
+        <div class="legal">⚠️ Educational demo only. Do not attempt unauthorized testing. Buyer is responsible for backend, infrastructure, and legal compliance.</div>
+      </section>
+
+      <!-- Tools -->
+      <section class="hero" id="tools" style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:900">Tools & Mock Labs</div>
+          <div class="small">Client-ready demos — mock behavior only</div>
+        </div>
+
+        <div class="tools" id="toolsGrid">
+          <!-- JS will add cards -->
+        </div>
+
+        <div style="margin-top:12px">
+          <div style="font-weight:800;margin-bottom:8px">Quick Commands (Educational)</div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <pre class="cmd">nmap -sV example.com <button class="copy" data-copy="nmap -sV example.com">Copy</button></pre>
+            <pre class="cmd">curl -I https://example.com <button class="copy" data-copy="curl -I https://example.com">Copy</button></pre>
+            <pre class="cmd">echo -n 'password' | sha256sum <button class="copy" data-copy="echo -n 'password' | sha256sum">Copy</button></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Practice -->
+      <section class="hero" id="practice" style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-weight:900">Practice Environment</div>
+          <div class="small">Terminal simulator, Quiz, Crypto lab & Port-scan demo</div>
+        </div>
+
+        <div style="margin-top:12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px">
+          <!-- Terminal -->
+          <div class="tool-card">
+            <h5>Terminal Simulator</h5>
+            <p class="small">Learn basic commands in a safe simulated shell (client-side mock).</p>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn btn-primary" data-open="terminal">Open</button>
+              <button class="btn btn-ghost" data-open="terminal-info">Info</button>
+            </div>
+          </div>
+
+          <!-- Quiz -->
+          <div class="tool-card">
+            <h5>Cyber Quiz (Sample)</h5>
+            <p class="small">10-question fundamentals quiz. Score saved locally.</p>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn btn-primary" data-open="quiz">Start Quiz</button>
+              <button class="btn btn-ghost" data-open="quiz-info">Info</button>
+            </div>
+          </div>
+
+          <!-- Crypto -->
+          <div class="tool-card">
+            <h5>Cryptography Lab</h5>
+            <p class="small">Caesar, Base64 encode/decode, XOR example — client-side.</p>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn btn-primary" data-open="crypto">Open Lab</button>
+              <button class="btn btn-ghost" data-open="crypto-info">Info</button>
+            </div>
+          </div>
+
+          <!-- Port scanner demo -->
+          <div class="tool-card">
+            <h5>Port Scanner — Demo</h5>
+            <p class="small">Frontend-only port scanner simulation — no real network activity.</p>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn btn-primary" data-open="port">Run Demo</button>
+              <button class="btn btn-ghost" data-open="port-info">Info</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Modal (re-usable) -->
+  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="panel" role="document">
+      <div id="modal-body"></div>
+      <div style="margin-top:12px;text-align:right">
+        <button id="modalClose" class="btn btn-ghost">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+  /* ---------------------------
+     Data: Roadmap & Tools
+     --------------------------- */
+  const ROADMAP = [
+    {id:1,title:"Computer Basics & OS",desc:"OS fundamentals, file systems, users & permissions (Windows/macOS/Linux basics)."},
+    {id:2,title:"Networking Fundamentals",desc:"TCP/IP, OSI model, ports, subnets, DNS, DHCP — core network knowledge."},
+    {id:3,title:"Web Technologies",desc:"HTML, CSS, JavaScript, HTTP(S), headers, cookies, sessions, CORS."},
+    {id:4,title:"Scripting & Automation (Python)",desc:"Write scripts for recon & parsing outputs; basics of Python for security tasks."},
+    {id:5,title:"Reconnaissance & Enumeration",desc:"Passive & active enumeration, OSINT, banner grabbing, subdomain discovery."},
+    {id:6,title:"Vulnerability Analysis",desc:"Scanning (mock), vulnerability classification, CVE basics, risk scoring."},
+    {id:7,title:"Web App Security",desc:"OWASP Top 10 overview, XSS, SQLi, CSRF (theory + safe lab exercises)."},
+    {id:8,title:"Exploitation Basics (Education)",desc:"Exploit theory & lab simulations (no real exploit code included)."},
+    {id:9,title:"Post Exploitation & Remediation",desc:"Forensics basics, patching, secure configuration and incident response."},
+    {id:10,title:"Cryptography & Hashing",desc:"Symmetric/asymmetric basics, hashing, practical safe exercises."},
+    {id:11,title:"Wireless Security & IoT (theory)",desc:"WPA basics, common misconfigurations, defense measures."},
+    {id:12,title:"Advanced Topics & Career",desc:"Bug bounty, certifications (CEH, OSCP, eJPT), building a portfolio."}
+  ];
+
+  const TOOLS = [
+    {id:'tryhackme', title:'TryHackMe (recommend)', desc:'Practical labs & learning paths (external platform).', url:'https://tryhackme.com'},
+    {id:'htb', title:'Hack The Box (recommend)', desc:'Realistic penetration-test style labs (external).', url:'https://hackthebox.com'},
+    {id:'owasp', title:'OWASP Juice Shop', desc:'Web security vulnerable app for safe learning.', url:'https://owasp.org/www-project-juice-shop/'},
+    {id:'burp', title:'Burp Suite (tool)', desc:'Web proxy for testing (learning version).', url:'https://portswigger.net/burp'},
+    {id:'vulnhub', title:'VulnHub (VMs)', desc:'Download vulnerable VMs for offline practice.', url:'https://vulnhub.com'}
+  ];
+
+  /* ---------------------------
+     Render roadmap
+     --------------------------- */
+  const roadmapEl = document.getElementById('roadmap');
+  const trackerEl = document.getElementById('tracker');
+  const progressKey = 'eh_progress_v1';
+  let progress = JSON.parse(localStorage.getItem(progressKey)||'[]');
+
+  function renderRoadmap(filter=''){
+    roadmapEl.innerHTML = '';
+    const f = filter.trim().toLowerCase();
+    ROADMAP.forEach(step=>{
+      if(f && !(step.title + ' ' + step.desc).toLowerCase().includes(f)) return;
+      const div = document.createElement('div'); div.className='step';
+      div.innerHTML = `
+        <div class="num">${step.id}</div>
+        <div>
+          <h4>${escapeHtml(step.title)}</h4>
+          <p>${escapeHtml(step.desc)}</p>
+        </div>
+        <div class="actions">
+          <button class="btn btn-ghost" data-view="${step.id}">View</button>
+          <button class="btn btn-primary" data-toggle="${step.id}">${progress.includes(step.id)?'Done':'Mark'}</button>
+        </div>
+      `;
+      roadmapEl.appendChild(div);
+    });
+    renderTracker();
+  }
+
+  function renderTracker(){
+    trackerEl.innerHTML = '';
+    ROADMAP.forEach(step=>{
+      const c = document.createElement('div');
+      c.className = 'chip' + (progress.includes(step.id)?' done':'');
+      c.textContent = step.title;
+      trackerEl.appendChild(c);
+    });
+  }
+
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c]) }
+
+  // initial render
+  renderRoadmap();
+
+  // search
+  document.getElementById('search').addEventListener('input', (e)=> renderRoadmap(e.target.value));
+
+  // global actions: delegate clicks in roadmap
+  roadmapEl.addEventListener('click', (e)=>{
+    const view = e.target.closest('[data-view]')?.getAttribute('data-view');
+    const toggle = e.target.closest('[data-toggle]')?.getAttribute('data-toggle');
+    if(view){
+      const step = ROADMAP.find(s=>s.id==view);
+      openModal(`<h3>${escapeHtml(step.title)}</h3><p class="small">${escapeHtml(step.desc)}</p><div style="margin-top:12px"><strong>Suggested exercises:</strong><ul><li>Read theory</li><li>Try safe labs (TryHackMe)</li><li>Complete the sample quiz</li></ul></div>`);
+    }
+    if(toggle){
+      const id = Number(toggle);
+      if(progress.includes(id)){ progress = progress.filter(x=>x!==id); }
+      else { progress.push(id); }
+      localStorage.setItem(progressKey, JSON.stringify(progress));
+      renderRoadmap(document.getElementById('search').value);
+    }
+  });
+
+  // nav buttons scroll
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    b.addEventListener('click', ()=> {
+      const target = b.dataset.scroll;
+      if(!target) return;
+      document.getElementById(target).scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  // Save / Reset / Export
+  document.getElementById('saveProgress').addEventListener('click', ()=> {
+    localStorage.setItem(progressKey, JSON.stringify(progress));
+    alert('Progress saved locally.');
+  });
+  document.getElementById('resetProgress').addEventListener('click', ()=> {
+    if(!confirm('Clear local progress?')) return;
+    progress = []; localStorage.removeItem(progressKey); renderRoadmap();
+  });
+  document.getElementById('exportProgress').addEventListener('click', ()=> {
+    const data = { exportedAt: new Date().toISOString(), progress };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'eh_progress.json'; a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  /* ---------------------------
+     Tools grid
+     --------------------------- */
+  const toolsGrid = document.getElementById('toolsGrid');
+  TOOLS.forEach(t=>{
+    const card = document.createElement('div'); card.className='tool-card';
+    card.innerHTML = `<h5>${escapeHtml(t.title)}</h5><p class="small">${escapeHtml(t.desc)}</p><div style="margin-top:8px;display:flex;gap:8px"><a class="btn btn-primary" href="${t.url}" target="_blank" rel="noopener noreferrer">Open</a><button class="btn btn-ghost" data-tool="${t.id}">Info</button></div>`;
+    toolsGrid.appendChild(card);
+  });
+
+  toolsGrid.addEventListener('click', (e)=>{
+    const id = e.target.closest('[data-tool]')?.getAttribute('data-tool');
+    if(!id) return;
+    const t = TOOLS.find(x=>x.id===id);
+    openModal(`<h3>${escapeHtml(t.title)}</h3><p class="small">${escapeHtml(t.desc)}</p><p style="margin-top:8px" class="small">Note: external platform. Use official sign-up and follow their rules.</p><div style="margin-top:12px"><a class="btn btn-primary" href="${t.url}" target="_blank" rel="noopener noreferrer">Visit</a></div>`);
+  });
+
+  /* ---------------------------
+     Modal utilities
+     --------------------------- */
+  const modal = document.getElementById('modal'), modalBody = document.getElementById('modal-body');
+  function openModal(html){
+    modalBody.innerHTML = html;
+    modal.classList.add('show'); modal.setAttribute('aria-hidden','false');
+  }
+  document.getElementById('modalClose').addEventListener('click', ()=> { modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); });
+
+  // close on ESC
+  window.addEventListener('keydown', (e)=> { if(e.key==='Escape'){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); } });
+
+  /* ---------------------------
+     Copy buttons for quick commands
+     --------------------------- */
+  document.querySelectorAll('.copy').forEach(btn=>{
+    btn.addEventListener('click', ()=> {
+      const text = btn.getAttribute('data-copy') || btn.parentElement.textContent.trim();
+      navigator.clipboard?.writeText(text).then(()=> { btn.textContent='Copied'; setTimeout(()=>btn.textContent='Copy',900); }).catch(()=>alert('Copy failed'));
+    });
+  });
+
+  // delegate other copy buttons in pre blocks
+  document.querySelectorAll('pre.cmd button.copy').forEach(b=>{
+    b.addEventListener('click', ()=> {
+      const txt = b.getAttribute('data-copy');
+      if(!txt) return;
+      navigator.clipboard.writeText(txt).then(()=>{ b.textContent='Copied'; setTimeout(()=>b.textContent='Copy',900); });
+    });
+  });
+
+  /* ---------------------------
+     Modals for practice tools
+     --------------------------- */
+  // open handlers
+  document.querySelectorAll('[data-open]').forEach(btn=>{
+    btn.addEventListener('click', ()=> {
+      const id = btn.getAttribute('data-open');
+      if(id === 'terminal') openTerminal();
+      else if(id === 'quiz') openQuiz();
+      else if(id === 'crypto') openCrypto();
+      else if(id === 'port') openPortDemo();
+      else openModal(`<p>Info for ${id}</p>`);
+    });
+  });
+
+  /* ---------------------------
+     Terminal Simulator (mock)
+     --------------------------- */
+  function openTerminal(){
+    const html = `
+      <h3>Terminal Simulator — Demo</h3>
+      <p class="small">This is a safe, offline mock terminal. Commands are simulated for learning. Try: <code>help</code>, <code>ls</code>, <code>pwd</code>, <code>whoami</code>, <code>cat readme.txt</code>.</p>
+      <div class="terminal" id="termOutput" tabindex="0"></div>
+      <input id="termInput" class="term-input" placeholder="type a command and press Enter (demo)" aria-label="Terminal input" />
+    `;
+    openModal(html);
+    setTimeout(() => {
+      const out = document.getElementById('termOutput');
+      const input = document.getElementById('termInput');
+      out.innerHTML = `<div style="color:#9fffad">[demo-shell] Welcome to the safe terminal simulator.</div>`;
+      input.focus();
+
+      input.addEventListener('keydown', function handler(e){
+        if(e.key !== 'Enter') return;
+        const cmd = this.value.trim(); this.value='';
+        if(!cmd){ return; }
+        const row = document.createElement('div'); row.textContent = '> ' + cmd; out.appendChild(row);
+        // simulate responses
+        setTimeout(()=>{
+          let resp = '';
+          if(cmd === 'help') resp = 'Available: help, ls, pwd, whoami, cat readme.txt, clear';
+          else if(cmd === 'ls') resp = 'README.txt  lab_instructions/  sample_output.txt';
+          else if(cmd === 'pwd') resp = '/home/student';
+          else if(cmd === 'whoami') resp = 'student';
+          else if(cmd.startsWith('cat ')) resp = 'Demo file content: This is safe demo text for learning only.';
+          else if(cmd === 'clear'){ out.innerHTML=''; return; }
+          else resp = 'Command not recognized in demo terminal. (Try: help)';
+          const r = document.createElement('div'); r.style.color = '#bcd'; r.textContent = resp; out.appendChild(r);
+          out.scrollTop = out.scrollHeight;
+        }, 300);
+      }, {once:false});
+    }, 60);
+  }
+
+  /* ---------------------------
+     Quiz (sample 5 qns)
+     --------------------------- */
+  const SAMPLE_QUIZ = [
+    {q:'Which port does HTTP use by default?', opts:['21','80','443','3306'], a:1},
+    {q:'Which of these is an OWASP Top 10 vulnerability?', opts:['XSS','MD5','AES','RSA'], a:0},
+    {q:'What does Nmap do?', opts:['Encrypt files','Scan network hosts','Edit webpages','Track emails'], a:1},
+    {q:'Which protocol is secure for web traffic?', opts:['HTTP','FTP','SMTP','HTTPS'], a:3},
+    {q:'Which is a hashing algorithm?', opts:['AES','SHA256','RSA','TLS'], a:1}
+  ];
+
+  function openQuiz(){
+    let current=0, score=0;
+    function render(){
+      const item = SAMPLE_QUIZ[current];
+      const options = item.opts.map((o,i)=>`<label style="display:block;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);margin-top:6px"><input type="radio" name="opt" value="${i}" /> ${escapeHtml(o)}</label>`).join('');
+      openModal(`<h3>Quiz — Question ${current+1}/${SAMPLE_QUIZ.length}</h3><div class="qcard"><div style="font-weight:800">${escapeHtml(item.q)}</div><div class="options">${options}</div><div style="margin-top:12px;text-align:right"><button id="quizNext" class="btn btn-primary">Next</button></div></div>`);
+      document.getElementById('quizNext').addEventListener('click', ()=>{
+        const sel = document.querySelector('input[name="opt"]:checked');
+        if(sel && Number(sel.value) === item.a) score++;
+        current++;
+        if(current >= SAMPLE_QUIZ.length){
+          openModal(`<h3>Quiz Complete</h3><p class="small">Score: ${score} / ${SAMPLE_QUIZ.length}</p><div style="margin-top:12px;text-align:right"><button id="quizClose" class="btn btn-primary">Close</button></div>`);
+          document.getElementById('quizClose').addEventListener('click', ()=> { modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); });
+        } else { render(); }
+      });
+    }
+    render();
+  }
+
+  /* ---------------------------
+     Crypto Lab (simple)
+     --------------------------- */
+  function openCrypto(){
+    const html = `
+      <h3>Cryptography Lab (Client-side)</h3>
+      <p class="small">Try Caesar cipher shift, Base64 encode/decode (demo-only).</p>
+      <div>
+        <label class="small">Input</label>
+        <textarea id="cryptoInput" placeholder="Type text..."></textarea>
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="caesarEnc" class="btn btn-primary">Caesar +3</button>
+        <button id="caesarDec" class="btn btn-ghost">Caesar -3</button>
+        <button id="b64Enc" class="btn btn-primary">Base64 Encode</button>
+        <button id="b64Dec" class="btn btn-ghost">Base64 Decode</button>
+      </div>
+      <div style="margin-top:10px">
+        <label class="small">Output</label>
+        <textarea id="cryptoOut" readonly></textarea>
+      </div>
+    `;
+    openModal(html);
+    setTimeout(()=>{
+      const inp = document.getElementById('cryptoInput'), out = document.getElementById('cryptoOut');
+      document.getElementById('caesarEnc').addEventListener('click', ()=> out.value = caesar(inp.value,3));
+      document.getElementById('caesarDec').addEventListener('click', ()=> out.value = caesar(inp.value,-3));
+      document.getElementById('b64Enc').addEventListener('click', ()=> out.value = btoa(inp.value));
+      document.getElementById('b64Dec').addEventListener('click', ()=> {
+        try{ out.value = atob(inp.value); } catch(e){ out.value = 'Invalid Base64 input'; }
+      });
+    },60);
+  }
+  function caesar(str, shift=3){ return String(str).split('').map(ch=>{
+    const c = ch.charCodeAt(0);
+    if(c>=65 && c<=90) return String.fromCharCode((c-65+shift+26)%26+65);
+    if(c>=97 && c<=122) return String.fromCharCode((c-97+shift+26)%26+97);
+    return ch;
+  }).join(''); }
+
+  /* ---------------------------
+     Port Scanner Demo (mock)
+     --------------------------- */
+  function openPortDemo(){
+    openModal(`<h3>Port Scanner — Demo</h3><p class="small">Enter a target (domain or IP). This is a frontend simulation only — no network traffic is performed.</p>
+      <div style="margin-top:8px"><input id="portTarget" placeholder="example.com or 192.168.1.1" style="width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit"/></div>
+      <div style="margin-top:8px"><button id="runPort" class="btn btn-primary">Run Demo Scan</button></div>
+      <div id="portOut" style="margin-top:12px"></div>
+    `);
+    setTimeout(()=>{
+      document.getElementById('runPort').addEventListener('click', ()=>{
+        const tgt = document.getElementById('portTarget').value.trim();
+        if(!tgt){ alert('Enter a target'); return; }
+        const out = document.getElementById('portOut'); out.innerHTML = '<div class="small">Starting demo scan...</div>';
+        const sample = [22,80,443,3306,8080,21,25,110].filter(()=>Math.random()>0.5);
+        setTimeout(()=> {
+          out.innerHTML = `<div style="font-weight:800;color:var(--muted)">Scan results (mock):</div><ul style="margin-top:8px">${sample.map(p=>`<li>Port ${p} — OPEN (service: mock)</li>`).join('')}</ul><div class="small" style="margin-top:8px">Note: This is mock data for learning only.</div>`;
+        },800 + Math.random()*800);
+      });
+    },60);
+  }
+
+  /* ---------------------------
+     Simple Tour (shows key steps)
+     --------------------------- */
+  document.getElementById('startTour').addEventListener('click', ()=>{
+    openModal(`<h3>Interactive Tour</h3><p class="small">This is a short tour: 1) Review roadmap 2) Open Terminal Simulator 3) Take Quiz 4) Try Crypto Lab</p><div style="margin-top:12px;text-align:right"><button id="tourClose" class="btn btn-primary">Start</button></div>`);
+    document.getElementById('modal').querySelector('#tourClose').addEventListener('click', ()=> {
+      modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); document.getElementById('roadmap').scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  /* ---------------------------
+     Event delegation for copy & tool info (in case created dynamically)
+     --------------------------- */
+  document.addEventListener('click', (e)=>{
+    const cp = e.target.closest('[data-copy]');
+    if(cp){
+      const txt = cp.getAttribute('data-copy');
+      navigator.clipboard?.writeText(txt || cp.textContent.trim()).then(()=>{ cp.textContent='Copied'; setTimeout(()=>cp.textContent='Copy',900); });
+    }
+  });
+
+  /* ---------------------------
+     On load: populate small dynamic pieces
+     --------------------------- */
+  (function init(){
+    // pre-fill roadmap
+    renderRoadmap();
+    // populate tracker UI (already done)
+  })();
+
+  </script>
+</body>
+</html>

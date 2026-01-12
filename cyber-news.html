@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Cyber News — Live Hacker & Security Feed</title>
+<meta name="description" content="Live aggregated cybersecurity & tech news — Hacker News, NewsAPI (optional), RSS feeds. Search, filter, save, auto-refresh."/>
+<style>
+  :root{
+    --bg:#000; --panel:#071011; --accent:#ff3b3b; --green:#00ff88; --muted:#9fb3a0;
+    --glass: rgba(255,255,255,0.03);
+    --mono: ui-monospace, Menlo, Monaco, "Courier New", monospace;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0;background:linear-gradient(180deg,#000,#041018);color:#e6fff2;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+  .wrap{max-width:1200px;margin:18px auto;padding:18px}
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between}
+  .brand{font-weight:900;color:var(--accent);font-size:20px}
+  .sub{color:var(--muted);font-size:13px}
+  .toolbar{display:flex;gap:8px;align-items:center;margin-top:14px;flex-wrap:wrap}
+  input[type="search"], select {padding:10px;border-radius:10px;border:1px solid var(--glass);background:transparent;color:inherit;font-family:var(--mono)}
+  button{padding:10px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:800}
+  .btn-primary{background:linear-gradient(90deg,var(--accent),#990000);color:#fff}
+  .btn-ghost{background:transparent;border:1px solid var(--glass);color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:14px}
+  @media(max-width:980px){ .grid{grid-template-columns:1fr} }
+  .panel{background:var(--panel);padding:14px;border-radius:var(--radius);border:1px solid var(--glass)}
+  .feed-list{display:flex;flex-direction:column;gap:10px}
+  .card{padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.01),rgba(255,255,255,0.00));border:1px solid rgba(255,255,255,0.02)}
+  .title{font-weight:800;color:#fff;font-size:15px}
+  .meta{color:var(--muted);font-size:13px;margin-top:6px}
+  .tags{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}
+  .tag{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:999px;font-weight:700;color:var(--muted);font-family:var(--mono);font-size:12px}
+  .small{font-size:13px;color:var(--muted)}
+  .log{margin-top:12px;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px;max-height:160px;overflow:auto;font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .right-panel .card{margin-bottom:12px}
+  .source-badge{font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,0.02);color:var(--muted);display:inline-block}
+  .action-row{display:flex;gap:8px;margin-top:8px}
+  .results-meta{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .saved{color:var(--green);font-weight:800}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="brand">Cyber News</div>
+        <div class="sub">Live hacking • security • tech — aggregated & filterable</div>
+      </div>
+    </header>
+
+    <div class="toolbar" role="search">
+      <input id="query" type="search" placeholder="Search news, CVE, breach, malware, ransomware..." style="width:420px" />
+      <select id="sourceSelect" aria-label="Source">
+        <option value="all">All sources (HN + NewsAPI + RSS)</option>
+        <option value="hackernews">Hacker News (Algolia)</option>
+        <option value="newsapi">NewsAPI.org</option>
+        <option value="rss">RSS (rss2json)</option>
+      </select>
+      <select id="filter" aria-label="Filter">
+        <option value="all">All categories</option>
+        <option value="breach">Breach / Leak</option>
+        <option value="vuln">Vulnerability</option>
+        <option value="tools">Tools / Releases</option>
+        <option value="policy">Policy / Law</option>
+      </select>
+      <button id="btnFetch" class="btn-primary">Fetch</button>
+      <button id="btnAuto" class="btn-ghost">Auto-refresh: Off</button>
+      <button id="btnSaveAll" class="btn-ghost">Save All View</button>
+      <div style="margin-left:auto" class="small">Proxy/API: <span id="proxyLabel" class="source-badge">client-only</span></div>
+    </div>
+
+    <div class="results-meta">
+      <div class="small">Showing <span id="resultCount">0</span> articles • <span id="lastRefresh">never</span></div>
+      <div class="small" id="status">Status: idle</div>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT: feed -->
+      <section class="panel" aria-live="polite">
+        <div id="feed" class="feed-list">
+          <!-- cards injected here -->
+        </div>
+        <div style="margin-top:12px" class="small">Tip: use Search and Filter. For production, configure a secure server-proxy for APIs to keep keys secret.</div>
+      </section>
+
+      <!-- RIGHT: controls, saved, logs -->
+      <aside class="panel right-panel">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>Settings</strong>
+            <span class="small">Refresh interval: <span id="rfInterVal">30s</span></span>
+          </div>
+          <div style="margin-top:8px" class="small">
+            NewsAPI Key (optional): <input id="newsApiKey" type="text" placeholder="Paste NewsAPI.org key (or leave blank)" style="width:100%;margin-top:8px"/>
+            Proxy Base URL (optional): <input id="proxyBase" type="text" placeholder="https://your-proxy.example" style="width:100%;margin-top:8px"/>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+            <button id="clearKeys" class="btn-ghost">Clear Keys</button>
+            <button id="applyKeys" class="btn-primary">Apply</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Saved Articles</strong>
+          <div id="savedList" style="margin-top:8px"></div>
+          <div style="margin-top:8px;display:flex;gap:8px">
+            <button id="exportSaved" class="btn-ghost">Export JSON</button>
+            <button id="clearSaved" class="btn-ghost">Clear Saved</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Sources</strong>
+          <ul class="small">
+            <li>Hacker News (via Algolia) — great for "security" discussions & tools</li>
+            <li>NewsAPI.org — mainstream tech & security outlets (requires key)</li>
+            <li>RSS feeds (optional) — The Hacker News, KrebsOnSecurity, BleepingComputer etc via rss2json</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <strong>Logs</strong>
+          <div id="log" class="log">Ready.</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<script>
+/* Cyber News — advanced frontend aggregator
+   - Primary free source: Hacker News Algolia (no API key, CORS-friendly)
+   - Optional: NewsAPI (requires API key); recommended to call via server-proxy to keep key secret
+   - Optional: RSS via rss2json (may require key). Proxy option provided.
+   - Features: search, filter, auto-refresh, save/export.
+*/
+
+/* ---------- Config ---------- */
+const CONFIG = {
+  newsApiKey: '',         // if you have NewsAPI.org key, set here or in UI
+  proxyBase: '',          // optional backend proxy base URL (e.g. https://yourserver.example/api)
+  autoRefreshSec: 30,     // default auto refresh
+  maxArticles: 50
+};
+
+/* ---------- DOM ---------- */
+const feedEl = document.getElementById('feed');
+const statusEl = document.getElementById('status');
+const logEl = document.getElementById('log');
+const resultCountEl = document.getElementById('resultCount');
+const lastRefreshEl = document.getElementById('lastRefresh');
+const btnFetch = document.getElementById('btnFetch');
+const btnAuto = document.getElementById('btnAuto');
+const btnSaveAll = document.getElementById('btnSaveAll');
+const queryEl = document.getElementById('query');
+const sourceSelect = document.getElementById('sourceSelect');
+const filterEl = document.getElementById('filter');
+const newsApiKeyEl = document.getElementById('newsApiKey');
+const proxyBaseEl = document.getElementById('proxyBase');
+const applyKeysBtn = document.getElementById('applyKeys');
+const clearKeysBtn = document.getElementById('clearKeys');
+const proxyLabel = document.getElementById('proxyLabel');
+
+/* ---------- State ---------- */
+let AUTO = false;
+let autoTimer = null;
+let latestArticles = []; // unified articles {title, url, source, publishedAt, summary, tags, raw}
+let saved = JSON.parse(localStorage.getItem('cyber_news_saved_v1') || '[]');
+
+/* ---------- Utilities ---------- */
+function log(msg){ logEl.textContent = (new Date()).toLocaleTimeString() + ' • ' + msg + '\n' + logEl.textContent; }
+function setStatus(s){ statusEl.textContent = 'Status: ' + s; }
+function humanAgo(iso){
+  if(!iso) return '—';
+  const d = new Date(iso); const diff = (Date.now()-d.getTime())/1000;
+  if(diff < 60) return Math.round(diff) + 's';
+  if(diff < 3600) return Math.round(diff/60) + 'm';
+  if(diff < 86400) return Math.round(diff/3600) + 'h';
+  return Math.round(diff/86400) + 'd';
+}
+function uniqBy(arr, key){ const seen = new Set(); return arr.filter(x=>{ const k = x[key]; if(seen.has(k)) return false; seen.add(k); return true; }); }
+
+/* ---------- Rendering ---------- */
+function renderArticles(list){
+  feedEl.innerHTML = '';
+  latestArticles = list.slice(0, CONFIG.maxArticles);
+  resultCountEl.textContent = latestArticles.length;
+  lastRefreshEl.textContent = new Date().toLocaleTimeString();
+  latestArticles.forEach((a, idx)=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    const title = document.createElement('div'); title.className='title'; title.innerHTML = `<a href="${a.url||'#'}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none">${escapeHtml(a.title)}</a>`;
+    const meta = document.createElement('div'); meta.className='meta'; meta.innerHTML =
+      `<span class="source-badge">${escapeHtml(a.source||'unknown')}</span> &nbsp; <span class="small">${escapeHtml(a.author||'')}</span> • <span class="small">${humanAgo(a.publishedAt)}</span>`;
+    const summary = document.createElement('div'); summary.className = 'small'; summary.style.marginTop='8px'; summary.textContent = a.summary || (a.excerpt||'');
+    const tags = document.createElement('div'); tags.className = 'tags';
+    (a.tags||[]).slice(0,6).forEach(t=>{ const tk = document.createElement('span'); tk.className='tag'; tk.textContent = t; tags.appendChild(tk); });
+    const actions = document.createElement('div'); actions.className='action-row';
+    const saveBtn = document.createElement('button'); saveBtn.className='btn-ghost'; saveBtn.textContent = saved.find(s=>s.url===a.url)?'Saved':'Save';
+    saveBtn.onclick = ()=>{ toggleSaveArticle(a); saveBtn.textContent = saved.find(s=>s.url===a.url)?'Saved':'Save'; };
+    const openBtn = document.createElement('button'); openBtn.className='btn-primary'; openBtn.textContent = 'Open';
+    openBtn.onclick = ()=> window.open(a.url,'_blank');
+    const shareBtn = document.createElement('button'); shareBtn.className='btn-ghost'; shareBtn.textContent = 'Copy URL';
+    shareBtn.onclick = ()=>{ navigator.clipboard.writeText(a.url||'').then(()=> log('URL copied')); };
+    actions.appendChild(openBtn); actions.appendChild(saveBtn); actions.appendChild(shareBtn);
+    card.appendChild(title); card.appendChild(meta); card.appendChild(summary); card.appendChild(tags); card.appendChild(actions);
+    feedEl.appendChild(card);
+  });
+}
+
+/* ---------- Save / Export ---------- */
+function toggleSaveArticle(a){
+  const exists = saved.find(s=>s.url===a.url);
+  if(exists) saved = saved.filter(s=>s.url!==a.url);
+  else saved.unshift({title:a.title,url:a.url,source:a.source,when:new Date().toISOString()});
+  localStorage.setItem('cyber_news_saved_v1', JSON.stringify(saved));
+  renderSaved();
+  log(exists ? 'Removed saved article' : 'Saved article');
+}
+function renderSaved(){
+  const el = document.getElementById('savedList');
+  el.innerHTML = '';
+  if(!saved.length) { el.textContent = 'No saved articles'; return; }
+  saved.slice(0,50).forEach(s=>{
+    const d = document.createElement('div'); d.style.padding='6px'; d.style.borderBottom='1px dashed rgba(255,255,255,0.03)';
+    d.innerHTML = `<div style="font-family:var(--mono);font-size:13px"><strong>${escapeHtml(s.title)}</strong><br/><span class="small">${escapeHtml(s.source)} • ${new Date(s.when).toLocaleString()}</span></div>`;
+    el.appendChild(d);
+  });
+}
+document.getElementById('exportSaved').addEventListener('click', ()=> {
+  if(!saved.length) return alert('No saved articles');
+  const blob = new Blob([JSON.stringify(saved,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'cyber-news-saved.json'; a.click(); a.remove(); URL.revokeObjectURL(a.href);
+});
+document.getElementById('clearSaved').addEventListener('click', ()=> { if(confirm('Clear saved articles?')){ saved=[]; localStorage.removeItem('cyber_news_saved_v1'); renderSaved(); } });
+
+/* ---------- Sources: Hacker News (Algolia) ---------- */
+async function fetchFromHackerNews(q){
+  // Algolia HN search - supports CORS
+  // we search for "security OR breach OR ransomware OR malware OR vuln OR cve"
+  const query = q ? encodeURIComponent(q) : encodeURIComponent('security OR breach OR ransomware OR malware OR vuln OR cve OR "cyber"');
+  const url = `https://hn.algolia.com/api/v1/search?query=${query}&tags=story&hitsPerPage=50`;
+  const r = await fetch(url);
+  if(!r.ok) throw new Error('HackerNews fetch failed: ' + r.status);
+  const j = await r.json();
+  return j.hits.map(h=>{
+    return {
+      title: h.title || h.story_title || '',
+      url: h.url || ('https://news.ycombinator.com/item?id='+h.objectID),
+      source: 'HackerNews',
+      author: h.author,
+      publishedAt: h.created_at,
+      summary: h._highlightResult && h._highlightResult.title && h._highlightResult.title.value ? stripHtml(h._highlightResult.title.value) : '',
+      tags: extractTags(h.title + ' ' + (h._highlightResult && h._highlightResult.comment_text ? h._highlightResult.comment_text.value : ''))
+    };
+  });
+}
+
+/* ---------- Sources: NewsAPI.org (optional, needs key) ---------- */
+async function fetchFromNewsApi(q, apiKey){
+  if(!apiKey) throw new Error('NewsAPI key not provided');
+  // prefer proxy (if provided) to protect key
+  const proxy = CONFIG.proxyBase || '';
+  if(proxy){
+    const resp = await fetch(proxy + '/newsapi?q=' + encodeURIComponent(q||'cybersecurity'));
+    if(!resp.ok) throw new Error('Proxy NewsAPI failed: ' + resp.status);
+    const j = await resp.json();
+    return j.articles.map(a=>({
+      title: a.title, url: a.url, source: a.source.name, author: a.author, publishedAt: a.publishedAt, summary: a.description || a.content || '', tags: extractTags(a.title + ' ' + (a.description||''))
+    }));
+  } else {
+    // direct client call (exposes API key) — acceptable for private/demo use
+    const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(q||'cybersecurity')}&pageSize=30&sortBy=publishedAt&language=en&apiKey=${encodeURIComponent(apiKey)}`;
+    const resp = await fetch(url);
+    if(!resp.ok) throw new Error('NewsAPI fetch failed: ' + resp.status);
+    const j = await resp.json();
+    return j.articles.map(a=>({
+      title: a.title, url: a.url, source: a.source.name, author: a.author, publishedAt: a.publishedAt, summary: a.description || a.content || '', tags: extractTags(a.title + ' ' + (a.description||''))
+    }));
+  }
+}
+
+/* ---------- Sources: RSS via rss2json (optional) ---------- */
+async function fetchFromRss(urlRss){
+  // If proxy available, use proxy to avoid CORS and rate issues.
+  const proxy = CONFIG.proxyBase || '';
+  const rssApi = proxy ? (proxy + '/rss?url=' + encodeURIComponent(urlRss)) : ('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(urlRss));
+  const resp = await fetch(rssApi);
+  if(!resp.ok) throw new Error('RSS fetch failed: ' + resp.status);
+  const j = await resp.json();
+  const items = j.items || [];
+  return items.map(it=>({
+    title: it.title, url: it.link, source: j.feed && j.feed.title ? j.feed.title : 'RSS', author: it.author || '', publishedAt: it.pubDate || it.isoDate, summary: it.description || it.contentSnippet || '', tags: extractTags(it.title + ' ' + it.description)
+  }));
+}
+
+/* ---------- Helpers: tag extraction & cleanup ---------- */
+function extractTags(text){
+  if(!text) return [];
+  const kw = text.toLowerCase();
+  const tags = new Set();
+  const mapping = [
+    ['breach', ['breach','leak','data leak','exposed']],
+    ['ransomware', ['ransomware','encrypt','decryptor']],
+    ['vulnerability', ['vulnerability','cve','zero-day','exploit']],
+    ['malware', ['malware','trojan','virus']],
+    ['policy', ['law','policy','regulation','gdpr','cisa']],
+    ['tools', ['tool','release','beta','github']],
+    ['intel', ['intel','attribution','threat actor','group','apt']]
+  ];
+  mapping.forEach(([tag, keys])=> keys.forEach(k=> { if(kw.includes(k)) tags.add(tag); }));
+  // also detect CVE IDs
+  const cves = (text.match(/CVE-\d{4}-\d{4,7}/gi) || []);
+  cves.forEach(c=>tags.add(c));
+  return Array.from(tags);
+}
+function stripHtml(s){ return s ? s.replace(/<[^>]*>/g,'') : ''; }
+function escapeHtml(s){ return s ? s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])) : ''; }
+
+/* ---------- Orchestration: fetch & merge ---------- */
+async function fetchAggregate(){
+  try{
+    setStatus('fetching…');
+    log('Fetching articles from selected sources...');
+    const q = (queryEl.value || '').trim();
+    const src = sourceSelect.value;
+    const filter = filterEl.value;
+    const tasks = [];
+    if(src === 'all' || src === 'hackernews') tasks.push(fetchFromHackerNews(q));
+    if((src === 'all' || src === 'newsapi') && (newsApiKeyEl.value || CONFIG.newsApiKey)) {
+      const key = newsApiKeyEl.value || CONFIG.newsApiKey;
+      tasks.push(fetchFromNewsApi(q, key).catch(e=>{ log('NewsAPI error: '+e.message); return []; }));
+    }
+    if(src === 'all' || src === 'rss') {
+      // some curated RSS security feeds (use proxy for reliability or use public rss2json)
+      const feeds = [
+        'https://krebsonsecurity.com/feed/',
+        'https://feeds.feedburner.com/TheHackersNews',
+        'https://www.bleepingcomputer.com/feed/'
+      ];
+      feeds.forEach(f=> tasks.push(fetchFromRss(f).catch(e=>{ log('RSS fetch failed for '+f+': '+e.message); return []; })));
+    }
+
+    const results = await Promise.all(tasks);
+    let merged = [].concat(...results);
+    merged = merged.filter(a=>a && a.title).map(a=>({ ...a, publishedAt: a.publishedAt || new Date().toISOString() }));
+    // apply filter (category)
+    if(filter && filter !== 'all'){
+      merged = merged.filter(a=> (a.tags || []).includes(filter) || (a.title && a.title.toLowerCase().includes(filter)));
+    }
+    // apply dedupe by url/title
+    merged = uniqBy(merged, 'url');
+    // sort by publishedAt desc
+    merged.sort((x,y)=> new Date(y.publishedAt) - new Date(x.publishedAt));
+    renderArticles(merged);
+    setStatus('fetched');
+    log('Fetched ' + merged.length + ' articles.');
+  }catch(err){
+    setStatus('error');
+    log('Fetch error: ' + (err.message || err));
+    alert('Fetch failed: ' + (err.message || err));
+  }
+}
+
+/* ---------- Auto refresh ---------- */
+btnAuto.addEventListener('click', ()=>{
+  AUTO = !AUTO;
+  btnAuto.textContent = AUTO ? 'Auto-refresh: On' : 'Auto-refresh: Off';
+  if(AUTO){ autoTimer = setInterval(()=> fetchAggregate(), CONFIG.autoRefreshSec * 1000); }
+  else { clearInterval(autoTimer); autoTimer = null; }
+});
+
+/* ---------- UI events ---------- */
+btnFetch.addEventListener('click', ()=> fetchAggregate());
+applyKeysBtn.addEventListener('click', ()=>{
+  CONFIG.newsApiKey = newsApiKeyEl.value.trim();
+  CONFIG.proxyBase = proxyBaseEl.value.trim();
+  proxyLabel.textContent = CONFIG.proxyBase ? 'proxy' : 'client-only';
+  log('Applied keys/proxy. Proxy set: ' + (CONFIG.proxyBase ? CONFIG.proxyBase : 'none'));
+  fetchAggregate();
+});
+clearKeysBtn.addEventListener('click', ()=> { newsApiKeyEl.value=''; proxyBaseEl.value=''; CONFIG.newsApiKey=''; CONFIG.proxyBase=''; proxyLabel.textContent='client-only'; log('Cleared API keys/proxy'); });
+
+btnSaveAll.addEventListener('click', ()=> {
+  // save currently shown articles to saved
+  latestArticles.forEach(a=>{
+    if(!saved.find(s=>s.url===a.url)) saved.unshift({title:a.title,url:a.url,source:a.source,when:new Date().toISOString()});
+  });
+  saved = saved.slice(0,500);
+  localStorage.setItem('cyber_news_saved_v1', JSON.stringify(saved));
+  renderSaved();
+  log('Saved ' + latestArticles.length + ' articles to Saved list.');
+});
+
+/* ---------- Init ---------- */
+renderSaved();
+setStatus('idle');
+document.getElementById('btnFetch').click(); // initial fetch
+
+/* ---------- end of script ---------- */
+</script>
+</body>
+</html>

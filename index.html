@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberX | Ethical Security Platform</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:#000;
+  color:#fff;
+  font-family:"Courier New", monospace;
+  overflow-x:hidden;
+}
+
+/* ===== HEADER ===== */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 24px;
+  border-bottom:1px solid #111;
+}
+
+.logo{
+  font-size:22px;
+  letter-spacing:2px;
+  font-weight:bold;
+}
+.logo span{color:#0f0}
+
+/* ===== THREE DOT ===== */
+.menu-btn{
+  font-size:26px;
+  cursor:pointer;
+  user-select:none;
+}
+
+/* ===== DROPDOWN ===== */
+.dropdown{
+  position:fixed;
+  top:0;
+  right:18px;
+  width:230px;
+  background:#050505;
+  border:1px solid #222;
+  transform:translateY(-120%);
+  transition:0.35s ease;
+  z-index:999;
+  box-shadow:0 15px 40px rgba(26, 26, 26, 0.8);
+}
+.dropdown.active{transform:translateY(60px)}
+.dropdown a{
+  display:block;
+  padding:13px 16px;
+  color:#ccc;
+  text-decoration:none;
+  border-bottom:1px solid #111;
+}
+.dropdown a:hover{
+  background:#0a0a0a;
+  color:#0f0;
+}
+
+/* ===== LAYOUT ===== */
+.container{
+  max-width:1150px;
+  margin:45px auto;
+  padding:0 18px;
+}
+
+/* ===== GRID ===== */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:22px;
+}
+
+/* ===== BUTTONS ===== */
+.tool-btn{
+  height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  color:#ffffff;
+  background:linear-gradient(180deg,#282727,#6663631a);
+  border:1px solid #222;
+  letter-spacing:1.2px;
+  font-size:14px;
+  cursor:pointer;
+  position:relative;
+
+  box-shadow:
+    0 0 0 rgba(0,0,0,0),
+    0 6px 0 #000;
+
+  transition:0.18s ease;
+}
+
+/* subtle glow line */
+.tool-btn::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  box-shadow:0 0 0 rgba(255,0,0,0);
+  transition:0.18s;
+}
+
+.tool-btn:hover{
+  color:#23c414;
+  border-color:#ffffff;
+  box-shadow:
+    0 0 18px rgba(26, 77, 16, 0.35),
+    0 6px 0 #000;
+}
+
+.tool-btn:hover::after{
+  box-shadow:0 0 25px rgba(255,0,0,0.25);
+}
+
+.tool-btn:active{
+  transform:translateY(3px);
+  box-shadow:
+    0 2px 0 #ffffff,
+    inset 0 0 12px #000;
+}
+
+/* ===== SECTIONS ===== */
+.section{
+  margin-top:55px;
+  padding:28px;
+  background:#050505;
+  border:1px solid #111;
+}
+
+.section h2{
+  color:#0f0;
+  margin-bottom:12px;
+  letter-spacing:1px;
+}
+
+.section p{
+  color:#ccc;
+  font-size:14px;
+  line-height:1.7;
+}
+
+/* ===== FOOTER ===== */
+footer{
+  margin-top:60px;
+  padding:22px;
+  text-align:center;
+  border-top:1px solid #111;
+  font-size:13px;
+  color:#777;
+}
+
+footer a{
+  color:#ccc;
+  text-decoration:none;
+  margin:0 12px;
+}
+footer a:hover{color:#0f0}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  .logo{font-size:18px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">Cyber<span>X</span></div>
+  <div class="menu-btn" id="menuBtn">⋮</div>
+</header>
+
+<div class="dropdown" id="dropdown">
+  <a href="index.html">Dashboard</a>
+  <a href="about.html">About</a>
+  <a href="terms.html">Terms & Policies</a>
+  <a href="contact.html">Contact</a>
+  <a href="support&donation.html">Support & Donation</a>
+</div>
+
+<div class="container">
+
+  <!-- TOOLS -->
+  <div class="grid">
+    <a class="tool-btn" href="ethical-hacking.html">ETHICAL HACKING</a>
+    <a class="tool-btn" href="linux.html">LINUX LABS</a>
+    <a class="tool-btn" href="email-breach-checker.html">EMAIL BREACH</a>
+    <a class="tool-btn" href="port-scanner.html">PORT SCANNER</a>
+    <a class="tool-btn" href="password-checker.html">PASSWORD STRENGTH</a>
+    <a class="tool-btn" href="ip-tracker.html">IP TRACKER</a>
+    <a class="tool-btn" href="text-encryptor-decryptor.html">ENCRYPT / DECRYPT</a>
+    <a class="tool-btn" href="cryptography-lab.html">CRYPTO LAB</a>
+    <a class="tool-btn" href="hacking-simulation.html">SIMULATION</a>
+    <a class="tool-btn" href="darkweb.html">DARK WEB AWARENESS</a>
+    <a class="tool-btn" href="cyber-news.html">CYBER NEWS</a>
+    <a class="tool-btn" href="wifi-info.html">WIFI INFORMATION</a>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section">
+    <h2>WHAT IS CYBERX</h2>
+    <p>
+      CyberX is a focused cybersecurity and ethical hacking platform designed
+      to simulate real-world security concepts in a controlled environment.
+      It is built for learners who want to understand systems, networks and
+      digital threats from a defensive perspective.
+    </p>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section">
+    <h2>LEARNING ENVIRONMENT</h2>
+    <p>
+      The platform provides a dark, terminal-inspired interface to help users
+      stay focused and immersed. Each module represents a practical concept,
+      allowing users to explore cybersecurity tools, simulations and awareness
+      without risking real systems.
+    </p>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section">
+    <h2>ETHICAL NOTICE</h2>
+    <p>
+      All content is intended strictly for educational and ethical use.
+      CyberX does not promote illegal activities. The goal is to build
+      knowledge, awareness and responsible security skills.
+    </p>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 CyberX
+  <br><br>
+  <a href="about.html">About</a>
+  <a href="terms.html">Terms</a>
+  <a href="contact.html">Contact</a>
+  <a href="support&donation.html">Support & Donation</a>
+</footer>
+
+<script>
+const menuBtn = document.getElementById("menuBtn");
+const dropdown = document.getElementById("dropdown");
+
+menuBtn.onclick = () => {
+  dropdown.classList.toggle("active");
+};
+
+document.addEventListener("click", (e) => {
+  if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.remove("active");
+  }
+});
+</script>
+
+</body>
+</html>

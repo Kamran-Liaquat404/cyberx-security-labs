@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Cryptography Lab</title>
+<meta name="description" content="Interactive Cryptography Lab: AES-GCM (PBKDF2), RSA-OAEP, SHA-256/512, HMAC, encoding tools, password entropy & visualizations. Browser-only demos."/>
+<style>
+  :root{
+    --bg:#000;
+    --neon-red:#ff3b3b;
+    --neon-green:#00ff88;
+    --muted:#9fb3a0;
+    --panel:rgba(8,8,8,0.7);
+    --glass:rgba(255,255,255,0.03);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0;background:linear-gradient(180deg,#000,#050505 70%);color:#dfffe6;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+  canvas#matrix{position:fixed;inset:0;z-index:-4;display:block;filter:contrast(1.05)}
+  .overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.9));z-index:-3}
+
+  .wrap{max-width:1200px;margin:20px auto;padding:18px;position:relative;z-index:2}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{font-weight:900;color:var(--neon-red);letter-spacing:1px;font-size:20px;text-shadow:0 0 20px rgba(255,60,60,0.08)}
+  .sub{color:var(--muted);font-size:13px}
+
+  .grid{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
+  @media(max-width:980px){ .grid{grid-template-columns:1fr} }
+
+  .panel{background:var(--panel);padding:14px;border-radius:var(--radius);border:1px solid var(--glass);box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+  h1{margin:0;color:var(--neon-green);font-size:22px}
+  p.lead{color:var(--muted);margin-top:6px;font-size:14px}
+
+  .section{margin-top:12px;border-radius:10px;padding:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.02)}
+  label{display:block;font-weight:700;margin-bottom:6px;color:var(--muted);font-size:13px}
+  textarea,input,select,button{font-family:var(--mono);font-size:13px}
+  textarea{width:100%;min-height:96px;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
+  input[type="text"], input[type="password"], select{width:100%;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
+  .row{display:flex;gap:8px;align-items:center}
+  .row .col{flex:1}
+  .btn{padding:10px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:800}
+  .primary{background:linear-gradient(90deg,var(--neon-red),#990000);color:#fff}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  .success{background:linear-gradient(90deg,#00cc66,#00ff88);color:#002a10}
+  .small{font-size:13px;color:var(--muted)}
+  .log{margin-top:10px;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px;max-height:160px;overflow:auto;font-family:var(--mono);font-size:13px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:6px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
+  .visual{display:flex;gap:12px;align-items:center}
+  canvas#viz{width:100%;height:120px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+  footer{margin-top:14px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+  a.link{color:var(--neon-green);text-decoration:none}
+  .kbd{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:6px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<canvas id="matrix" aria-hidden="true"></canvas>
+<div class="overlay" aria-hidden="true"></div>
+
+<div class="wrap" role="application" aria-label="Cryptography Lab">
+  <header>
+    <div>
+      <div class="brand">Cryptography Lab</div>
+      <div class="sub">AES-GCM (PBKDF2) • RSA-OAEP • SHA / HMAC • Encoders • Visualizations</div>
+    </div>
+  </header>
+
+  <main class="grid">
+    <!-- LEFT: Lab UI -->
+    <section class="panel" aria-labelledby="labTitle">
+      <h1 id="labTitle">Interactive Cryptography Experiments</h1>
+      <p class="lead">Everything runs in the browser — client-side only. Use responsibly; keys should be kept secret.</p>
+
+      <!-- plaintext -->
+      <div class="section" aria-labelledby="inputLabel">
+        <label id="inputLabel">Plaintext / Input</label>
+        <textarea id="inputText" placeholder="Type text, messages, or paste data here..."></textarea>
+        <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+          <button id="fillDemo" class="btn ghost">Fill demo text</button>
+          <button id="clearInput" class="btn ghost">Clear</button>
+        </div>
+      </div>
+
+      <!-- symmetric AES -->
+      <div class="section" aria-labelledby="symLabel">
+        <label id="symLabel">Symmetric Encryption — AES-GCM (PBKDF2)</label>
+        <div class="row" style="margin-bottom:8px">
+          <div class="col">
+            <input id="symPass" type="password" placeholder="Passphrase (secret)">
+          </div>
+          <div style="width:160px">
+            <select id="symAlg">
+              <option value="aes-gcm-256">AES-GCM (256)</option>
+              <option value="aes-gcm-128">AES-GCM (128)</option>
+            </select>
+          </div>
+          <div style="width:120px">
+            <select id="symIter">
+              <option value="100000">100k iter</option>
+              <option value="200000" selected>200k iter</option>
+              <option value="400000">400k iter</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button id="symEncrypt" class="btn primary">Encrypt (AES)</button>
+          <button id="symDecrypt" class="btn ghost">Decrypt (AES)</button>
+          <button id="symDownload" class="btn ghost" disabled>Download JSON</button>
+        </div>
+        <div class="small" style="margin-top:8px">Output format: Base64-wrapped JSON (v1) containing salt/iv/ct/alg — safe for paste & storage.</div>
+      </div>
+
+      <!-- asymmetric RSA -->
+      <div class="section" aria-labelledby="rsaLabel">
+        <label id="rsaLabel">Asymmetric — RSA-OAEP (2048)</label>
+        <div class="row">
+          <button id="genRsa" class="btn primary">Generate Keypair</button>
+          <button id="exportPub" class="btn ghost" disabled>Export Public (PEM)</button>
+          <button id="exportPriv" class="btn ghost" disabled>Export Private (PEM)</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <textarea id="rsaPeerPub" rows="3" placeholder="Paste receiver's public PEM here to encrypt"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="rsaEncryptBtn" class="btn primary">Encrypt with PEM</button>
+          <button id="rsaDecryptBtn" class="btn ghost">Decrypt (private)</button>
+        </div>
+        <div class="small" style="margin-top:8px">Note: RSA for small messages. For large data use hybrid approach (AES + RSA wrap).</div>
+      </div>
+
+      <!-- hashing & HMAC -->
+      <div class="section" aria-labelledby="hashLabel">
+        <label id="hashLabel">Hashing & HMAC</label>
+        <div class="row">
+          <select id="hashAlgo">
+            <option value="SHA-256">SHA-256</option>
+            <option value="SHA-512">SHA-512</option>
+          </select>
+          <button id="hashBtn" class="btn ghost">Hash</button>
+          <input id="hmacKey" type="text" placeholder="HMAC key (optional)">
+          <button id="hmacBtn" class="btn primary">Compute HMAC</button>
+        </div>
+        <div style="margin-top:8px" id="hashOut" class="small">Result: —</div>
+      </div>
+
+      <!-- encoders -->
+      <div class="section" aria-labelledby="encLabel">
+        <label id="encLabel">Encoding Tools</label>
+        <div class="row">
+          <select id="encSelect">
+            <option value="b64e">Base64 Encode</option>
+            <option value="b64d">Base64 Decode</option>
+            <option value="hexe">Hex Encode</option>
+            <option value="hexd">Hex Decode</option>
+            <option value="rev">Reverse Text</option>
+            <option value="caesar3">Caesar Cipher (shift 3)</option>
+          </select>
+          <button id="encRun" class="btn ghost">Run</button>
+          <button id="encCopy" class="btn ghost">Copy Output</button>
+        </div>
+        <div id="encOut" class="small" style="margin-top:8px">Output: —</div>
+      </div>
+
+      <!-- password entropy -->
+      <div class="section" aria-labelledby="pwdLabel">
+        <label id="pwdLabel">Password Strength & Entropy</label>
+        <div class="row">
+          <input id="pwdInput" type="text" placeholder="Type password to analyze">
+          <div style="width:140px"><button id="pwdCalc" class="btn primary">Analyze</button></div>
+        </div>
+        <div style="margin-top:8px" id="pwdResult" class="small">Entropy: — • Estimated crack time: —</div>
+      </div>
+
+      <!-- visualization -->
+      <div class="section" aria-labelledby="vizLabel">
+        <label id="vizLabel">Bit Visualization (Encrypt randomness simulation)</label>
+        <div class="visual">
+          <canvas id="viz" width="640" height="120" aria-hidden="true"></canvas>
+          <div style="flex:0 0 220px">
+            <div class="small">Mode:</div>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <button id="vizRandom" class="btn ghost">Random Bits</button>
+              <button id="vizXor" class="btn ghost">XOR Plain vs Cipher</button>
+              <button id="vizStop" class="btn ghost">Stop</button>
+            </div>
+            <div class="small" style="margin-top:10px">This helps visualize diffusion & randomness in ciphertext.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="log" id="log">Lab ready. All operations are local to your browser.</div>
+    </section>
+
+    <!-- RIGHT: Help / History / Exports -->
+    <aside class="panel" aria-labelledby="rightTitle">
+      <h3 id="rightTitle" style="color:var(--neon-green)">Tools, History & Notes</h3>
+
+      <div class="section">
+        <label>History (LocalStorage)</label>
+        <div id="historyList" class="small">No saved items yet.</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="clearHist" class="btn ghost">Clear History</button>
+          <button id="exportHist" class="btn ghost">Export (JSON)</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <label>Export / Import Keys</label>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button id="impPrivBtn" class="btn ghost">Import Private PEM</button>
+          <button id="impPubBtn" class="btn ghost">Import Public PEM</button>
+          <input id="fileInput" type="file" accept=".pem,.txt,.json" style="display:none"/>
+        </div>
+        <div class="small" style="margin-top:8px">Import PEM for RSA (private or public). Import only from trusted sources.</div>
+      </div>
+
+      <div class="section">
+        <label>Quick Learning Links</label>
+        <ul class="small" style="margin-top:8px">
+          <li><a class="link" href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto" target="_blank" rel="noopener">Web Crypto API (MDN)</a></li>
+          <li><a class="link" href="https://nvlpubs.nist.gov/" target="_blank" rel="noopener">NIST Crypto Standards</a></li>
+          <li><a class="link" href="https://en.wikipedia.org/wiki/Cryptography" target="_blank" rel="noopener">Cryptography — Overview (Wikipedia)</a></li>
+        </ul>
+      </div>
+
+      <div class="section">
+        <label>Security Notes</label>
+        <p class="small">• This lab runs crypto in the browser. For production, secure key storage and server-side controls are required.<br>
+        • PBKDF2 iterations are set high for demo; tune for your environment.<br>
+        • Never paste private keys into untrusted sites.</p>
+      </div>
+    </aside>
+  </main>
+
+
+<script>
+
+/* -------------------------
+   Utilities
+   ------------------------- */
+function log(msg){
+  const el = document.getElementById('log');
+  el.textContent = (new Date()).toLocaleTimeString() + ' • ' + msg + '\n' + el.textContent;
+}
+function toB64(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))); }
+function fromB64(b64){ const bin = atob(b64); const arr = new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i); return arr.buffer; }
+function ab2hex(buf){ return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+function hex2ab(hex){ const bytes = new Uint8Array(hex.match(/.{1,2}/g).map(s=>parseInt(s,16))); return bytes.buffer; }
+function str2ab(s){ return new TextEncoder().encode(s); }
+function ab2str(ab){ return new TextDecoder().decode(ab); }
+
+/* -------------------------
+   Stable hash (FNV-1a) - small util
+   ------------------------- */
+function stableHash(s){
+  let h = 2166136261 >>> 0;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h,16777619) >>> 0; }
+  return h >>> 0;
+}
+function prng(seed){ let s = seed>>>0; return ()=>{ s = (s * 1664525 + 1013904223) >>>0; return s / 0x100000000; }; }
+
+/* -------------------------
+   Symmetric AES-GCM (PBKDF2)
+   ------------------------- */
+async function deriveKey(password, salt, iter, lenBits=256){
+  const base = await crypto.subtle.importKey('raw', str2ab(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({
+    name:'PBKDF2',
+    salt: salt,
+    iterations: iter,
+    hash:'SHA-256'
+  }, base, {name:'AES-GCM', length: lenBits}, false, ['encrypt','decrypt']);
+}
+
+async function aesEncrypt(password, plaintext, iter, alg){
+  const len = alg.includes('256') ? 256 : 128;
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(password, salt, iter, len);
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv: iv}, key, str2ab(plaintext));
+  const pkg = { v:1, alg: alg, iter: iter, salt: toB64(salt.buffer), iv: toB64(iv.buffer), ct: toB64(ct) };
+  return btoa(JSON.stringify(pkg));
+}
+
+async function aesDecrypt(password, pkgB64){
+  try{
+    const json = atob(pkgB64);
+    const obj = JSON.parse(json);
+    const salt = new Uint8Array(fromB64(obj.salt));
+    const iv = new Uint8Array(fromB64(obj.iv));
+    const ct = fromB64(obj.ct);
+    const key = await deriveKey(password, salt, obj.iter, obj.alg.includes('256')?256:128);
+    const ptbuf = await crypto.subtle.decrypt({name:'AES-GCM', iv: iv}, key, ct);
+    return ab2str(ptbuf);
+  }catch(e){
+    throw new Error('AES decrypt failed: ' + (e.message || e));
+  }
+}
+
+/* -------------------------
+   RSA-OAEP (generate/export/import/encrypt/decrypt)
+   ------------------------- */
+let rsaKeyPair = null;
+async function generateRsa(){
+  rsaKeyPair = await crypto.subtle.generateKey({name:'RSA-OAEP', modulusLength:2048, publicExponent: new Uint8Array([1,0,1]), hash:'SHA-256'}, true, ['encrypt','decrypt']);
+  log('RSA 2048 keypair generated.');
+  document.getElementById('exportPub').disabled = false;
+  document.getElementById('exportPriv').disabled = false;
+}
+
+async function exportPublicPem(key){
+  const spki = await crypto.subtle.exportKey('spki', key);
+  const b64 = toB64(spki);
+  return '-----BEGIN PUBLIC KEY-----\n' + b64.match(/.{1,64}/g).join('\n') + '\n-----END PUBLIC KEY-----';
+}
+async function exportPrivatePem(key){
+  const pkcs8 = await crypto.subtle.exportKey('pkcs8', key);
+  const b64 = toB64(pkcs8);
+  return '-----BEGIN PRIVATE KEY-----\n' + b64.match(/.{1,64}/g).join('\n') + '\n-----END PRIVATE KEY-----';
+}
+function pemToBinary(pem){
+  const b64 = pem.replace(/-----.*?-----/g,'').replace(/\s+/g,'');
+  return fromB64(b64);
+}
+async function importPublicPem(pem){
+  const bin = pemToBinary(pem);
+  return crypto.subtle.importKey('spki', bin, {name:'RSA-OAEP', hash:'SHA-256'}, true, ['encrypt']);
+}
+async function importPrivatePem(pem){
+  const bin = pemToBinary(pem);
+  return crypto.subtle.importKey('pkcs8', bin, {name:'RSA-OAEP', hash:'SHA-256'}, true, ['decrypt']);
+}
+
+async function rsaEncryptWithPem(pubPem, plaintext){
+  const pub = await importPublicPem(pubPem);
+  const ct = await crypto.subtle.encrypt({name:'RSA-OAEP'}, pub, str2ab(plaintext));
+  return toB64(ct);
+}
+async function rsaDecryptWithPrivateKey(privKey, b64ct){
+  const ct = fromB64(b64ct);
+  const pt = await crypto.subtle.decrypt({name:'RSA-OAEP'}, privKey, ct);
+  return ab2str(pt);
+}
+
+/* -------------------------
+   Hashing & HMAC
+   ------------------------- */
+async function hashText(alg, text){
+  const buf = await crypto.subtle.digest(alg, str2ab(text));
+  return ab2hex(buf);
+}
+async function hmacText(keyText, alg, text){
+  const key = await crypto.subtle.importKey('raw', str2ab(keyText), {name:'HMAC', hash: alg}, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, str2ab(text));
+  return ab2hex(sig);
+}
+
+/* -------------------------
+   Encoders
+   ------------------------- */
+function base64Encode(s){ return btoa(unescape(encodeURIComponent(s))); }
+function base64Decode(s){ try{ return decodeURIComponent(escape(atob(s))); }catch(e){ throw new Error('Invalid Base64'); } }
+function hexEncode(s){ return Array.from(new TextEncoder().encode(s)).map(b=>b.toString(16).padStart(2,'0')).join(''); }
+function hexDecode(hex){ try{ return new TextDecoder().decode(hex2ab(hex)); }catch(e){ throw new Error('Invalid hex'); } }
+function reverseText(s){ return s.split('').reverse().join(''); }
+function caesarShift(s, n=3){ return s.split('').map(c=>String.fromCharCode((c.charCodeAt(0)+n)%65536)).join(''); }
+
+/* -------------------------
+   Password entropy & crack-time (rough est)
+   ------------------------- */
+function estimateEntropy(pw){
+  let pool = 0;
+  if(/[a-z]/.test(pw)) pool += 26;
+  if(/[A-Z]/.test(pw)) pool += 26;
+  if(/[0-9]/.test(pw)) pool += 10;
+  if(/[^A-Za-z0-9]/.test(pw)) pool += 32;
+  if(pool === 0) return 0;
+  const ent = Math.log2(Math.pow(pool, pw.length));
+  return Math.round(ent*100)/100;
+}
+function estimateCrackTime(entropyBits){
+  // assume 1e10 guesses/sec (10 billion) for rough estimate
+  const guesses = Math.pow(2, entropyBits);
+  const secs = guesses / 1e10;
+  if(secs < 1) return 'Instant';
+  if(secs < 60) return `${Math.round(secs)} sec`;
+  if(secs < 3600) return `${Math.round(secs/60)} min`;
+  if(secs < 86400) return `${Math.round(secs/3600)} hrs`;
+  if(secs < 31536000) return `${Math.round(secs/86400)} days`;
+  if(secs < 3153600000) return `${Math.round(secs/31536000)} years`;
+  return 'Centuries';
+}
+
+/* -------------------------
+   Visualization (canvas)
+   ------------------------- */
+let vizAnim = null;
+const vizCanvas = document.getElementById('viz');
+const vizCtx = vizCanvas.getContext('2d');
+function vizClear(){ vizCtx.clearRect(0,0,vizCanvas.width,vizCanvas.height); }
+function vizRandomBits(){
+  cancelViz();
+  vizAnim = setInterval(()=>{
+    vizCtx.fillStyle = 'rgba(0,0,0,0.12)';
+    vizCtx.fillRect(0,0,vizCanvas.width,vizCanvas.height);
+    const cols = 64, rows = 16;
+    const w = vizCanvas.width/cols, h = vizCanvas.height/rows;
+    for(let x=0;x<cols;x++){
+      for(let y=0;y<rows;y++){
+        const b = Math.random()<0.5;
+        vizCtx.fillStyle = b? '#00ff88' : '#1a1a1a';
+        vizCtx.fillRect(x*w + 1, y*h + 1, w-2, h-2);
+      }
+    }
+  },120);
+}
+function vizXorWithPlain(){
+  cancelViz();
+  // use inputText and show diff pattern between plain & hashed pseudo-cipher
+  const plain = (document.getElementById('inputText').value || '').slice(0,512);
+  const seed = stableHash(plain || 'demo');
+  const rnd = prng(seed);
+  vizAnim = setInterval(()=>{
+    vizCtx.fillStyle = 'rgba(0,0,0,0.12)';
+    vizCtx.fillRect(0,0,vizCanvas.width,vizCanvas.height);
+    const cols = 64, rows = 16;
+    const w = vizCanvas.width/cols, h = vizCanvas.height/rows;
+    for(let x=0;x<cols;x++){
+      for(let y=0;y<rows;y++){
+        const pi = (plain.charCodeAt((x*rows+y) % plain.length) || 0);
+        const r = Math.floor(rnd()*256);
+        const bit = ((pi ^ r) & 1) === 1;
+        vizCtx.fillStyle = bit? '#ffcc00' : '#0b2b17';
+        vizCtx.fillRect(x*w + 1, y*h + 1, w-2, h-2);
+      }
+    }
+  },150);
+}
+function cancelViz(){ if(vizAnim) { clearInterval(vizAnim); vizAnim = null; vizClear(); } }
+
+/* -------------------------
+   UI Wiring
+   ------------------------- */
+const inputText = document.getElementById('inputText');
+document.getElementById('fillDemo').addEventListener('click', ()=>{ inputText.value = 'The quick brown fox jumps over the lazy dog — Cryptography Lab demo.'; log('Demo text filled.'); });
+document.getElementById('clearInput').addEventListener('click', ()=>{ inputText.value=''; log('Input cleared.'); });
+
+/* Symmetric buttons */
+document.getElementById('symEncrypt').addEventListener('click', async ()=>{
+  try{
+    const pw = document.getElementById('symPass').value || prompt('Enter passphrase for AES (will not be saved):','');
+    if(!pw){ log('Encryption cancelled (no passphrase)'); return; }
+    const iter = Number(document.getElementById('symIter').value) || 200000;
+    const alg = document.getElementById('symAlg').value;
+    const plain = inputText.value || '';
+    log('Starting AES encryption (client-side)...');
+    const out = await aesEncrypt(pw, plain, iter, alg);
+    inputText.value = out;
+    document.getElementById('symDownload').disabled = false;
+    log('AES encrypt complete (output in input box).');
+  }catch(e){ log('AES encrypt error: '+e); alert('Encrypt failed: '+e.message); }
+});
+document.getElementById('symDecrypt').addEventListener('click', async ()=>{
+  try{
+    const pw = document.getElementById('symPass').value || prompt('Enter passphrase to decrypt:','');
+    if(!pw){ log('Decrypt cancelled (no passphrase)'); return; }
+    const pkg = inputText.value.trim();
+    log('Attempting AES decrypt...');
+    const pt = await aesDecrypt(pw, pkg);
+    inputText.value = pt;
+    log('AES decrypt success.');
+  }catch(e){ log('AES decrypt error: '+e); alert('Decrypt failed: '+(e.message || e)); }
+});
+document.getElementById('symDownload').addEventListener('click', ()=>{
+  const val = inputText.value || '';
+  const blob = new Blob([val],{type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'aes-package.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
+});
+
+/* RSA */
+document.getElementById('genRsa').addEventListener('click', async ()=>{
+  try{ await generateRsa(); }catch(e){ log('RSA gen error: '+e); alert('RSA gen failed: '+e.message); }
+});
+document.getElementById('exportPub').addEventListener('click', async ()=>{
+  if(!rsaKeyPair){ alert('No RSA keypair available'); return; }
+  const pem = await exportPublicPem(rsaKeyPair.publicKey);
+  const a = document.createElement('a'); a.href = 'data:text/plain;base64,' + btoa(pem); a.download = 'public.pem'; document.body.appendChild(a); a.click(); a.remove();
+  log('Public PEM exported.');
+});
+document.getElementById('exportPriv').addEventListener('click', async ()=>{
+  if(!rsaKeyPair){ alert('No RSA keypair available'); return; }
+  const pem = await exportPrivatePem(rsaKeyPair.privateKey);
+  const a = document.createElement('a'); a.href = 'data:text/plain;base64,' + btoa(pem); a.download = 'private.pem'; document.body.appendChild(a); a.click(); a.remove();
+  log('Private PEM exported (save securely!).');
+});
+document.getElementById('rsaEncryptBtn').addEventListener('click', async ()=>{
+  try{
+    const pem = document.getElementById('rsaPeerPub').value.trim();
+    if(!pem){ alert('Paste recipient public PEM first'); return; }
+    const pt = inputText.value || '';
+    const ct = await rsaEncryptWithPem(pem, pt);
+    inputText.value = ct;
+    log('RSA encrypt (PEM) complete — ciphertext in input.');
+  }catch(e){ log('RSA encrypt error: '+e); alert('RSA encrypt failed: '+e.message); }
+});
+document.getElementById('rsaDecryptBtn').addEventListener('click', async ()=>{
+  try{
+    if(!rsaKeyPair || !rsaKeyPair.privateKey){ alert('No private key available — generate or import'); return; }
+    const ct = inputText.value.trim();
+    if(!ct){ alert('Paste ciphertext into input'); return; }
+    const pt = await rsaDecryptWithPrivateKey(rsaKeyPair.privateKey, ct);
+    inputText.value = pt;
+    log('RSA decrypt success — plaintext in input.');
+  }catch(e){ log('RSA decrypt error: '+e); alert('RSA decrypt failed: '+(e.message||e)); }
+});
+
+/* Hash & HMAC */
+document.getElementById('hashBtn').addEventListener('click', async ()=>{
+  const alg = document.getElementById('hashAlgo').value;
+  const txt = inputText.value || '';
+  const h = await hashText(alg, txt);
+  document.getElementById('hashOut').textContent = `Hash (${alg}): ${h}`;
+  log('Computed ' + alg);
+});
+document.getElementById('hmacBtn').addEventListener('click', async ()=>{
+  try{
+    const key = document.getElementById('hmacKey').value || prompt('HMAC key (text):','');
+    if(!key) return log('HMAC cancelled (no key)');
+    const alg = document.getElementById('hashAlgo').value;
+    const txt = inputText.value || '';
+    const h = await hmacText(key, alg, txt);
+    document.getElementById('hashOut').textContent = `HMAC-${alg}: ${h}`;
+    log('Computed HMAC-' + alg);
+  }catch(e){ log('HMAC error: '+e); alert('HMAC failed: '+e.message); }
+});
+
+/* Encoders */
+document.getElementById('encRun').addEventListener('click', ()=>{
+  try{
+    const op = document.getElementById('encSelect').value;
+    const txt = inputText.value || '';
+    let out = '';
+    if(op === 'b64e') out = base64Encode(txt);
+    else if(op === 'b64d') out = base64Decode(txt);
+    else if(op === 'hexe') out = hexEncode(txt);
+    else if(op === 'hexd') out = hexDecode(txt);
+    else if(op === 'rev') out = reverseText(txt);
+    else if(op === 'caesar3') out = caesarShift(txt,3);
+    document.getElementById('encOut').textContent = 'Output: ' + out;
+    log('Encoder run: ' + op);
+  }catch(e){ log('Encoder error: '+e); alert('Encoder failed: '+e.message); }
+});
+document.getElementById('encCopy').addEventListener('click', ()=>{
+  const txt = document.getElementById('encOut').textContent.replace(/^Output:\s*/,'');
+  navigator.clipboard.writeText(txt).then(()=> log('Encoded output copied to clipboard'), ()=> log('Copy failed'));
+});
+
+/* Password entropy */
+document.getElementById('pwdCalc').addEventListener('click', ()=>{
+  const pw = document.getElementById('pwdInput').value || '';
+  const ent = estimateEntropy(pw);
+  const time = estimateCrackTime(ent);
+  document.getElementById('pwdResult').textContent = `Entropy: ${ent} bits • Estimated crack time: ${time}`;
+  log('Password analyzed: ' + ent + ' bits');
+});
+
+/* Visualization */
+document.getElementById('vizRandom').addEventListener('click', ()=>{ vizRandomBits(); log('Visualization: random bits');});
+document.getElementById('vizXor').addEventListener('click', ()=>{ vizXorWithPlain(); log('Visualization: XOR plain vs pseudo-rand');});
+document.getElementById('vizStop').addEventListener('click', ()=>{ cancelViz(); log('Visualization stopped');});
+
+/* History & export */
+let history = JSON.parse(localStorage.getItem('crypto_lab_history_v1') || '[]');
+function saveHistoryItem(item){
+  history.push({id:'h'+Date.now(), created: new Date().toISOString(), item});
+  if(history.length>200) history = history.slice(history.length-200);
+  localStorage.setItem('crypto_lab_history_v1', JSON.stringify(history));
+  renderHistory();
+}
+function renderHistory(){
+  const el = document.getElementById('historyList');
+  if(history.length===0){ el.textContent = 'No saved items yet.'; return; }
+  el.innerHTML = '';
+  history.slice().reverse().forEach(h=>{
+    const d = document.createElement('div'); d.style.display='flex'; d.style.justifyContent='space-between'; d.style.alignItems='center'; d.style.marginBottom='6px';
+    d.innerHTML = `<div style="font-family:var(--mono);font-size:13px"><strong>${h.item.type}</strong><br/><span class="small">${new Date(h.created).toLocaleString()}</span></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn ghost" data-load='${h.id}'>Load</button>
+        <button class="btn ghost" data-del='${h.id}'>Delete</button>
+      </div>`;
+    el.appendChild(d);
+  });
+}
+document.getElementById('clearHist').addEventListener('click', ()=>{ if(confirm('Clear history?')){ history=[]; localStorage.removeItem('crypto_lab_history_v1'); renderHistory(); }});
+document.getElementById('exportHist').addEventListener('click', ()=>{ if(history.length===0){ alert('No history'); return; } const blob = new Blob([JSON.stringify(history,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='crypto-lab-history.json'; a.click(); a.remove(); URL.revokeObjectURL(a.href); });
+
+document.getElementById('historyList').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const id = btn.dataset.load || btn.dataset.del;
+  if(btn.dataset.load){
+    const item = history.find(h=>h.id===id); if(item){ inputText.value = item.item.value || ''; log('Loaded history item: '+item.item.type); }
+  } else if(btn.dataset.del){
+    history = history.filter(h=>h.id!==id);
+    localStorage.setItem('crypto_lab_history_v1', JSON.stringify(history));
+    renderHistory();
+  }
+});
+
+/* Save operations to history automatically for AES/RSA/hash results */
+function pushResultToHistory(type, value){
+  saveHistoryItem({type, value});
+}
+
+/* Export / Import keys via file input */
+document.getElementById('impPrivBtn').addEventListener('click', ()=> document.getElementById('fileInput').click());
+document.getElementById('impPubBtn').addEventListener('click', ()=> document.getElementById('fileInput').click());
+document.getElementById('fileInput').addEventListener('change', async (ev)=>{
+  const f = ev.target.files[0];
+  if(!f) return;
+  const txt = await f.text();
+  if(txt.includes('PRIVATE KEY')){ try{ const priv = await importPrivatePem(txt); rsaKeyPair = {privateKey: priv, publicKey: null}; document.getElementById('exportPriv').disabled=false; log('Private PEM imported'); }catch(e){ alert('Import failed: '+e.message); } }
+  else if(txt.includes('PUBLIC KEY')){ try{ const pub = await importPublicPem(txt); rsaKeyPair = rsaKeyPair || {}; rsaKeyPair.publicKey = pub; document.getElementById('exportPub').disabled=false; log('Public PEM imported'); }catch(e){ alert('Import failed: '+e.message); } }
+  ev.target.value = '';
+});
+
+/* Small keyboard niceties */
+document.addEventListener('keydown', (e)=>{ if(e.ctrlKey && e.key==='Enter'){ document.getElementById('symEncrypt').click(); } });
+renderHistory();
+log('Cryptography Lab initialized.');
+</script>
+</body>
+</html>

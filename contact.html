@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact | CyberX</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:#000;
+  color:#fff;
+  font-family:"Courier New", monospace;
+}
+
+/* ===== HEADER ===== */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:18px 24px;
+  border-bottom:1px solid #111;
+}
+
+.logo{
+  font-size:22px;
+  letter-spacing:2px;
+  font-weight:bold;
+}
+.logo span{color:#0f0}
+
+.menu-btn{
+  font-size:26px;
+  cursor:pointer;
+  user-select:none;
+}
+
+/* ===== DROPDOWN ===== */
+.dropdown{
+  position:fixed;
+  top:0;
+  right:18px;
+  width:230px;
+  background:#050505;
+  border:1px solid #222;
+  transform:translateY(-120%);
+  transition:0.35s ease;
+  z-index:999;
+}
+.dropdown.active{transform:translateY(60px)}
+.dropdown a{
+  display:block;
+  padding:13px 16px;
+  color:#ccc;
+  text-decoration:none;
+  border-bottom:1px solid #111;
+}
+.dropdown a:hover{
+  background:#0a0a0a;
+  color:#0f0;
+}
+
+/* ===== CONTAINER ===== */
+.container{
+  max-width:900px;
+  margin:50px auto;
+  padding:0 18px;
+}
+
+/* ===== SECTION ===== */
+.section{
+  background:#050505;
+  border:1px solid #111;
+  padding:30px;
+}
+
+.section h2{
+  color:#0f0;
+  margin-bottom:14px;
+  letter-spacing:1px;
+}
+
+.section p{
+  color:#ccc;
+  font-size:14px;
+  line-height:1.7;
+  margin-bottom:8px;
+}
+
+.section a{
+  color:#ccc;
+  text-decoration:none;
+}
+.section a:hover{color:#0f0}
+
+/* ===== FOOTER ===== */
+footer{
+  margin-top:60px;
+  padding:22px;
+  text-align:center;
+  border-top:1px solid #111;
+  font-size:13px;
+  color:#777;
+}
+footer a{
+  color:#ccc;
+  text-decoration:none;
+  margin:0 10px;
+}
+footer a:hover{color:#0f0}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  .logo{font-size:18px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">Cyber<span>X</span></div>
+  <div class="menu-btn" id="menuBtn">⋮</div>
+</header>
+
+<div class="dropdown" id="dropdown">
+  <a href="index.html">Dashboard</a>
+  <a href="about.html">About</a>
+  <a href="terms.html">Terms & Policies</a>
+  <a href="support&donation.html">Support & Donation</a>
+</div>
+
+<div class="container">
+
+  <div class="section">
+    <h2>CONTACT</h2>
+
+    <p>
+      CyberX is an independent cybersecurity learning initiative built for
+      ethical education, awareness and skill development. If you want to
+      connect, collaborate, report issues or support this project, you can
+      contact me using the details below.
+    </p>
+
+    <br>
+
+    <p><b>Name:</b> Kamran Liaquat</p>
+    <p><b>WhatsApp / Call:</b> 0330‑3638383</p>
+    <p><b>Email:</b> thekamranliaquat@gmail.com</p>
+
+    <br>
+
+    <p>
+      I actively share cybersecurity knowledge, simulations, awareness content
+      and learning updates on social platforms:
+    </p>
+
+    <br>
+
+    <p><b>GitHub:</b> <a href="https://github.com/Kamran-Liaquat404" target="_blank">github.com/Kamran-Liaquat404</a></p>
+    <p><b>TikTok:</b> <a href="https://www.tiktok.com/@thehackerpoint" target="_blank">@thehackerpoint</a></p>
+    <p><b>Facebook:</b> <a href="https://www.facebook.com/profile.php?id=61585341008880" target="_blank">Official Profile</a></p>
+
+    <br>
+
+    <p style="color:#777;font-size:13px;">
+      ⚠️ All communication and content are intended strictly for ethical and
+      legal purposes. CyberX does not support or promote illegal activities.
+    </p>
+  </div>
+
+</div>
+
+<footer>
+  © 2026 CyberX
+  <br><br>
+  <a href="about.html">About</a>
+  <a href="terms.html">Terms & Policies</a>
+  <a href="support&donation.html">Support & Donation</a>
+</footer>
+
+<script>
+const menuBtn = document.getElementById("menuBtn");
+const dropdown = document.getElementById("dropdown");
+
+menuBtn.onclick = () => {
+  dropdown.classList.toggle("active");
+};
+
+document.addEventListener("click", (e) => {
+  if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.remove("active");
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dark Web Awareness — Advanced (Educational & Safe)</title>
+<meta name="description" content="Dark Web Awareness — advanced, educational, and ethically-focused interactive guide. No access instructions or illegal guidance.">
+<style>
+  :root{
+    --bg:#000;
+    --panel:rgba(8,8,10,0.78);
+    --neon:#00ff77;
+    --accent:#7bdcff;
+    --warn:#ff6b6b;
+    --muted:#9fb3a0;
+    --glass: rgba(255,255,255,0.03);
+    --mono: ui-monospace, Menlo, Monaco, "Courier New", monospace;
+    --radius:12px;
+    --maxw:1200px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;padding:0;background:linear-gradient(180deg,#000,#03121a);color:#dfffe8;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+  a{color:var(--accent)}
+  /* matrix canvas */
+  canvas#matrix { position: fixed; inset:0; z-index:-3; filter:contrast(1.02) blur(.08px); }
+  .overlay { position:fixed; inset:0; background: linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.9)); z-index:-2; }
+  .wrap { max-width:var(--maxw); margin:18px auto; padding:18px; position:relative; z-index:2; }
+  header { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; }
+  .brand { font-weight:900; color:var(--neon); letter-spacing:1px; font-size:20px; text-shadow:0 0 18px rgba(0,255,119,0.06); }
+  .tag { color:var(--muted); font-size:13px; }
+  .grid { display:grid; grid-template-columns: 1fr 380px; gap:18px; margin-top:16px; }
+  @media (max-width:980px){ .grid{ grid-template-columns: 1fr } }
+  .panel { background:var(--panel); padding:14px; border-radius:var(--radius); border:1px solid var(--glass); box-shadow: 0 18px 48px rgba(0,0,0,0.6); }
+  h1,h2,h3{ margin:0; color:#fff }
+  p.lead { color:var(--muted); margin-top:8px; }
+  .disclaimer { background: linear-gradient(90deg, rgba(255,0,0,0.06), rgba(0,0,0,0.02)); padding:12px; border-radius:8px; border:1px solid rgba(255,0,0,0.06); color:#ffdede; margin-top:12px; }
+  .card{ background: rgba(255,255,255,0.02); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); margin-top:12px; }
+  table{ width:100%; border-collapse:collapse; margin-top:8px; font-size:14px; }
+  th,td{ padding:8px; text-align:left; border-bottom:1px dashed rgba(255,255,255,0.03); }
+  th{ color:var(--neon) }
+  .muted{ color:var(--muted) }
+  .kbd{ background:rgba(255,255,255,0.02); padding:6px 8px; border-radius:6px; font-family:var(--mono); font-size:12px; color:var(--muted) }
+  .controls{ display:flex; gap:8px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+  button{ padding:10px 12px; border-radius:10px; border:0; cursor:pointer; font-weight:800 }
+  .btn-primary{ background: linear-gradient(90deg,var(--neon), #00b86a); color:#02120a }
+  .btn-ghost{ background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted) }
+  .viz { height:220px; border-radius:8px; border:1px solid rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center; color:var(--muted); font-family:var(--mono); background: linear-gradient(90deg, rgba(0,0,0,0.35), rgba(0,0,0,0.12)); }
+  .terminal { background: #000; border-radius:8px; padding:12px; font-family:var(--mono); font-size:13px; color:var(--neon); max-height:280px; overflow:auto; border:1px solid rgba(255,255,255,0.02) }
+  .small { font-size:13px; color:var(--muted) }
+  .progress { height:12px; background:rgba(255,255,255,0.02); border-radius:999px; overflow:hidden; margin-top:8px; }
+  .progress > i { display:block; height:100%; background: linear-gradient(90deg,#00ff88,#00a6ff); width:0%; transition:width .35s linear }
+  .danger { color:var(--warn) }
+  footer { margin-top:18px; color:var(--muted); font-size:13px; display:flex; justify-content:space-between; align-items:center; }
+  .sr-only{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+</style>
+</head>
+<body>
+  <canvas id="matrix" aria-hidden="true"></canvas>
+  <div class="overlay" aria-hidden="true"></div>
+
+  <div class="wrap" role="main">
+    <header>
+      <div>
+        <div class="brand">Dark Web Awareness — (Educational)</div>
+        <div class="tag">Ethics-first • No access instructions • For training & awareness</div>
+      </div>
+      <div style="text-align:right">
+       </div>
+    </header>
+
+    <div class="grid" aria-live="polite">
+      <!-- LEFT: Core content -->
+      <section class="panel" aria-labelledby="heading-main">
+        <h1 id="heading-main">Danger Awareness — Dark Web</h1>
+        <p class="lead">This page is intentionally dramatic to emphasize the seriousness of dark-web threats. All interactive elements are safe, offline and educational. Do not attempt illegal access. If you suspect a breach, follow legal reporting procedures.</p>
+
+        <div class="disclaimer" role="alert">
+          <strong>LEGAL & SAFETY WARNING:</strong> This resource is for lawful education and defensive training only. It contains no instructions for accessing illicit services. Attempting unauthorized access to systems or marketplaces is illegal and punishable by law. If you see contraband or criminal activity, report it to your local authorities or CERT.
+        </div>
+
+        <!-- Sections -->
+        <div class="card" id="what">
+          <h2>What is the Dark Web?</h2>
+          <p class="muted">In short: a part of the internet that is not indexed by standard search engines and is often accessed using privacy-focused technologies. It contains a mix of legitimate privacy-preserving services and illegal marketplaces. Understanding it helps defenders detect and respond to threats.</p>
+        </div>
+
+        <div class="card" id="layers">
+          <h2>Surface • Deep • Dark — Quick Differences</h2>
+          <table aria-describedby="layers">
+            <thead><tr><th>Layer</th><th>Summary</th></tr></thead>
+            <tbody>
+              <tr><td>Surface Web</td><td>Publicly indexed websites (searchable, typically safe).</td></tr>
+              <tr><td>Deep Web</td><td>Content not indexed (private accounts, paywalled, internal systems).</td></tr>
+              <tr><td>Dark Web</td><td>Hidden services reachable only with special privacy technology; may host both lawful privacy tools and illegal content.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card" id="howtor">
+          <h2>How privacy networks work — (High level)</h2>
+          <p class="muted">Privacy networks route traffic through multiple relay nodes to obscure origin and destination. This provides anonymity for legitimate privacy uses (journalism, activism) but can also be abused. This section is conceptual — no configuration or connection instructions are provided.</p>
+          <ul>
+            <li><strong>Relay hops:</strong> traffic passes through a series of nodes to hide source IPs (theory only).</li>
+            <li><strong>Encryption layers:</strong> traffic is encrypted in layers; intermediate nodes cannot see full content.</li>
+            <li><strong>Exit nodes:</strong> final node that reaches a destination — misuse can be abused by criminals.</li>
+          </ul>
+        </div>
+
+        <div class="card" id="dangers">
+          <h2>Real Dangers & Criminal Traps</h2>
+          <ul>
+            <li><strong>Data sales:</strong> stolen credentials, databases, and PII being traded.</li>
+            <li><strong>Fraud services:</strong> tools or services sold for abuse (credit card fraud, identity theft).</li>
+            <li><strong>Malware & ransomware:</strong> distribution of malware kits and exploit code.</li>
+            <li><strong>Scams and extortion:</strong> social engineering, doxxing, and extortion schemes.</li>
+          </ul>
+        </div>
+
+        <div class="card" id="indicators">
+          <h2>Indicators of Compromise (Red Flags)</h2>
+          <ul>
+            <li>Unexplained credential dumps mentioning your domain or usernames.</li>
+            <li>Multiple failed login attempts across services in a short window.</li>
+            <li>Strange outbound traffic spikes to unknown IPs or endpoints.</li>
+            <li>Anonymous messages demanding ransom referencing leaked data.</li>
+          </ul>
+        </div>
+
+        <div class="card" id="monitoring">
+          <h2>How professionals monitor the Dark Web (Ethical & Legal)</h2>
+          <p class="muted">Security teams use specialized threat-intelligence services, legal OSINT, and vendor feeds to detect leaked credentials and trends. This is done through authorized channels and often by licensed vendors — not by individuals trying to access illicit services.</p>
+          <ul>
+            <li>Subscription intelligence feeds and reputable vendors</li>
+            <li>Passive scanning of public paste sites and code repositories</li>
+            <li>Correlation with internal logs and SIEM alerts</li>
+          </ul>
+        </div>
+
+        <!-- Interactive Risk Assessment -->
+        <div class="card" id="assessment">
+          <h2>Quick Risk Self-Assessment</h2>
+          <p class="muted">Answer four questions to get a quick awareness score and specific protective steps.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr; gap:8px">
+            <label class="small">Do you reuse passwords?</label>
+            <select id="rq1"><option value="0">Never</option><option value="2">Sometimes</option><option value="4">Often</option></select>
+
+            <label class="small">Do you use Multi-Factor Authentication (MFA)?</label>
+            <select id="rq2"><option value="4">Everywhere</option><option value="2">Some accounts</option><option value="0">None</option></select>
+
+            <label class="small">Do you monitor breach notifications for your accounts?</label>
+            <select id="rq3"><option value="4">Yes, actively</option><option value="2">Occasionally</option><option value="0">No</option></select>
+
+            <label class="small">How regularly do you patch systems & apps?</label>
+            <select id="rq4"><option value="4">Weekly/automated</option><option value="2">Monthly</option><option value="0">Rarely</option></select>
+          </div>
+          <div class="controls">
+            <button id="calcBtn" class="btn-primary">Calculate</button>
+            <div id="riskBox" style="margin-left:12px" class="small">Score: <strong id="riskVal">—</strong></div>
+            <div style="margin-left:auto" class="small muted">Exportable report available</div>
+          </div>
+          <div id="riskAdvice" class="muted" style="margin-top:10px">—</div>
+        </div>
+
+        <!-- Incident checklist -->
+        <div class="card" id="checklist">
+          <h2>Incident Response (Immediate Checklist)</h2>
+          <ol>
+            <li>Isolate affected systems and preserve logs.</li>
+            <li>Reset credentials from an uncompromised device and enable MFA.</li>
+            <li>Notify internal security and legal teams.</li>
+            <li>Collect evidence; do not overwrite logs.</li>
+            <li>Consider involving law enforcement or a professional IR partner.</li>
+          </ol>
+          <div class="controls">
+            <button id="downloadChk" class="btn-primary">Download Checklist</button>
+            <button id="copyChk" class="btn-ghost">Copy Checklist</button>
+            <button id="printChk" class="btn-ghost">Print</button>
+          </div>
+        </div>
+
+        <!-- Simulated Terminal (visual only) -->
+        <div class="card" id="sim-terminal">
+          <h2>Awareness Terminal — Visual Simulation</h2>
+          <p class="small muted">Cinematic visualization only. No connections. No real addresses.</p>
+          <div class="terminal" id="terminal" role="log" aria-live="polite" tabindex="0"></div>
+          <div class="controls" style="margin-top:8px">
+            <button id="runSim" class="btn-primary">Run Simulation</button>
+            <button id="stopSim" class="btn-ghost">Stop</button>
+            <label class="small" style="margin-left:auto"><input type="checkbox" id="soundToggle" /> Sound</label>
+          </div>
+          <div class="progress" aria-hidden="true"><i id="termProg"></i></div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT: Sidebar resources -->
+      <aside class="panel" aria-labelledby="sideTitle">
+        <h3 id="sideTitle">Quick Resources & Tools</h3>
+
+        <div class="card">
+          <strong>Emergency Contacts</strong>
+          <p class="small muted">If you suspect criminal activity, contact your local CERT, IT security team, or law enforcement. Always preserve evidence and follow legal guidance.</p>
+        </div>
+
+        <div class="card">
+          <strong>Trusted Vendors & References</strong>
+          <ul class="small muted">
+            <li>National CERT / CSIRT (your country)</li>
+            <li>Commercial breach monitoring providers (use vetted vendors)</li>
+            <li>Security blogs & advisories (official vendor advisories)</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <strong>Demo News (Safe Samples)</strong>
+          <div class="small muted" id="newsSample">
+            <div><strong>Oct 2025:</strong> ExampleCorp reports credential exposure (edu sample)</div>
+            <div style="margin-top:6px"><strong>Oct 2025:</strong> Patch released for demo-product (apply updates)</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Export & Templates</strong>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="exportJSON" class="btn-primary">Export Assessment</button>
+            <button id="exportTXT" class="btn-ghost">Export TXT</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Training</strong>
+          <p class="small muted">Run tabletop exercises, phishing simulations (with consent), and maintain a tested incident response playbook.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+<script>
+/* Dark Web Awareness — Advanced interactive (safe, offline)
+   - No instructions to access illicit services
+   - Terminal simulation is purely visual and uses synthetic messages
+*/
+
+/* Utilities */
+function $(id){ return document.getElementById(id); }
+function download(filename, content, type='text/plain'){ const blob = new Blob([content], {type}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href); }
+
+/* Risk calculator */
+$('calcBtn').addEventListener('click', ()=> {
+  const v1 = Number($('rq1').value);
+  const v2 = Number($('rq2').value);
+  const v3 = Number($('rq3').value);
+  const v4 = Number($('rq4').value);
+  // higher numeric value = better security in some questions; invert where needed
+  // We want final normalized risk percentage: 0% low risk -> 100% high risk
+  // Compose score as inverse of good practices
+  const bad = v1 + (4 - v2) + (4 - v3) + (4 - v4); // range 0..12 (0 best, 12 worst)
+  const pct = Math.round((bad / 12) * 100);
+  $('riskVal').textContent = pct + '%';
+  let advice;
+  if(pct <= 25) advice = '<strong>Low</strong> — Keep MFA & monitoring active; continue patching and breach checks.';
+  else if(pct <= 60) advice = '<strong>Moderate</strong> — Improve password hygiene, enforce MFA widely, enable breach alerts.';
+  else advice = '<strong>High</strong> — Act now: rotate credentials, MFA, engage security & legal, consider professional IR.';
+  $('riskAdvice').innerHTML = advice;
+});
+
+/* Export assessment */
+$('exportJSON').addEventListener('click', ()=> {
+  const report = {
+    ts: new Date().toISOString(),
+    q1: $('rq1').value, q2: $('rq2').value, q3: $('rq3').value, q4: $('rq4').value,
+    score: $('riskVal').textContent || 'not-calculated',
+    advice: $('riskAdvice').textContent || ''
+  };
+  download('darkweb-assessment-'+new Date().toISOString()+'.json', JSON.stringify(report, null, 2), 'application/json');
+});
+$('exportTXT').addEventListener('click', ()=> {
+  const txt = `Dark Web Awareness — Assessment
+Time: ${new Date().toLocaleString()}
+Score: ${$('riskVal').textContent || 'not-calculated'}
+Advice: ${$('riskAdvice').textContent || '—'}
+`;
+  download('darkweb-assessment-'+new Date().toISOString()+'.txt', txt, 'text/plain');
+});
+
+/* Checklist exports */
+const checklistText = `Incident Response Checklist
+1) Isolate affected systems
+2) Preserve logs and evidence
+3) Reset credentials from trusted device & enable MFA
+4) Notify security & legal teams
+5) Engage law enforcement if criminal activity suspected
+`;
+$('downloadChk').addEventListener('click', ()=> download('incident-checklist.txt', checklistText));
+$('copyChk').addEventListener('click', async ()=> { await navigator.clipboard.writeText(checklistText); alert('Checklist copied to clipboard'); });
+$('printChk').addEventListener('click', ()=> { const w = window.open('','_blank'); w.document.write('<pre>'+checklistText+'</pre>'); w.print(); w.close(); });
+
+/* Terminal simulation (visual only) */
+const terminal = $('terminal');
+let simTimer = null;
+let simProgress = 0;
+let simRunning = false;
+const simLines = [
+  '> initializing dark-web awareness probe [SIMULATION ONLY] ...',
+  '> loading curated threat indicators (safe demo)...',
+  '> scanning public paste resources (simulated) ...',
+  '> matching sample hashes against test dataset ...',
+  '> no actionable illegal guidance provided — educational only',
+  '> forming incident snapshot (demo) ...',
+  '> generating awareness report (sample) ...'
+];
+function appendTerminal(line, color) {
+  const el = document.createElement('div');
+  const ts = new Date().toLocaleTimeString();
+  el.textContent = `[${ts}] ${line}`;
+  if(color === 'warn') el.style.color = 'var(--warn)';
+  terminal.appendChild(el);
+  terminal.scrollTop = terminal.scrollHeight;
+}
+function runSimulation() {
+  if(simRunning) return;
+  simRunning = true;
+  simProgress = 0;
+  $('termProg').style.width = '0%';
+  terminal.innerHTML = '';
+  let idx = 0;
+  appendTerminal('=== DARK-WEB AWARENESS SIMULATION (SAFE) ===', 'warn');
+  simTimer = setInterval(()=> {
+    if(idx < simLines.length) {
+      appendTerminal(simLines[idx]);
+      idx++;
+      simProgress += Math.floor(100 / simLines.length);
+      $('termProg').style.width = Math.min(100, simProgress) + '%';
+      if($('soundToggle').checked) playBeep();
+    } else {
+      appendTerminal('=== SIMULATION COMPLETE — NO ILLEGAL INSTRUCTIONS INCLUDED ===', 'warn');
+      $('termProg').style.width = '100%';
+      clearInterval(simTimer);
+      simRunning = false;
+    }
+  }, 900);
+}
+function stopSimulation() {
+  if(simTimer){ clearInterval(simTimer); simTimer = null; }
+  simRunning = false;
+  appendTerminal('Simulation stopped by user', 'warn');
+}
+
+/* Sound */
+const ctx = (typeof AudioContext !== 'undefined') ? new AudioContext() : null;
+function playBeep(freq=1000,dur=0.06){
+  if(!ctx) return;
+  const o = ctx.createOscillator(); const g = ctx.createGain();
+  o.type = 'sine'; o.frequency.value = freq;
+  o.connect(g); g.connect(ctx.destination);
+  o.start();
+  g.gain.setValueAtTime(0.0001, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur + 0.02);
+  o.stop(ctx.currentTime + dur + 0.03);
+}
+
+/* Hook buttons */
+$('runSim').addEventListener('click', ()=> runSimulation());
+$('stopSim').addEventListener('click', ()=> stopSimulation());
+
+/* Keyboard shortcuts */
+document.addEventListener('keydown', (e)=> {
+  if(e.key === 'r' || e.key === 'R') {
+    // restart simulation visual & reset values
+    terminal.innerHTML = '';
+    $('riskVal').textContent = '—';
+    $('riskAdvice').textContent = '';
+    $('termProg').style.width = '0%';
+    appendTerminal('Simulator reset (visual only)');
+  }
+  if(e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+    $('calcBtn').click();
+  }
+});
+
+/* Demo news samples (static) */
+(function initSamples(){
+  const news = $('newsSample');
+  // already populated; could dynamically add more demo items if needed
+})();
+
+/* Accessibility: focus terminal with keyboard */
+terminal.addEventListener('keydown', (e)=>{
+  if(e.key === ' '){ e.preventDefault(); if(simRunning) stopSimulation(); else runSimulation(); }
+});
+
+/* Initialize defaults */
+appendTerminal('Dark Web Awareness — Ready (educational only)');
+$('termProg').style.width = '0%';
+</script>
+</body>
+</html>
