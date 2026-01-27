@@ -19,4 +19,4 @@ The project follows an **80% education + 20% interactive practice** approach, al
 
 ### 👨‍💻 Developer
 **Kamran Liaqat**  
-📧 thekamranliaquat@gmail.com
+📧 kamran.liaquat@proton.me
