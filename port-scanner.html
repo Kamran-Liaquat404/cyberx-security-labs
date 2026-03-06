@@ -1,658 +1,233 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Port Scanner — Simulation (Advanced)</title>
-<meta name="description" content="Advanced frontend-only port scanner simulation — educational. No real scanning performed."/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Password Security Analyzer</title>
+
 <style>
-  :root{
-    --bg:#000;
-    --neon-red:#ff3b3b;
-    --neon-green:#00ff88;
-    --muted:#97b0a6;
-    --panel:rgba(6,8,10,0.7);
-    --glass:rgba(255,255,255,0.03);
-    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
-    --radius:12px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;padding:0;background:linear-gradient(180deg,#000,#020202 60%);color:#dfffe6;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
-  canvas#matrix{position:fixed;inset:0;z-index:-3;display:block;filter:contrast(1.05)}
-  .overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.45),rgba(0,0,0,0.92));z-index:-2}
 
-  .container{max-width:1180px;margin:28px auto;padding:18px;position:relative;z-index:2}
-  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .brand{font-weight:900;color:var(--neon-red);letter-spacing:1px;font-size:20px;text-shadow:0 0 24px rgba(255,60,60,0.12)}
-  .sub{color:var(--muted);font-size:13px}
+body{
+margin:0;
+font-family:Consolas,monospace;
+background:#020202;
+color:#e5ffe9;
+display:flex;
+flex-direction:column;
+align-items:center;
+padding:20px;
+}
 
-  .grid{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:18px}
-  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+/* header */
 
-  .panel{background:var(--panel);padding:16px;border-radius:var(--radius);border:1px solid var(--glass);box-shadow:0 24px 60px rgba(0,0,0,0.6)}
-  h1{margin:0;color:var(--neon-green);font-size:24px}
-  p.lead{color:var(--muted);margin-top:8px;font-size:14px}
+h1{
+color:#00ff88;
+text-shadow:0 0 15px #00ff88;
+margin-bottom:20px;
+}
 
-  /* controls */
-  .form-row{display:flex;gap:8px;align-items:center;margin-top:12px}
-  input[type="text"], input[type="number"], input[type="file"], select {
-    padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-family:var(--mono);
-  }
-  input[type="text"]{flex:1}
-  .btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer;font-weight:800}
-  .btn.primary{background:linear-gradient(90deg,var(--neon-red),#990000);color:#fff}
-  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-  .btn.success{background:linear-gradient(90deg,#00cc66,#00ff88);color:#002a10}
+/* container */
 
-  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.container{
+width:100%;
+max-width:700px;
+background:#050606;
+border:1px solid #0f2;
+padding:25px;
+border-radius:10px;
+box-shadow:0 0 20px #000;
+}
 
-  /* progress */
-  .progress{margin-top:12px;background:rgba(255,255,255,0.03);height:12px;border-radius:8px;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
-  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,#00ff88,#00cc66);transition:width .25s linear}
+/* input */
 
-  .meta{display:flex;gap:12px;align-items:center;margin-top:10px;color:var(--muted);font-size:13px;flex-wrap:wrap}
+input{
+width:100%;
+padding:14px;
+font-size:18px;
+border-radius:8px;
+border:1px solid #00ff88;
+background:#000;
+color:#fff;
+outline:none;
+}
 
-  /* results */
-  .results{margin-top:14px;color:var(--muted);font-family:var(--mono);font-size:14px;max-height:56vh;overflow:auto;padding:6px;border-radius:10px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.02)}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  thead th{position:sticky;top:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);padding:8px;text-align:left;color:var(--neon-green)}
-  td, th{padding:8px;border-bottom:1px dashed rgba(255,255,255,0.03);vertical-align:middle}
-  .state-open{color:#00ff66;font-weight:900}
-  .state-closed{color:#ff6b6b;font-weight:800}
-  .confidence{color:var(--muted);font-size:12px}
+/* strength meter */
 
-  .timeline{margin-top:10px;font-family:var(--mono);font-size:13px;color:var(--muted);max-height:80px;overflow:auto;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
+.meter{
+margin-top:20px;
+height:15px;
+background:#111;
+border-radius:10px;
+overflow:hidden;
+}
 
-  /* filters */
-  .filters{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.meter-fill{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,#ff0000,#ff7700,#ffee00,#00ff66);
+transition:width .4s;
+}
 
-  /* history */
-  .history-list{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+/* panels */
 
-  /* footer */
-  footer{margin-top:18px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-  a.link{color:var(--neon-green);text-decoration:none;font-weight:800}
+.panel{
+margin-top:20px;
+padding:15px;
+background:#020202;
+border:1px solid #0a2;
+border-radius:8px;
+}
 
-  /* responsive adjustments */
-  @media(max-width:520px){
-    thead th, td{font-size:12px}
-    .brand{font-size:18px}
-  }
+.panel h3{
+margin:0 0 10px 0;
+color:#00ff88;
+}
+
+/* terminal */
+
+.terminal{
+margin-top:20px;
+background:#000;
+border:1px solid #0f0;
+padding:15px;
+height:160px;
+overflow:auto;
+font-size:14px;
+}
+
+.good{color:#00ff66}
+.warn{color:#ffaa00}
+.bad{color:#ff4444}
+
+footer{
+margin-top:30px;
+color:#888;
+font-size:13px;
+text-align:center;
+}
+
 </style>
 </head>
+
 <body>
-  <canvas id="matrix" aria-hidden="true"></canvas>
-  <div class="overlay" aria-hidden="true"></div>
 
-  <div class="container" role="application" aria-label="Port Scanner Simulation">
-    <header>
-      <div>
-        <div class="brand">Port Scanner — Simulation</div>
-        <div class="sub"></div>
-      </div>
-    </header>
+<h1>Password Security Analyzer</h1>
 
-    <main class="grid" aria-live="polite">
-      <!-- left: main -->
-      <section class="panel" aria-labelledby="title">
-        <h1 id="title">Port Scanner</h1>
-        <p class="lead">This page shows a deterministic, frontend-only simulation of a port scan. It is useful for UI testing, demos, learning and sales previews. <strong>It does not perform any real network activity.</strong></p>
+<div class="container">
 
-        <!-- target input & options -->
-        <div class="form-row" role="region" aria-label="Target input">
-          <input id="targetInput" type="text" placeholder="Enter target (IP or domain) — e.g. 192.168.1.1 or example.com" aria-label="Target"/>
-        </div>
+<input type="password" id="password" placeholder="Enter password..." oninput="analyzePassword()">
 
-        <div class="form-row" role="region" aria-label="Scan options">
-          <select id="profileSelect" aria-label="Scan profile">
-            <option value="quick">Quick (fast, few ports)</option>
-            <option value="normal" selected>Normal (balanced)</option>
-            <option value="aggressive">Aggressive (more ports, deeper)</option>
-          </select>
+<div class="meter">
+<div class="meter-fill" id="meter"></div>
+</div>
 
-          <select id="modeSelect" aria-label="Scan mode">
-            <option value="tcp" selected>TCP (simulated)</option>
-            <option value="udp">UDP (simulated)</option>
-          </select>
+<div class="panel">
+<h3>Analysis</h3>
+<div id="analysis">Waiting for input...</div>
+</div>
 
-          <input id="portsInput" type="text" placeholder="Ports (e.g. 22,80,443 or 1-1024)" style="width:260px" aria-label="Port range"/>
-        </div>
+<div class="panel">
+<h3>Estimated Crack Time</h3>
+<div id="crack">---</div>
+</div>
 
-        <div class="controls" role="group" aria-label="Scan controls">
-          <button id="startBtn" class="btn primary">Start Scan</button>
-          <button id="pauseBtn" class="btn ghost" disabled>Pause</button>
-          <button id="resumeBtn" class="btn ghost" disabled>Resume</button>
-          <button id="cancelBtn" class="btn ghost" disabled>Cancel</button>
-          <button id="downloadJson" class="btn ghost" title="Download results as JSON" disabled>Download JSON</button>
-          <button id="downloadCsv" class="btn ghost" title="Download CSV" disabled>Download CSV</button>
-        </div>
+<div class="terminal" id="terminal"></div>
 
-        <div class="meta" aria-hidden="false">
-          <div>Profile: <strong id="metaProfile">Normal</strong></div>
-          <div>Mode: <strong id="metaMode">TCP</strong></div>
-          <div>Ports: <strong id="metaPorts">default</strong></div>
-          <div>History: <button id="openHistory" class="btn ghost">Open</button></div>
-        </div>
+</div>
 
-        <div class="progress" aria-hidden="false" aria-label="Scan progress">
-          <i id="progressBar" style="width:0%"></i>
-        </div>
+<footer>
+Developed by Kamran Baloch
+</footer>
 
-        <div class="timeline" id="timeline" aria-live="polite" aria-atomic="false">
-          <!-- live logs -->
-        </div>
-
-        <div class="results" id="resultsArea" role="region" aria-label="Scan results">
-          <table id="resultsTable" aria-describedby="resultsArea">
-            <thead>
-              <tr><th style="width:80px">Port</th><th style="width:90px">State</th><th style="width:110px">Service</th><th>Info</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <div style="margin-top:12px;color:var(--muted);font-size:13px">
-          <strong>Real scan suggestion (for authorized use):</strong>
-          <div style="font-family:var(--mono);margin-top:6px;padding:8px;background:rgba(0,0,0,0.4);border-radius:8px;border:1px solid rgba(255,255,255,0.02)">
-            <!-- nmap suggestion (read-only example) -->
-            <code id="nmapSuggestion"># Example (run locally, with permission): nmap -sS -Pn -p22,80,443 example.com</code>
-          </div>
-        </div>
-
-        <div class="notes" style="margin-top:10px">
-          <strong>Note:</strong> No network packets are sent by this UI. To perform real scanning you must:
-          <ul>
-            <li>Have explicit permission to scan the target.</li>
-            <li>Use a secure backend or approved tool (nmap, masscan) — do not scan unknown systems.</li>
-            <li>Respect laws and terms of service.</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- right: sidebar -->
-      <aside class="panel" aria-labelledby="resourcesTitle">
-        <h3 id="resourcesTitle" style="color:var(--neon-green)">Quick Resources & Controls</h3>
-
-        <div style="margin-top:8px">
-          <label style="font-weight:800;color:var(--muted)">Preset Port Sets</label>
-          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-            <button class="btn ghost" data-ports="common">Common</button>
-            <button class="btn ghost" data-ports="web">Web</button>
-            <button class="btn ghost" data-ports="db">DB</button>
-            <button class="btn ghost" data-ports="all1-1024">1-1024</button>
-          </div>
-        </div>
-
-        <div style="margin-top:12px">
-          <label style="font-weight:800;color:var(--muted)">History</label>
-          <div class="history-list" id="historyList" aria-live="polite">
-            <!-- populated -->
-          </div>
-          <div style="margin-top:8px">
-            <button id="clearHistory" class="btn ghost">Clear History</button>
-            <button id="exportHistory" class="btn ghost">Export History (JSON)</button>
-          </div>
-        </div>
-
-        <div style="margin-top:12px">
-          <label style="font-weight:800;color:var(--muted)">Filters</label>
-          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-            <select id="stateFilter" aria-label="State filter">
-              <option value="all">All</option>
-              <option value="open">Open</option>
-              <option value="closed">Closed</option>
-            </select>
-            <input id="serviceFilter" type="text" placeholder="Service name filter" style="flex:1" aria-label="Service filter"/>
-            <button id="applyFilters" class="btn ghost">Apply</button>
-            <button id="clearFilters" class="btn ghost">Clear</button>
-          </div>
-        </div>
-
-        <div style="margin-top:12px">
-          <h4 style="margin:0;color:var(--neon-green)">Learning Links</h4>
-          <ul style="color:var(--muted);margin-top:8px">
-            <li><a class="link" href="https://nmap.org/" target="_blank" rel="noopener">nmap — official docs</a></li>
-            <li><a class="link" href="https://nmap.org/book/man-briefoptions.html" target="_blank" rel="noopener">nmap quick options</a></li>
-            <li><a class="link" href="https://www.owasp.org" target="_blank" rel="noopener">OWASP — web security learning</a></li>
-          </ul>
-        </div>
-      </aside>
-    </main>
-    
 <script>
-/*
-  Advanced frontend-only port scanner simulation.
-  - Deterministic results via hashing (same target+profile => same outcome)
-  - No real network activity
-  - History stored in localStorage
-  - Export/Import report support
-*/
 
-/* ---------- Utilities ---------- */
-function stableHash(s){
-  // FNV-1a 32-bit to produce deterministic pseudo-random numbers
-  let h = 2166136261 >>> 0;
-  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); h >>>= 0; }
-  return h >>> 0;
-}
-function randFromSeed(seed){
-  // simple LCG using seed for deterministic randomness
-  let state = seed >>> 0;
-  return function(){
-    state = (state * 1664525 + 1013904223) >>> 0;
-    return state / 0x100000000;
-  };
-}
-function nowIso(){ return new Date().toISOString(); }
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+/* dictionary */
 
-/* ---------- Presets & helpers ---------- */
-const PRESET_PORTS = {
-  common: [21,22,23,25,53,80,110,143,443,3306,3389,8080],
-  web: [80,443,8080,8443,3000,5000],
-  db: [3306,5432,27017,1433,1521],
-  'all1-1024': Array.from({length:1024},(_,i)=>i+1)
-};
-const DEFAULT_COMMON = PRESET_PORTS.common;
+const commonPasswords=[
+"123456","password","12345678","qwerty","abc123","football",
+"iloveyou","admin","welcome","letmein"
+];
 
-/* ---------- DOM ---------- */
-const targetInput = document.getElementById('targetInput');
-const profileSelect = document.getElementById('profileSelect');
-const modeSelect = document.getElementById('modeSelect');
-const portsInput = document.getElementById('portsInput');
-const startBtn = document.getElementById('startBtn');
-const pauseBtn = document.getElementById('pauseBtn');
-const resumeBtn = document.getElementById('resumeBtn');
-const cancelBtn = document.getElementById('cancelBtn');
-const progressBar = document.getElementById('progressBar');
-const timeline = document.getElementById('timeline');
-const resultsTbody = document.querySelector('#resultsTable tbody');
-const metaProfile = document.getElementById('metaProfile');
-const metaMode = document.getElementById('metaMode');
-const metaPorts = document.getElementById('metaPorts');
-const openHistoryBtn = document.getElementById('openHistory');
-const historyList = document.getElementById('historyList');
-const clearHistoryBtn = document.getElementById('clearHistory');
-const exportHistoryBtn = document.getElementById('exportHistory');
-const downloadJsonBtn = document.getElementById('downloadJson');
-const downloadCsvBtn = document.getElementById('downloadCsv');
-const nmapSuggestion = document.getElementById('nmapSuggestion');
+/* terminal log */
 
-let currentScan = null; // object: {id, target, profile, mode, ports, results, status, index, paused}
-let history = JSON.parse(localStorage.getItem('phz_scan_history_v1') || '[]');
-
-/* ---------- UI helpers ---------- */
-function setMeta(){
-  metaProfile.textContent = profileSelect.value;
-  metaMode.textContent = modeSelect.value.toUpperCase();
-}
-setMeta();
-profileSelect.addEventListener('change', ()=>{ setMeta(); });
-modeSelect.addEventListener('change', ()=>{ setMeta(); });
-
-function appendTimeline(msg){
-  const el = document.createElement('div');
-  el.textContent = `[${(new Date()).toLocaleTimeString()}] ${msg}`;
-  timeline.appendChild(el);
-  timeline.scrollTop = timeline.scrollHeight;
-}
-function clearTimeline(){ timeline.innerHTML = ''; }
-function clearResults(){ resultsTbody.innerHTML = ''; }
-
-/* ---------- Parsing ports input ---------- */
-function parsePortsInput(text){
-  if(!text) return DEFAULT_COMMON.slice();
-  text = text.trim();
-  // if comma-separated list:
-  if(text.includes(',')){
-    const parts = text.split(/[,;\s]+/).map(p=>p.trim()).filter(Boolean);
-    const nums = [];
-    for(const p of parts){
-      if(p.includes('-')){
-        const [a,b] = p.split('-').map(Number).slice(0,2);
-        if(Number.isFinite(a) && Number.isFinite(b)){
-          for(let i=Math.max(1,Math.min(a,b)); i<=Math.max(a,b); i++) nums.push(i);
-        }
-      } else {
-        const n = Number(p);
-        if(Number.isFinite(n)) nums.push(n);
-      }
-    }
-    return Array.from(new Set(nums)).sort((a,b)=>a-b);
-  }
-  // if range like 1-1024
-  if(text.includes('-')){
-    const [a,b] = text.split('-').map(Number).slice(0,2);
-    if(Number.isFinite(a) && Number.isFinite(b)){
-      const n1 = Math.max(1,Math.min(a,b)), n2 = Math.max(a,b);
-      const arr = [];
-      for(let i=n1;i<=n2;i++) arr.push(i);
-      return arr;
-    }
-  }
-  // single number
-  const n = Number(text);
-  if(Number.isFinite(n)) return [n];
-  // fallback to default
-  return DEFAULT_COMMON.slice();
+function log(msg){
+const term=document.getElementById("terminal");
+term.innerHTML+="> "+msg+"<br>";
+term.scrollTop=term.scrollHeight;
 }
 
-/* ---------- Deterministic simulation logic ---------- */
-function simulatePortOutcome(seedRand, port, mode){
-  // seedRand() returns deterministic uniform [0,1)
-  // Decide open vs closed and service "guessed"
-  const r = seedRand();
-  // base open probability depends on port number and mode
-  const base = Math.max(0.02, ( (port % 100) / 120 )); // weak heuristic - deterministic vary by port
-  let modifier = 0;
-  if(mode === 'tcp') modifier = 0.04;
-  if(mode === 'udp') modifier = -0.01;
-  // profile influence handled by timing; here keep deterministic
-  const threshold = base + modifier;
-  const isOpen = r < threshold;
-  // decide service and confidence
-  const commonServiceMap = {
-    21:'ftp',22:'ssh',23:'telnet',25:'smtp',53:'dns',80:'http',110:'pop3',143:'imap',443:'https',3306:'mysql',3389:'rdp',8080:'http-alt'
-  };
-  const service = commonServiceMap[port] || (r>0.5 ? 'unknown' : (['http','tls','ssh','dns','smtp'][Math.floor(seedRand()*5)]));
-  const confidence = Math.round((0.3 + Math.abs(Math.sin(port + r))*0.7) * 100); // 30..100%
-  // reason text
-  const reason = isOpen ? 'Simulated: service listening (demo)' : 'Simulated: no response / filtered (demo)';
-  // simulated latency
-  const latency = Math.round(20 + seedRand()*300); // 20..320ms
-  return { port, state: isOpen ? 'open' : 'closed', service, confidence, reason, latency };
+/* entropy */
+
+function entropy(password){
+
+let charset=0;
+
+if(/[a-z]/.test(password)) charset+=26
+if(/[A-Z]/.test(password)) charset+=26
+if(/[0-9]/.test(password)) charset+=10
+if(/[^A-Za-z0-9]/.test(password)) charset+=32
+
+return password.length*Math.log2(charset||1)
+
 }
 
-/* ---------- Scan orchestration ---------- */
-function createScanObject(target, profile, mode, ports){
-  const id = 'scan-'+Date.now()+'-'+Math.floor(Math.random()*10000);
-  return {
-    id, target, profile, mode, ports, results:[], status:'pending', createdAt: nowIso()
-  };
-}
-function saveHistory(){
-  try{
-    localStorage.setItem('phz_scan_history_v1', JSON.stringify(history.slice(0,200)));
-  }catch(e){ console.warn('history save failed',e); }
-}
-function renderHistory(){
-  historyList.innerHTML = '';
-  if(history.length === 0){ historyList.innerHTML = '<div style="color:var(--muted)">No previous scans</div>'; return; }
-  history.slice().reverse().forEach(h=>{
-    const el = document.createElement('div');
-    el.style.display='flex'; el.style.justifyContent='space-between'; el.style.alignItems='center';
-    el.style.background='rgba(255,255,255,0.02)'; el.style.padding='8px'; el.style.borderRadius='8px';
-    el.innerHTML = `<div style="font-family:var(--mono);font-size:13px"><strong>${escapeHtml(h.target)}</strong><br/><span style="color:var(--muted);font-size:12px">${h.ports.length} ports • ${h.profile} • ${new Date(h.createdAt).toLocaleString()}</span></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn ghost" data-load="${h.id}">Load</button>
-        <button class="btn ghost" data-delete="${h.id}">Delete</button>
-      </div>`;
-    historyList.appendChild(el);
-  });
+/* crack time */
+
+function crackTime(ent){
+
+let guesses=Math.pow(2,ent)
+
+let seconds=guesses/1e10
+
+if(seconds<1) return "Instantly"
+if(seconds<60) return "Seconds"
+if(seconds<3600) return "Minutes"
+if(seconds<86400) return "Hours"
+if(seconds<31536000) return "Months"
+return "Centuries"
+
 }
 
-/* load history actions */
-historyList.addEventListener('click', (ev)=>{
-  const btn = ev.target.closest('button');
-  if(!btn) return;
-  if(btn.dataset.load){ const id = btn.dataset.load; const item = history.find(h=>h.id===id); if(item) loadScanToUI(item); }
-  if(btn.dataset.delete){ const id = btn.dataset.delete; history = history.filter(h=>h.id!==id); saveHistory(); renderHistory(); }
-});
+/* analyzer */
 
-/* clear/export history */
-clearHistoryBtn.addEventListener('click', ()=>{ if(confirm('Clear all saved scan history?')){ history=[]; saveHistory(); renderHistory(); }});
-exportHistoryBtn.addEventListener('click', ()=>{ if(history.length===0){ alert('No history to export'); return; } const blob = new Blob([JSON.stringify(history,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='phz-scan-history.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href); });
+function analyzePassword(){
 
-function loadScanToUI(item){
-  targetInput.value = item.target;
-  profileSelect.value = item.profile;
-  modeSelect.value = item.mode;
-  portsInput.value = item.ports.length>50 ? item.ports[0]+'-'+item.ports[item.ports.length-1] : item.ports.join(',');
-  setMeta();
-  appendTimeline('Loaded scan "'+item.id+'" from history.');
+let p=document.getElementById("password").value
+
+let meter=document.getElementById("meter")
+let analysis=document.getElementById("analysis")
+let crack=document.getElementById("crack")
+
+document.getElementById("terminal").innerHTML=""
+
+log("Analyzing password length")
+
+let score=0
+
+if(p.length>=8){score+=20;log("Length OK")}
+else log("Length too short")
+
+if(/[A-Z]/.test(p)){score+=15;log("Uppercase detected")}
+if(/[a-z]/.test(p)){score+=15;log("Lowercase detected")}
+if(/[0-9]/.test(p)){score+=15;log("Numbers detected")}
+if(/[^A-Za-z0-9]/.test(p)){score+=15;log("Special characters detected")}
+
+if(commonPasswords.includes(p.toLowerCase())){
+score=5
+log("Common password detected")
 }
 
-/* ---------- Start / Pause / Resume / Cancel ---------- */
-function setButtonState(d){
-  startBtn.disabled = d.running;
-  pauseBtn.disabled = !d.running || d.paused;
-  resumeBtn.disabled = !d.paused;
-  cancelBtn.disabled = !d.running;
-  downloadJsonBtn.disabled = !d.finished;
-  downloadCsvBtn.disabled = !d.finished;
-}
-function updateProgress(percent){
-  progressBar.style.width = percent + '%';
+meter.style.width=score+"%"
+
+let ent=entropy(p)
+
+analysis.innerHTML="Entropy: "+ent.toFixed(2)+" bits"
+
+crack.innerHTML=crackTime(ent)
+
 }
 
-/* main orchestrator */
-async function runSimulation(scan, onProgress){
-  // scan: {id,target,profile,mode,ports}
-  // onProgress callback receives (doneCount, total, perPortResult)
-  scan.status = 'running'; scan.startedAt = nowIso();
-  setButtonState({running:true,paused:false,finished:false});
-  clearTimeline();
-  clearResults();
-  appendTimeline('Simulation started for: ' + scan.target + ' ('+scan.profile+' / '+scan.mode+')');
-
-  // seed based on target + profile + mode to be deterministic
-  const seed = stableHash(scan.target.toLowerCase() + '|' + scan.profile + '|' + scan.mode);
-  const seededRand = randFromSeed(seed);
-
-  // timing / delays based on profile
-  let perPortBaseDelay = 350; // ms
-  let portsList = scan.ports.slice();
-  if(scan.profile === 'quick'){ perPortBaseDelay = 120; portsList = portsList.slice(0, Math.min(12, portsList.length)); }
-  if(scan.profile === 'normal'){ perPortBaseDelay = 220; portsList = portsList.slice(0, Math.min(60, portsList.length)); }
-  if(scan.profile === 'aggressive'){ perPortBaseDelay = 80; /* full set */ }
-
-  // ensure UI shows estimated time
-  const estimatedMs = perPortBaseDelay * portsList.length;
-  appendTimeline('Estimated time: ~' + Math.round(estimatedMs/1000) + 's');
-
-  // allow pause/resume/cancel via currentScan.paused/currentScan.cancelRequested
-  scan.paused = false;
-  scan.cancelRequested = false;
-
-  for(let i=0;i<portsList.length;i++){
-    if(scan.cancelRequested){ appendTimeline('Scan cancelled by user.'); scan.status='cancelled'; break; }
-    // wait while paused
-    while(scan.paused){
-      await new Promise(r => setTimeout(r, 200));
-      if(scan.cancelRequested){ break; }
-    }
-    const port = portsList[i];
-    // simulate network variability by deriving a per-port RNG from main seed + port
-    const perSeed = (seed ^ port) >>> 0;
-    const prand = randFromSeed(perSeed);
-    // simulate variable delay
-    const delay = perPortBaseDelay + Math.round(prand()*perPortBaseDelay*1.2);
-    await new Promise(r => setTimeout(r, delay));
-
-    // compute deterministic outcome
-    const outcome = simulatePortOutcome(prand, port, scan.mode);
-    outcome.checkedAt = nowIso();
-    scan.results.push(outcome);
-
-    // render row
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${outcome.port}</td>
-      <td class="${outcome.state==='open'?'state-open':'state-closed'}">${outcome.state.toUpperCase()}</td>
-      <td>${escapeHtml(outcome.service)}</td>
-      <td><span class="confidence">${outcome.confidence}%</span> • ${escapeHtml(outcome.reason)} • ${outcome.latency}ms</td>`;
-    resultsTbody.appendChild(tr);
-    // timeline log
-    appendTimeline((i+1)+'/'+portsList.length+' • Port '+outcome.port+' → '+outcome.state+' ('+outcome.service+')');
-
-    // progress
-    const percent = Math.round(((i+1)/portsList.length)*100);
-    updateProgress(percent);
-
-    // callback
-    if(typeof onProgress === 'function') onProgress(i+1, portsList.length, outcome);
-  }
-
-  if(!scan.cancelRequested){
-    scan.status = 'finished';
-    scan.finishedAt = nowIso();
-    appendTimeline('Simulation completed — '+scan.results.length+' ports scanned.');
-  }
-  setButtonState({running:false,paused:false,finished: scan.status==='finished'});
-  // save to history
-  history.push({
-    id: scan.id, target: scan.target, profile: scan.profile, mode: scan.mode, ports: scan.ports, results: scan.results, createdAt: scan.createdAt, finishedAt: scan.finishedAt || nowIso()
-  });
-  // maintain recent length
-  if(history.length > 200) history = history.slice(history.length-200);
-  saveHistory(); renderHistory();
-  return scan;
-}
-
-/* ---------- UI wiring ---------- */
-startBtn.addEventListener('click', async ()=>{
-  const target = (targetInput.value || '').trim();
-  if(!target){ alert('Enter a target (IP or domain)'); targetInput.focus(); return; }
-  const profile = profileSelect.value;
-  const mode = modeSelect.value;
-  const ports = parsePortsInput(portsInput.value || '');
-  if(ports.length === 0){ alert('No ports parsed — using common set'); ports.push(...DEFAULT_COMMON); }
-  metaPorts.textContent = (ports.length>200 ? ports[0]+'-'+ports[ports.length-1] : ports.join(','));
-  // create scan object
-  const scan = createScanObject(target, profile, mode, ports);
-  currentScan = scan;
-  setButtonState({running:true,paused:false,finished:false});
-  // disable manual edits during run
-  startBtn.disabled = true;
-  profileSelect.disabled = true;
-  modeSelect.disabled = true;
-  portsInput.disabled = true;
-  targetInput.disabled = true;
-
-  // update nmap suggestion for UI (non-executing)
-  nmapSuggestion.textContent = `# Example (local run, permission required): nmap -sS -Pn -p ${ports.slice(0,10).join(',')} ${target}`;
-
-  // run
-  try{
-    await runSimulation(scan);
-  }catch(err){
-    appendTimeline('Simulation error: '+err);
-    console.error(err);
-  }finally{
-    // re-enable
-    startBtn.disabled = false;
-    profileSelect.disabled = false;
-    modeSelect.disabled = false;
-    portsInput.disabled = false;
-    targetInput.disabled = false;
-    // prepare download
-    downloadJsonBtn.disabled = false;
-    downloadCsvBtn.disabled = false;
-  }
-});
-
-pauseBtn.addEventListener('click', ()=>{
-  if(!currentScan || currentScan.status !== 'running') return;
-  currentScan.paused = true;
-  appendTimeline('Simulation paused.');
-  setButtonState({running:true,paused:true,finished:false});
-});
-resumeBtn.addEventListener('click', ()=>{
-  if(!currentScan || !currentScan.paused) return;
-  currentScan.paused = false;
-  appendTimeline('Simulation resumed.');
-  setButtonState({running:true,paused:false,finished:false});
-});
-cancelBtn.addEventListener('click', ()=>{
-  if(!currentScan || currentScan.status !== 'running') return;
-  currentScan.cancelRequested = true;
-  appendTimeline('Cancellation requested...');
-  setButtonState({running:true,paused:false,finished:false});
-});
-
-/* Downloads */
-downloadJsonBtn.addEventListener('click', ()=>{
-  if(!currentScan || !currentScan.results) return alert('No results to download');
-  const out = { meta:{target: currentScan.target, profile: currentScan.profile, mode: currentScan.mode, ports: currentScan.ports, createdAt: currentScan.createdAt, finishedAt: currentScan.finishedAt}, results: currentScan.results };
-  const blob = new Blob([JSON.stringify(out, null, 2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='scan-'+currentScan.id+'.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
-});
-downloadCsvBtn.addEventListener('click', ()=>{
-  if(!currentScan || !currentScan.results) return alert('No results to download');
-  const rows = [['port','state','service','confidence','reason','latency','checkedAt']];
-  currentScan.results.forEach(r=> rows.push([r.port,r.state,r.service,r.confidence,`"${r.reason.replace(/"/g,'""')}"`,r.latency,r.checkedAt]));
-  const csv = rows.map(r=> r.join(',')).join('\n');
-  const blob = new Blob([csv],{type:'text/csv'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='scan-'+currentScan.id+'.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
-});
-
-/* filters */
-document.getElementById('applyFilters').addEventListener('click', ()=>{
-  const state = document.getElementById('stateFilter').value;
-  const svc = document.getElementById('serviceFilter').value.trim().toLowerCase();
-  const rows = Array.from(resultsTbody.querySelectorAll('tr'));
-  rows.forEach(r=>{
-    const txt = r.textContent.toLowerCase();
-    let show = true;
-    if(state !== 'all' && !txt.includes(state)) show = false;
-    if(svc && !txt.includes(svc)) show = false;
-    r.style.display = show ? '' : 'none';
-  });
-});
-document.getElementById('clearFilters').addEventListener('click', ()=>{
-  document.getElementById('stateFilter').value = 'all';
-  document.getElementById('serviceFilter').value = '';
-  Array.from(resultsTbody.querySelectorAll('tr')).forEach(r=> r.style.display = '');
-});
-
-/* preset port buttons */
-document.querySelectorAll('[data-ports]').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const key = btn.dataset.ports;
-    if(PRESET_PORTS[key]) portsInput.value = PRESET_PORTS[key].slice(0,100).join(',');
-    else portsInput.value = key;
-  });
-});
-
-/* open history */
-openHistoryBtn.addEventListener('click', ()=> {
-  renderHistory();
-  // scroll into view
-  historyList.scrollIntoView({behavior:'smooth'});
-});
-
-/* export history */
-document.getElementById('exportHistory').addEventListener('click', ()=> {
-  if(history.length===0){ alert('No history to export'); return; }
-  const blob = new Blob([JSON.stringify(history,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='phz-scan-history.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href);
-});
-
-/* load saved history on init */
-renderHistory();
-
-/* ---------- Placeholder: how to wire real backend scan (example comment) ----------
-  WARNING: Real scanning must be done server-side (or by user locally) and with explicit permission.
-  Example backend flow (server must implement safely):
-    - POST /api/scan { target, profile, mode, ports } -> server validates & authenticates client
-    - Server performs real scan using nmap/masscan with safe rate limits and logs
-    - Server returns results -> client displays
-  Never run raw commands from user input on server without sanitization.
----------------------------------------------------------------------------*/
-
-/* Accessibility: keyboard shortcuts */
-document.addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter' && document.activeElement === targetInput){ startBtn.click(); }
-  if(e.key === 'p' && e.ctrlKey){ pauseBtn.click(); }
-  if(e.key === 'r' && e.ctrlKey){ resumeBtn.click(); }
-});
-
-/* Initialize small defaults */
-portsInput.placeholder = 'e.g. 22,80,443 or 1-1024 (leave empty for common)';
-metaPorts.textContent = 'default';
-updateProgress(0);
-
-/* Show quick demo tip */
-appendTimeline('Ready — enter a target and press Start Scan. (Demo only — no packets sent.)');
 </script>
+
 </body>
 </html>
