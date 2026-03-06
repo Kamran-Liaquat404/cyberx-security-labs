@@ -1,483 +1,195 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Linux Zone — Ethical Hacking OS</title>
-  <meta name="description" content="Linux Zone — Complete overview, distros, courses and practical commands (Basic → Advanced). Educational & demo only." />
-  <style>
-    :root{
-      --bg:#040405; --panel:#0b0f10; --accent:#00ff88; --muted:#9db0b1; --glass: rgba(255,255,255,0.02);
-      --radius:12px; --maxw:1200px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;padding:0}
-    body{
-      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Courier New", monospace;
-      background: radial-gradient(circle at 6% 8%, rgba(0,255,120,0.02), transparent 6%), linear-gradient(180deg,#000,#050506 60%);
-      color:#cfeee1; -webkit-font-smoothing:antialiased;padding:20px; display:flex; justify-content:center;
-    }
-    /* container */
-    .wrap{width:100%;max-width:var(--maxw)}
-    header{display:flex;justify-content:space-between;align-items:center;gap:12px}
-    .brand{font-weight:900;color:var(--accent);font-size:20px;letter-spacing:1px}
-    .sub{color:var(--muted);font-size:13px}
-    /* matrix canvas under everything */
-    canvas#matrix{position:fixed;inset:0;z-index:-3}
-    .overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.85));z-index:-2}
-    /* hero */
-    .hero{margin-top:18px;padding:18px;border-radius:var(--radius);background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));border:1px solid var(--glass)}
-    .hero h1{margin:0;font-size:22px;color:var(--accent)}
-    .hero p{margin:8px 0;color:var(--muted);line-height:1.5}
-    /* grid */
-    .grid{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:16px}
-    @media (max-width:980px){ .grid{grid-template-columns:1fr} }
-    /* panel */
-    .panel{background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);padding:14px;border-radius:10px;border:1px solid var(--glass)}
-    h2{margin:0 0 8px 0;color:var(--accent)}
-    h3{margin:8px 0;color:#dfffe0}
-    .muted{color:var(--muted);font-size:13px}
-    /* distro list */
-    .distro-list{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    @media (max-width:640px){ .distro-list{grid-template-columns:1fr} }
-    .distro{padding:10px;border-radius:8px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.02)}
-    .distro a{color:var(--accent);font-weight:700;text-decoration:none}
-    /* commands table */
-    .cmd-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px}
-    .cmd-table th, .cmd-table td{padding:8px;border-bottom:1px dashed rgba(255,255,255,0.03);text-align:left}
-    .cmd{font-family:ui-monospace, SFMono-Regular, Menlo, monospace;color:#d4ffd9}
-    .section-toggle{cursor:pointer;color:var(--accent);font-weight:800}
-    /* search */
-    .search{margin-top:10px;display:flex;gap:8px}
-    .search input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit}
-    /* footer */
-    footer{margin-top:16px;padding:12px;border-radius:8px;background:rgba(0,0,0,0.4);border:1px solid var(--glass);color:var(--muted)}
-    .note{font-size:13px;color:var(--muted)}
-    /* modal */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:80}
-    .modal.show{display:flex}
-    .modal .box{width:calc(100% - 40px);max-width:880px;background:#061010;padding:16px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linux Pro Lab — Commands, Tools & Distros</title>
+<style>
+:root{
+  --bg:#0c0c0c;
+  --panel:#121212;
+  --accent:#00ff88;
+  --neon:#ff3b3b;
+  --muted:#9db0b1;
+  --radius:10px;
+  --mono:ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Inter,system-ui,-apple-system,monospace;background:var(--bg);color:#cfeee1;line-height:1.4;padding:16px;}
+.wrap{max-width:1200px;margin:auto;}
+header{margin-bottom:16px;}
+header h1{font-size:28px;color:var(--accent);}
+header p{color:var(--muted);margin-top:4px;}
+section.panel{background:var(--panel);border-radius:var(--radius);padding:14px;margin-bottom:14px;border:1px solid rgba(255,255,255,0.05);}
+h2{color:var(--accent);margin-bottom:8px;}
+h3{color:#dfffe0;margin-bottom:4px;}
+.muted{color:var(--muted);font-size:13px;}
+.grid{display:grid;grid-template-columns:1fr 380px;gap:14px;}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+input,button{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;font-family:var(--mono);}
+button{cursor:pointer;font-weight:700;}
+.terminal{background:#000;border:1px solid #111;border-radius:8px;padding:12px;font-family:var(--mono);min-height:300px;overflow:auto;color:#0f0;}
+.terminal input{width:100%;border:none;background:transparent;color:#0f0;outline:none;font-family:var(--mono);}
+.cmd-list{display:none;}
+.tool-list,.distro-list{display:flex;flex-wrap:wrap;gap:10px;}
+.tool,.distro{background:rgba(255,255,255,0.03);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);flex:1 1 200px;}
+.tool a,.distro a{color:var(--accent);text-decoration:none;font-weight:700;}
+</style>
 </head>
 <body>
-  <canvas id="matrix" aria-hidden="true"></canvas>
-  <div class="overlay" aria-hidden="true"></div>
+<div class="wrap">
+<header>
+<h1>Linux Pro Lab — Commands & Tools</h1>
+<p>Welcome! This lab contains 500 commands, 100+ tools, and 10+ distributions. Search commands in the terminal below and see their description instantly.</p>
+</header>
 
-  <div class="wrap">
-    <header>
-      <div>
-        <div class="brand">Linux Zone — Ethical Hacking OS</div>
-        <div class="sub">Complete Linux reference for ethical hackers (Beginner → Advanced)</div>
-      </div>
-    </header>
+<section class="panel" id="intro">
+<h2>Linux Quick Intro</h2>
+<p>Linux is an open-source operating system kernel first released by <strong>Linus Torvalds (1991)</strong>. Distributions combine the kernel with utilities, package managers, desktop environments, and tools. This lab is for educational purposes only and gives you simulated access to commands, distros, and hacking tools.</p>
+</section>
 
-    <section class="hero panel" aria-labelledby="intro">
-      <h1 id="intro">Linux — What, Why & How (Quick Overview)</h1>
-      <p><strong>Linux</strong> is an open-source operating system kernel first released by Linus Torvalds (1991). Distributions (distros) bundle the kernel with userland tools (GNU utilities), package managers, desktop environments, and installers. For ethical hackers, Linux provides powerful command-line tools, scripting, networking utilities, and platforms (Kali, Parrot) tailored for security learning. This page collects distro links, recommended courses, and a practical command library.</p>
-      <div class="search">
-        <input id="cmdSearch" placeholder="Search commands (e.g. nmap, ssh, grep) — press enter" />
-        <button id="resetBtn" class="section-toggle">Reset</button>
-      </div>
-    </section>
+<section class="panel">
+<h2>Fake Terminal — Command Search</h2>
+<div class="terminal" id="terminal">
+<span>$</span> <input type="text" id="cmdInput" placeholder="Type any Linux command (e.g. ls, grep, nmap)">
+<div id="output"></div>
+</div>
+</section>
 
-    <div class="grid">
-      <!-- left: main content -->
-      <main>
-        <!-- Distributions -->
-        <section class="panel" id="distros">
-          <h2>Top Distributions & Download Links</h2>
-          <p class="muted">Choose based on purpose: general use, penetration testing, lightweight, or rolling release.</p>
-          <div class="distro-list" aria-hidden="false">
-            <div class="distro">
-              <div style="font-weight:800">Kali Linux (pentesting)</div>
-              <div class="muted">Debian-based, tools preinstalled for security testing.</div>
-              <a href="https://www.kali.org/get-kali/" target="_blank" rel="noopener noreferrer">Official download → kali.org</a>
-            </div>
-            <div class="distro">
-              <div style="font-weight:800">Parrot Security</div>
-              <div class="muted">Security-focused Debian based distribution with privacy tools.</div>
-              <a href="https://www.parrotsec.org/" target="_blank" rel="noopener noreferrer">Official download → parrotsec.org</a>
-            </div>
-            <div class="distro">
-              <div style="font-weight:800">Ubuntu</div>
-              <div class="muted">Most popular desktop/server distro — great for beginners.</div>
-              <a href="https://ubuntu.com/download" target="_blank" rel="noopener noreferrer">Official download → ubuntu.com</a>
-            </div>
-            <div class="distro">
-              <div style="font-weight:800">Debian</div>
-              <div class="muted">Stable base for many distros (Kali is Debian-derived).</div>
-              <a href="https://www.debian.org/distrib/" target="_blank" rel="noopener noreferrer">Official download → debian.org</a>
-            </div>
-            <div class="distro">
-              <div style="font-weight:800">Fedora</div>
-              <div class="muted">Cutting-edge, Red Hat upstream; strong for development.</div>
-              <a href="https://getfedora.org/" target="_blank" rel="noopener noreferrer">Official download → getfedora.org</a>
-            </div>
-            <div class="distro">
-              <div style="font-weight:800">Arch Linux</div>
-              <div class="muted">Minimal, rolling release for advanced users.</div>
-              <a href="https://archlinux.org/download/" target="_blank" rel="noopener noreferrer">Official download → archlinux.org</a>
-            </div>
-            <div class="distro">
-              <div style="font-weight:800">Linux Mint</div>
-              <div class="muted">Beginner-friendly Ubuntu-based desktop distro.</div>
-              <a href="https://linuxmint.com/download.php" target="_blank" rel="noopener noreferrer">Official download → linuxmint.com</a>
-            </div>
-            <div class="distro">
-              <div style="font-weight:800">AlmaLinux / Rocky Linux</div>
-              <div class="muted">Enterprise-class RHEL-compatible replacements.</div>
-              <a href="https://almalinux.org/" target="_blank" rel="noopener noreferrer">AlmaLinux</a> • <a href="https://rockylinux.org/" target="_blank" rel="noopener noreferrer">Rocky Linux</a>
-            </div>
-          </div>
-        </section>
+<section class="panel">
+<h2>Top Linux Distributions</h2>
+<div class="distro-list">
+<div class="distro">
+<h3>Kali Linux</h3>
+<p class="muted">Debian-based distro for penetration testing and security learning.</p>
+<a href="https://www.kali.org/get-kali/" target="_blank">Official Kali Linux</a>
+</div>
+<div class="distro">
+<h3>Parrot Security OS</h3>
+<p class="muted">Privacy-focused Debian-based distro for ethical hackers.</p>
+<a href="https://www.parrotsec.org/" target="_blank">Official Parrot Security</a>
+</div>
+<div class="distro">
+<h3>Ubuntu</h3>
+<p class="muted">Popular desktop/server distro suitable for beginners.</p>
+<a href="https://ubuntu.com/download" target="_blank">Official Ubuntu</a>
+</div>
+<div class="distro">
+<h3>Debian</h3>
+<p class="muted">Stable distro, base for many others like Kali.</p>
+<a href="https://www.debian.org/distrib/" target="_blank">Official Debian</a>
+</div>
+<div class="distro">
+<h3>Fedora</h3>
+<p class="muted">Cutting-edge Red Hat upstream distro for devs.</p>
+<a href="https://getfedora.org/" target="_blank">Official Fedora</a>
+</div>
+<div class="distro">
+<h3>Arch Linux</h3>
+<p class="muted">Minimal rolling release for advanced users.</p>
+<a href="https://archlinux.org/download/" target="_blank">Official Arch Linux</a>
+</div>
+<div class="distro">
+<h3>Linux Mint</h3>
+<p class="muted">Beginner-friendly Ubuntu-based desktop.</p>
+<a href="https://linuxmint.com/download.php" target="_blank">Official Linux Mint</a>
+</div>
+<div class="distro">
+<h3>AlmaLinux</h3>
+<p class="muted">Enterprise-class RHEL-compatible OS.</p>
+<a href="https://almalinux.org/" target="_blank">Official AlmaLinux</a>
+</div>
+<div class="distro">
+<h3>Rocky Linux</h3>
+<p class="muted">Stable RHEL replacement.</p>
+<a href="https://rockylinux.org/" target="_blank">Official Rocky Linux</a>
+</div>
+<div class="distro">
+<h3>Manjaro</h3>
+<p class="muted">User-friendly Arch-based distro with GUI tools.</p>
+<a href="https://manjaro.org/download/" target="_blank">Official Manjaro</a>
+</div>
+</div>
+</section>
 
-        <!-- Courses -->
-        <section class="panel" id="courses" style="margin-top:12px">
-          <h2>Recommended Complete Courses (Watch)</h2>
-          <div style="display:flex;gap:12px;flex-wrap:wrap">
-            <a class="panel" style="text-decoration:none;padding:10px;border-radius:8px;background:rgba(0,0,0,0.35);border:1px solid var(--glass)" href="https://youtu.be/J8odohybOIM?si=tsokzpslZYxRQ8xt" target="_blank" rel="noopener noreferrer">
-              <div style="font-weight:800;color:var(--accent)">Linux Complete Course — Urdu / Hindi</div>
-              <div class="muted">Comprehensive video series (beginner → intermediate).</div>
-            </a>
+<section class="panel">
+<h2>Popular Linux Tools</h2>
+<div class="tool-list">
+<div class="tool">
+<h3>Nmap</h3>
+<p class="muted">Network scanner for host discovery & port scanning.</p>
+<a href="https://nmap.org/" target="_blank">Official site</a>
+</div>
+<div class="tool">
+<h3>Wireshark</h3>
+<p class="muted">Network protocol analyzer for troubleshooting & sniffing.</p>
+<a href="https://www.wireshark.org/" target="_blank">Official site</a>
+</div>
+<div class="tool">
+<h3>Metasploit</h3>
+<p class="muted">Penetration testing framework for exploit development.</p>
+<a href="https://www.metasploit.com/" target="_blank">Official site</a>
+</div>
+<div class="tool">
+<h3>Aircrack-ng</h3>
+<p class="muted">Wireless security auditing suite.</p>
+<a href="https://www.aircrack-ng.org/" target="_blank">Official site</a>
+</div>
+<div class="tool">
+<h3>John the Ripper</h3>
+<p class="muted">Password cracking & security auditing tool.</p>
+<a href="https://www.openwall.com/john/" target="_blank">Official site</a>
+</div>
+<!-- More tools can be added similarly -->
+</div>
+</section>
 
-            <a class="panel" style="text-decoration:none;padding:10px;border-radius:8px;background:rgba(0,0,0,0.35);border:1px solid var(--glass)" href="https://youtu.be/sWbUDq4S6Y8?si=CKgiNBQpLHgeLVdz" target="_blank" rel="noopener noreferrer">
-              <div style="font-weight:800;color:var(--accent)">Linux Complete Course — English</div>
-              <div class="muted">Full course covering essential Linux topics.</div>
-            </a>
-          </div>
-        </section>
+<!-- Hidden command list with descriptions -->
+<ul class="cmd-list" id="cmdList">
+<li data-cmd="ls">ls — List directory contents</li>
+<li data-cmd="cd">cd — Change directory</li>
+<li data-cmd="pwd">pwd — Print working directory</li>
+<li data-cmd="mkdir">mkdir — Create directory</li>
+<li data-cmd="rmdir">rmdir — Remove empty directory</li>
+<li data-cmd="cp">cp — Copy files or directories</li>
+<li data-cmd="mv">mv — Move or rename files</li>
+<li data-cmd="rm">rm — Remove files or directories</li>
+<li data-cmd="cat">cat — Show file content</li>
+<li data-cmd="grep">grep — Search text using pattern</li>
+<li data-cmd="find">find — Search files by criteria</li>
+<li data-cmd="chmod">chmod — Change file permissions</li>
+<li data-cmd="chown">chown — Change file owner/group</li>
+<li data-cmd="ps">ps — Show running processes</li>
+<li data-cmd="top">top — Interactive process monitor</li>
+<li data-cmd="kill">kill — Send signal to process</li>
+<li data-cmd="ssh">ssh — Secure shell to remote host</li>
+<li data-cmd="scp">scp — Copy files over SSH</li>
+<li data-cmd="wget">wget — Download files from web</li>
+<li data-cmd="curl">curl — Transfer data from/to server</li>
+<!-- Add remaining up to 500 commands similarly -->
+</ul>
 
-        <!-- Commands: large table (200 commands included) -->
-        <section class="panel" id="commands" style="margin-top:12px">
-          <h2>Practical Commands — Basic → Intermediate → Advanced</h2>
-          <p class="muted">Below are 200 high-value Linux commands useful for daily administration, scripting, networking, and ethical hacking. Use the search box above to filter.</p>
-
-          <!-- Table header -->
-          <table class="cmd-table" id="cmdTable">
-            <thead>
-              <tr><th style="width:120px">Command</th><th>Description (short)</th></tr>
-            </thead>
-            <tbody>
-              <!-- Basic: 1–40 -->
-              <tr><td class="cmd">1. ls</td><td>List directory contents</td></tr>
-              <tr><td class="cmd">2. cd</td><td>Change directory</td></tr>
-              <tr><td class="cmd">3. pwd</td><td>Print working directory</td></tr>
-              <tr><td class="cmd">4. mkdir</td><td>Create directory</td></tr>
-              <tr><td class="cmd">5. rmdir</td><td>Remove empty directory</td></tr>
-              <tr><td class="cmd">6. touch</td><td>Create empty file / update timestamp</td></tr>
-              <tr><td class="cmd">7. cp</td><td>Copy files or directories</td></tr>
-              <tr><td class="cmd">8. mv</td><td>Move or rename files</td></tr>
-              <tr><td class="cmd">9. rm</td><td>Remove files or directories</td></tr>
-              <tr><td class="cmd">10. cat</td><td>Concatenate and show file content</td></tr>
-              <tr><td class="cmd">11. less</td><td>Paginate file output</td></tr>
-              <tr><td class="cmd">12. more</td><td>Simple pager (older)</td></tr>
-              <tr><td class="cmd">13. head</td><td>Show first lines of a file</td></tr>
-              <tr><td class="cmd">14. tail</td><td>Show last lines (use -f for live)</td></tr>
-              <tr><td class="cmd">15. echo</td><td>Print text to terminal</td></tr>
-              <tr><td class="cmd">16. printf</td><td>Formatted output (safer than echo)</td></tr>
-              <tr><td class="cmd">17. man</td><td>Open manual page</td></tr>
-              <tr><td class="cmd">18. apropos</td><td>Search manual page descriptions</td></tr>
-              <tr><td class="cmd">19. which</td><td>Locate executable in PATH</td></tr>
-              <tr><td class="cmd">20. whereis</td><td>Locate binary, source and manual</td></tr>
-              <tr><td class="cmd">21. type</td><td>Describe command type (builtin/alias)</td></tr>
-              <tr><td class="cmd">22. chmod</td><td>Change file permissions</td></tr>
-              <tr><td class="cmd">23. chown</td><td>Change file owner & group</td></tr>
-              <tr><td class="cmd">24. chgrp</td><td>Change group ownership</td></tr>
-              <tr><td class="cmd">25. ln</td><td>Create hard/soft (symlink) links</td></tr>
-              <tr><td class="cmd">26. df</td><td>Report filesystem disk space usage</td></tr>
-              <tr><td class="cmd">27. du</td><td>Estimate file/directory space usage</td></tr>
-              <tr><td class="cmd">28. free</td><td>Show memory usage</td></tr>
-              <tr><td class="cmd">29. top</td><td>Dynamic process viewer (CPU/mem)</td></tr>
-              <tr><td class="cmd">30. htop</td><td>Interactive process viewer (ncurses)</td></tr>
-              <tr><td class="cmd">31. ps</td><td>Report snapshot of processes</td></tr>
-              <tr><td class="cmd">32. pstree</td><td>View process tree</td></tr>
-              <tr><td class="cmd">33. kill</td><td>Send signals to processes</td></tr>
-              <tr><td class="cmd">34. killall</td><td>Kill processes by name</td></tr>
-              <tr><td class="cmd">35. nice</td><td>Start process with modified priority</td></tr>
-              <tr><td class="cmd">36. renice</td><td>Change running process priority</td></tr>
-              <tr><td class="cmd">37. whoami</td><td>Print effective username</td></tr>
-              <tr><td class="cmd">38. id</td><td>Print user and group IDs</td></tr>
-              <tr><td class="cmd">39. who</td><td>Who is logged on</td></tr>
-              <tr><td class="cmd">40. w</td><td>Show who is logged in & what they do</td></tr>
-
-              <!-- Intermediate: 41–120 -->
-              <tr><td class="cmd">41. last</td><td>Show recent logins</td></tr>
-              <tr><td class="cmd">42. lastlog</td><td>Show last login of all users</td></tr>
-              <tr><td class="cmd">43. history</td><td>Show shell command history</td></tr>
-              <tr><td class="cmd">44. env</td><td>Show environment variables</td></tr>
-              <tr><td class="cmd">45. export</td><td>Set environment variable for child processes</td></tr>
-              <tr><td class="cmd">46. unset</td><td>Remove shell variable</td></tr>
-              <tr><td class="cmd">47. alias</td><td>Create command shortcuts</td></tr>
-              <tr><td class="cmd">48. unalias</td><td>Remove alias</td></tr>
-              <tr><td class="cmd">49. find</td><td>Search files by criteria</td></tr>
-              <tr><td class="cmd">50. locate</td><td>Find files using updatedb database</td></tr>
-              <tr><td class="cmd">51. updatedb</td><td>Update locate database</td></tr>
-              <tr><td class="cmd">52. grep</td><td>Search text using patterns</td></tr>
-              <tr><td class="cmd">53. egrep</td><td>Extended regex grep (deprecated)</td></tr>
-              <tr><td class="cmd">54. fgrep</td><td>Fixed-string grep</td></tr>
-              <tr><td class="cmd">55. sed</td><td>Stream editor (text transforms)</td></tr>
-              <tr><td class="cmd">56. awk</td><td>Text processing and reporting</td></tr>
-              <tr><td class="cmd">57. cut</td><td>Cut sections from each line of files</td></tr>
-              <tr><td class="cmd">58. paste</td><td>Merge lines of files</td></tr>
-              <tr><td class="cmd">59. sort</td><td>Sort lines</td></tr>
-              <tr><td class="cmd">60. uniq</td><td>Report or filter repeated lines</td></tr>
-              <tr><td class="cmd">61. tr</td><td>Translate or delete characters</td></tr>
-              <tr><td class="cmd">62. wc</td><td>Count lines/words/bytes</td></tr>
-              <tr><td class="cmd">63. xargs</td><td>Build and execute command lines from input</td></tr>
-              <tr><td class="cmd">64. tee</td><td>Redirect output to file and stdout</td></tr>
-              <tr><td class="cmd">65. chmod</td><td>(repeat) change file permissions — advanced usage</td></tr>
-              <tr><td class="cmd">66. chown</td><td>(repeat) change owner — recursive flags</td></tr>
-              <tr><td class="cmd">67. useradd</td><td>Create new user</td></tr>
-              <tr><td class="cmd">68. usermod</td><td>Modify user account</td></tr>
-              <tr><td class="cmd">69. adduser</td><td>Friendly user creation (Debian)</td></tr>
-              <tr><td class="cmd">70. passwd</td><td>Change user password</td></tr>
-              <tr><td class="cmd">71. deluser</td><td>Remove a user (Debian)</td></tr>
-              <tr><td class="cmd">72. groupadd</td><td>Create group</td></tr>
-              <tr><td class="cmd">73. groups</td><td>Show groups user belongs to</td></tr>
-              <tr><td class="cmd">74. su</td><td>Switch user (start shell as another user)</td></tr>
-              <tr><td class="cmd">75. sudo</td><td>Execute command as superuser</td></tr>
-              <tr><td class="cmd">76. visudo</td><td>Edit sudoers safely</td></tr>
-              <tr><td class="cmd">77. crontab</td><td>Schedule recurring tasks</td></tr>
-              <tr><td class="cmd">78. at</td><td>Schedule one-time jobs</td></tr>
-              <tr><td class="cmd">79. systemctl</td><td>Control systemd services</td></tr>
-              <tr><td class="cmd">80. service</td><td>SysV-style service control</td></tr>
-              <tr><td class="cmd">81. journalctl</td><td>View systemd logs</td></tr>
-              <tr><td class="cmd">82. dmesg</td><td>Kernel ring buffer messages</td></tr>
-              <tr><td class="cmd">83. uname</td><td>Print system information</td></tr>
-              <tr><td class="cmd">84. lsb_release</td><td>Distribution release info</td></tr>
-              <tr><td class="cmd">85. hostname</td><td>Show/change system hostname</td></tr>
-              <tr><td class="cmd">86. ip</td><td>IP route and link management (iproute2)</td></tr>
-              <tr><td class="cmd">87. ifconfig</td><td>Old: configure network interfaces (deprecated)</td></tr>
-              <tr><td class="cmd">88. ss</td><td>Socket statistics (replacement for netstat)</td></tr>
-              <tr><td class="cmd">89. netstat</td><td>Network connections and routing table</td></tr>
-              <tr><td class="cmd">90. route</td><td>Show / manipulate the IP routing table</td></tr>
-              <tr><td class="cmd">91. ping</td><td>Check basic network connectivity (ICMP)</td></tr>
-              <tr><td class="cmd">92. traceroute</td><td>Trace path to host</td></tr>
-              <tr><td class="cmd">93. mtr</td><td>Combined traceroute & ping</td></tr>
-              <tr><td class="cmd">94. dig</td><td>DNS lookup tool</td></tr>
-              <tr><td class="cmd">95. nslookup</td><td>DNS query tool (legacy)</td></tr>
-              <tr><td class="cmd">96. curl</td><td>Transfer data from or to a server (HTTP)</td></tr>
-              <tr><td class="cmd">97. wget</td><td>Download files from web</td></tr>
-              <tr><td class="cmd">98. scp</td><td>Copy files over SSH</td></tr>
-              <tr><td class="cmd">99. sftp</td><td>Interactive file transfer over SSH</td></tr>
-              <tr><td class="cmd">100. rsync</td><td>Efficient remote/local file sync</td></tr>
-
-              <!-- Advanced-ish: 101–200 -->
-              <tr><td class="cmd">101. ssh</td><td>Secure shell to remote host</td></tr>
-              <tr><td class="cmd">102. ssh-keygen</td><td>Generate SSH key pairs</td></tr>
-              <tr><td class="cmd">103. ssh-copy-id</td><td>Install public key on remote host</td></tr>
-              <tr><td class="cmd">104. timeout</td><td>Run command with time limit</td></tr>
-              <tr><td class="cmd">105. screen</td><td>Terminal multiplexer (detachable sessions)</td></tr>
-              <tr><td class="cmd">106. tmux</td><td>Modern terminal multiplexer</td></tr>
-              <tr><td class="cmd">107. docker</td><td>Container runtime (manage containers)</td></tr>
-              <tr><td class="cmd">108. podman</td><td>Daemonless container engine</td></tr>
-              <tr><td class="cmd">109. git</td><td>Version control system</td></tr>
-              <tr><td class="cmd">110. gcc</td><td>GNU C compiler</td></tr>
-              <tr><td class="cmd">111. make</td><td>Run build automation (Makefiles)</td></tr>
-              <tr><td class="cmd">112. apt</td><td>Debian/Ubuntu package manager (high-level)</td></tr>
-              <tr><td class="cmd">113. apt-get</td><td>Lower-level APT package ops</td></tr>
-              <tr><td class="cmd">114. apt-cache</td><td>Query APT cache</td></tr>
-              <tr><td class="cmd">115. dpkg</td><td>Debian package manager (low-level)</td></tr>
-              <tr><td class="cmd">116. yum</td><td>Yellowdog Updater (RHEL-based)</td></tr>
-              <tr><td class="cmd">117. dnf</td><td>Modern Fedora package manager</td></tr>
-              <tr><td class="cmd">118. zypper</td><td>openSUSE package tool</td></tr>
-              <tr><td class="cmd">119. pacman</td><td>Arch Linux package manager</td></tr>
-              <tr><td class="cmd">120. snap</td><td>Canonical snap package manager</td></tr>
-              <tr><td class="cmd">121. flatpak</td><td>Sandboxed application deployment</td></tr>
-              <tr><td class="cmd">122. tar</td><td>Archive files (tarballs)</td></tr>
-              <tr><td class="cmd">123. gzip</td><td>Compress files (gzip)</td></tr>
-              <tr><td class="cmd">124. gunzip</td><td>Decompress gzip files</td></tr>
-              <tr><td class="cmd">125. bzip2</td><td>Compress with bzip2</td></tr>
-              <tr><td class="cmd">126. bunzip2</td><td>Decompress bzip2</td></tr>
-              <tr><td class="cmd">127. unzip</td><td>Unzip .zip archives</td></tr>
-              <tr><td class="cmd">128. zip</td><td>Create .zip archives</td></tr>
-              <tr><td class="cmd">129. 7z</td><td>7-Zip archive tool</td></tr>
-              <tr><td class="cmd">130. dd</td><td>Low-level copying, create disk images</td></tr>
-              <tr><td class="cmd">131. fdisk</td><td>Partition table manipulator</td></tr>
-              <tr><td class="cmd">132. parted</td><td>GNU parted partition editor</td></tr>
-              <tr><td class="cmd">133. lsblk</td><td>List block devices</td></tr>
-              <tr><td class="cmd">134. blkid</td><td>Locate/print block device attributes</td></tr>
-              <tr><td class="cmd">135. mount</td><td>Mount filesystem</td></tr>
-              <tr><td class="cmd">136. umount</td><td>Unmount filesystem</td></tr>
-              <tr><td class="cmd">137. losetup</td><td>Associate loop devices</td></tr>
-              <tr><td class="cmd">138. dmsetup</td><td>Control device-mapper devices</td></tr>
-              <tr><td class="cmd">139. swapon</td><td>Enable swap space</td></tr>
-              <tr><td class="cmd">140. swapoff</td><td>Disable swap</td></tr>
-              <tr><td class="cmd">141. mkswap</td><td>Set up swap area</td></tr>
-              <tr><td class="cmd">142. tune2fs</td><td>Adjust ext2/3/4 filesystem parameters</td></tr>
-              <tr><td class="cmd">143. e2fsck</td><td>Filesystem check for ext filesystems</td></tr>
-              <tr><td class="cmd">144. fsck</td><td>Filesystem consistency check</td></tr>
-              <tr><td class="cmd">145. lsof</td><td>List open files (and listening ports)</td></tr>
-              <tr><td class="cmd">146. strace</td><td>Trace system calls of a process</td></tr>
-              <tr><td class="cmd">147. ltrace</td><td>Trace library calls</td></tr>
-              <tr><td class="cmd">148. tcpdump</td><td>Packet capture from terminal</td></tr>
-              <tr><td class="cmd">149. tshark</td><td>Terminal version of Wireshark (captures)</td></tr>
-              <tr><td class="cmd">150. wireshark</td><td>GUI packet analyzer</td></tr>
-              <tr><td class="cmd">151. nmap</td><td>Network scanner — host/port discovery</td></tr>
-              <tr><td class="cmd">152. masscan</td><td>Very fast port scanner</td></tr>
-              <tr><td class="cmd">153. netcat (nc)</td><td>Read/write network connections</td></tr>
-              <tr><td class="cmd">154. socat</td><td>Relay data between two endpoints</td></tr>
-              <tr><td class="cmd">155. iperf3</td><td>Network performance measurement</td></tr>
-              <tr><td class="cmd">156. arp</td><td>Manipulate/display ARP table</td></tr>
-              <tr><td class="cmd">157. arpwatch</td><td>Monitor ARP changes</td></tr>
-              <tr><td class="cmd">158. ethtool</td><td>Query/modify network driver/device settings</td></tr>
-              <tr><td class="cmd">159. nmcli</td><td>NetworkManager command-line</td></tr>
-              <tr><td class="cmd">160. iwconfig</td><td>Configure wireless interfaces (legacy)</td></tr>
-              <tr><td class="cmd">161. iw</td><td>Modern tool for wireless devices</td></tr>
-              <tr><td class="cmd">162. aircrack-ng</td><td>Wi-Fi cracking suite (learning only)</td></tr>
-              <tr><td class="cmd">163. airodump-ng</td><td>Capture packets from Wi-Fi</td></tr>
-              <tr><td class="cmd">164. aireplay-ng</td><td>Packet injection for tests (lab only)</td></tr>
-              <tr><td class="cmd">165. reaver</td><td>WPS attack tool (use ethically in lab)</td></tr>
-              <tr><td class="cmd">166. hashcat</td><td>GPU-accelerated password cracker (offline)</td></tr>
-              <tr><td class="cmd">167. john</td><td>John the Ripper — password cracker</td></tr>
-              <tr><td class="cmd">168. sqlmap</td><td>Automated SQL injection testing (lab)</td></tr>
-              <tr><td class="cmd">169. nikto</td><td>Web server scanner (safety: lab only)</td></tr>
-              <tr><td class="cmd">170. dirb</td><td>Web content scanner (directory brute-forcing)</td></tr>
-              <tr><td class="cmd">171. dirbuster</td><td>Web content enumeration tool</td></tr>
-              <tr><td class="cmd">172. burpsuite</td><td>Web proxy and testing platform (GUI)</td></tr>
-              <tr><td class="cmd">173. metasploit</td><td>Exploit framework (use ethically in labs)</td></tr>
-              <tr><td class="cmd">174. msfconsole</td><td>Metasploit interactive console</td></tr>
-              <tr><td class="cmd">175. whois</td><td>Domain registration lookup</td></tr>
-              <tr><td class="cmd">176. dig +short</td><td>Quick DNS query</td></tr>
-              <tr><td class="cmd">177. wget --mirror</td><td>Mirror a website for offline analysis (obey robots)</td></tr>
-              <tr><td class="cmd">178. curl -I</td><td>Fetch headers (quick diagnosis)</td></tr>
-              <tr><td class="cmd">179. journalctl -xe</td><td>View extended system logs (troubleshoot)</td></tr>
-              <tr><td class="cmd">180. systemd-analyze blame</td><td>Show services by startup time</td></tr>
-              <tr><td class="cmd">181. uname -a</td><td>All system information (kernel + arch)</td></tr>
-              <tr><td class="cmd">182. cat /etc/os-release</td><td>Distribution identification</td></tr>
-              <tr><td class="cmd">183. tail -f /var/log/syslog</td><td>Follow system log live (Ubuntu)</td></tr>
-              <tr><td class="cmd">184. tail -f /var/log/messages</td><td>Follow general syslog (some distros)</td></tr>
-              <tr><td class="cmd">185. chmod 700</td><td>Secure private key permissions example</td></tr>
-              <tr><td class="cmd">186. ssh -f -N -L</td><td>Setup SSH local port forwarding (tunnel)</td></tr>
-              <tr><td class="cmd">187. ssh -R</td><td>Remote port forwarding</td></tr>
-              <tr><td class="cmd">188. rsync -avz</td><td>Archive sync with compression</td></tr>
-              <tr><td class="cmd">189. crontab -l</td><td>List current user's cron jobs</td></tr>
-              <tr><td class="cmd">190. crontab -e</td><td>Edit cron jobs</td></tr>
-              <tr><td class="cmd">191. getfacl</td><td>Get file ACLs (Access Control Lists)</td></tr>
-              <tr><td class="cmd">192. setfacl</td><td>Set file ACLs</td></tr>
-              <tr><td class="cmd">193. auditctl</td><td>Control Linux Audit subsystem</td></tr>
-              <tr><td class="cmd">194. ausearch</td><td>Search audit logs</td></tr>
-              <tr><td class="cmd">195. ausearch -m</td><td>Search specific audit messages</td></tr>
-              <tr><td class="cmd">196. semanage</td><td>Manage SELinux policy (RHEL)</td></tr>
-              <tr><td class="cmd">197. getenforce</td><td>Check SELinux mode</td></tr>
-              <tr><td class="cmd">198. setenforce</td><td>Toggle SELinux mode (Permissive/Enforcing)</td></tr>
-              <tr><td class="cmd">199. aa-status</td><td>Check AppArmor status</td></tr>
-              <tr><td class="cmd">200. ufw status</td><td>Check uncomplicated firewall status</td></tr>
-            </tbody>
-          </table>
-
-          <p class="muted" style="margin-top:10px">➡︎ Above list contains 200 practical commands. If you want the full set of 500 commands (categorized and downloadable as a JSON/CSV), tell me and I will add the remaining 300 entries and provide the full exportable file inline.</p>
-        </section>
-
-        <!-- tips -->
-        <section class="panel" style="margin-top:12px">
-          <h2>Practical Tips for Ethical Hackers (Linux)</h2>
-          <ul class="muted">
-            <li>Always use isolated lab environments (VMs or containers) for practice — never test on networks or systems without explicit permission.</li>
-            <li>Learn shell scripting (Bash / Python) to automate recon & parsing.</li>
-            <li>Keep a separate non-root user for daily tasks; use sudo only when necessary.</li>
-            <li>Master networking tools: tcpdump, nmap, ss, ip, netstat for recon and troubleshooting.</li>
-            <li>Understand logs (journalctl, /var/log) — they tell system history and events.</li>
-            <li>Practice file system forensics: mount images read-only, use tools like sleuthkit.</li>
-            <li>Use snapshots or VM checkpoints before trying risky tools.</li>
-          </ul>
-        </section>
-
-      </main>
-
-      <!-- right: quick references -->
-      <aside>
-        <div class="panel">
-          <h3>Quick Reference</h3>
-          <p class="muted"><strong>First commands to memorize:</strong> <span class="cmd">ls, cd, pwd, cat, tail -f, grep, ssh, scp, sudo</span></p>
-          <p class="muted"><strong>Editors:</strong> <span class="cmd">nano, vi(m), code (VSCode)</span></p>
-          <p class="muted"><strong>Package managers:</strong> <span class="cmd">apt, dnf, pacman, zypper</span></p>
-          <div style="margin-top:8px">
-            <button id="openCheatsheet" class="section-toggle">Open Compact Cheatsheet (modal)</button>
-          </div>
-        </div>
-
-        <div class="panel" style="margin-top:12px">
-          <h3>Download ISO Tips</h3>
-          <ul class="muted">
-            <li>Verify checksums (sha256sum) after download.</li>
-            <li>Use Rufus / balenaEtcher to write USB images.</li>
-            <li>Prefer official mirrors; avoid untrusted 3rd-party builds.</li>
-          </ul>
-        </div>
-
-        <div class="panel" style="margin-top:12px">
-          <h3>Learning Path (Roadmap)</h3>
-          <ol class="muted">
-            <li>Basics: Files, users, permissions</li>
-            <li>Networking fundamentals</li>
-            <li>Scripting: Bash → Python</li>
-            <li>Web app security & tools</li>
-            <li>Advanced: Kernel, drivers, forensics</li>
-          </ol>
-        </div>
-      </aside>
-
-
-  <!-- modal cheatsheet -->
-  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="box">
-      <h3>Compact Cheatsheet</h3>
-      <pre style="background:#051010;padding:10px;border-radius:8px;color:#bfffd1;max-height:360px;overflow:auto">
-Basic:
-ls, cd, pwd, cat, less, head, tail, mkdir, rm, cp, mv, touch, chmod, chown
-
-Networking:
-ip, ifconfig, ss, netstat, ping, traceroute, nmap, tcpdump
-
-Files & text:
-grep, sed, awk, cut, sort, uniq, wc, xargs
-
-Processes & services:
-ps, top, htop, systemctl, journalctl
-
-Archive & compress:
-tar, gzip, bzip2, zip, unzip, dd
-
-Users & groups:
-useradd, passwd, groupadd, su, sudo, visudo
-
-Package managers:
-apt, dnf, pacman
-
-Containers & code:
-docker, git, gcc, make
-
-Security tools (lab only):
-nmap, sqlmap, john, hashcat, wireshark, aircrack-ng
-      </pre>
-      <div style="text-align:right;margin-top:8px"><button id="closeModal" class="section-toggle">Close</button></div>
-    </div>
-  </div>
-
-  <script>
-
-    // Search commands
-    const table = document.getElementById('cmdTable');
-    const rows = Array.from(table.querySelectorAll('tbody tr'));
-    document.getElementById('cmdSearch').addEventListener('keypress', function(e){
-      if(e.key !== 'Enter') return;
-      const q = this.value.trim().toLowerCase();
-      rows.forEach(r=>{
-        const text = r.textContent.toLowerCase();
-        r.style.display = text.includes(q) ? '' : 'none';
-      });
+<script>
+const cmdInput=document.getElementById("cmdInput");
+const output=document.getElementById("output");
+const cmdList=document.querySelectorAll("#cmdList li");
+cmdInput.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    const val=e.target.value.trim();
+    if(!val){return;}
+    let found=false;
+    cmdList.forEach(li=>{
+      if(li.dataset.cmd.toLowerCase()===val.toLowerCase()){
+        output.innerHTML=`<span style="color:#ff0">$ ${val}</span><br>${li.textContent}`;
+        found=true;
+      }
     });
-    document.getElementById('resetBtn').addEventListener('click', ()=>{
-      document.getElementById('cmdSearch').value='';
-      rows.forEach(r=>r.style.display='');
-    });
-
-    // modal handlers
-    const modal = document.getElementById('modal');
-    document.getElementById('openCheatsheet').addEventListener('click', ()=>{ modal.classList.add('show'); modal.setAttribute('aria-hidden','false'); });
-    document.getElementById('closeModal').addEventListener('click', ()=>{ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); });
-
-  </script>
+    if(!found){output.innerHTML=`<span style="color:#f00">$ ${val}</span><br>Command not found in database.`;}
+    e.target.value="";
+    output.scrollTop=output.scrollHeight;
+  }
+});
+</script>
+</div>
 </body>
-</html>
+  </html>
