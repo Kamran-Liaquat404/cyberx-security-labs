@@ -4,12 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About CyberX | Ethical Security Platform</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
-  background:#000;
-  color:#fff;
-  font-family:"Courier New", monospace;
+  background:#F8F9FA;
+  color:#111827;
+  font-family:'Inter', sans-serif;
   line-height:1.6;
   overflow-x:hidden;
 }
@@ -20,17 +24,20 @@ header{
   justify-content:space-between;
   align-items:center;
   padding:18px 24px;
-  border-bottom:1px solid #111;
+  background:#FFFFFF;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  position:sticky;
+  top:0;
+  z-index:100;
 }
-
 .logo{
   font-size:22px;
-  letter-spacing:2px;
   font-weight:bold;
+  letter-spacing:1px;
+  color:#1E3A8A;
 }
-.logo span{color:#0f0}
+.logo span{color:#10B981;}
 
-/* ===== THREE DOT MENU ===== */
 .menu-btn{
   font-size:26px;
   cursor:pointer;
@@ -40,27 +47,29 @@ header{
 /* ===== DROPDOWN ===== */
 .dropdown{
   position:fixed;
-  top:0;
+  top:60px;
   right:18px;
   width:220px;
-  background:#050505;
-  border:1px solid #222;
+  background:#FFFFFF;
+  border:1px solid #D1D5DB;
+  border-radius:10px;
   transform:translateY(-120%);
   transition:0.35s ease;
   z-index:999;
-  box-shadow:0 15px 40px rgba(0,0,0,0.8);
+  box-shadow:0 10px 20px rgba(0,0,0,0.15);
 }
-.dropdown.active{transform:translateY(60px)}
+.dropdown.active{transform:translateY(0);}
 .dropdown a{
   display:block;
-  padding:12px 16px;
-  color:#ccc;
+  padding:14px 16px;
+  color:#1E3A8A;
   text-decoration:none;
-  border-bottom:1px solid #111;
+  border-bottom:1px solid #E5E7EB;
+  transition:0.2s;
 }
 .dropdown a:hover{
-  background:#0a0a0a;
-  color:#0f0;
+  background:#EFF6FF;
+  color:#0F172A;
 }
 
 /* ===== CONTAINER ===== */
@@ -70,62 +79,85 @@ header{
   padding:0 18px;
 }
 
-/* ===== SECTION ===== */
+/* ===== SECTIONS ===== */
 .section{
   margin-top:35px;
-  padding:24px;
-  background:#050505;
-  border:1px solid #111;
-  border-radius:6px;
+  padding:28px;
+  background:#FFFFFF;
+  border-radius:12px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.section:hover{
+  transform: translateY(-4px);
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 .section h2{
-  color:#0f0;
-  margin-bottom:12px;
-  letter-spacing:1px;
+  color:#1E3A8A;
+  font-size:22px;
+  margin-bottom:14px;
 }
 .section p{
-  color:#ccc;
-  font-size:14px;
+  color:#374151;
+  font-size:15px;
   margin-bottom:12px;
 }
-
-/* HIGHLIGHT */
 .section span{
-  color:#ff4444;
-  font-weight:bold;
+  color:#10B981;
+  font-weight:600;
+}
+.section ul{
+  margin:6px 0 6px 20px;
+  color:#374151;
+  list-style-type: disc;
+}
+
+/* ===== BUTTON-LIKE LINKS ===== */
+.link-btn{
+  display:inline-block;
+  padding:10px 18px;
+  margin:6px 4px;
+  color:#FFFFFF;
+  background:#1E3A8A;
+  border-radius:8px;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:600;
+  transition:0.25s ease;
+}
+.link-btn:hover{
+  background:#10B981;
+  color:#FFFFFF;
+  transform:translateY(-2px) scale(1.03);
 }
 
 /* ===== FOOTER ===== */
 footer{
   margin-top:60px;
-  padding:16px 24px;
+  padding:24px;
   text-align:center;
-  border-top:1px solid #111;
+  background:#1E3A8A;
+  color:#FFFFFF;
   font-size:14px;
-  color:#ccc;
+  border-top-left-radius:12px;
+  border-top-right-radius:12px;
 }
 footer a{
-  color:#0f0;
+  color:#10B981;
+  margin:0 12px;
   text-decoration:none;
-  margin:0 10px;
+  transition:0.2s;
 }
-footer a:hover{color:#ff4444}
+footer a:hover{
+  color:#FFFFFF;
+  text-decoration:underline;
+}
 
-/* ===== BUTTON-LIKE LINKS ===== */
-.link-btn{
-  display:inline-block;
-  padding:8px 14px;
-  margin:4px 4px;
-  color:#0f0;
-  border:1px solid #0f0;
-  border-radius:4px;
-  text-decoration:none;
-  font-size:14px;
-  transition:0.2s ease;
-}
-.link-btn:hover{
-  color:#ff4444;
-  border-color:#ff4444;
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  .logo{font-size:18px;}
+  .section{padding:20px;}
+  .link-btn{padding:8px 14px;font-size:13px;}
 }
 </style>
 </head>
@@ -155,7 +187,7 @@ footer a:hover{color:#ff4444}
     <h2>ABOUT CYBERX</h2>
     <p>
       CyberX is a fully <span>legal</span> ethical security platform, built for learners who want to explore the world of cybersecurity in a safe environment.
-      It was founded by <span>Kamran Liaquat</span> in <span>2023</span> to provide an educational hub for anyone interested in ethical hacking and digital security.
+      Founded by <span>Kamran Liaquat</span> in <span>2023</span>, it provides an educational hub for ethical hacking and digital security.
     </p>
     <p>
       The platform simulates real-world security tools and concepts, allowing beginners and intermediate learners to understand networks, systems, and cybersecurity threats without risking real systems.
@@ -165,21 +197,19 @@ footer a:hover{color:#ff4444}
   <!-- SECTION 2: FEATURES -->
   <div class="section">
     <h2>FEATURES & LEARNING</h2>
+    <p>CyberX provides a <span>modern, terminal-inspired interface</span> with practical modules including:</p>
+    <ul>
+      <li>Ethical Hacking Labs</li>
+      <li>Linux Lab Simulations</li>
+      <li>Email Breach & Password Checker</li>
+      <li>Port Scanning & IP Tracking</li>
+      <li>Text Encryption & Decryption Tools</li>
+      <li>Cryptography Labs & Simulations</li>
+      <li>Cybersecurity News & Dark Web Awareness</li>
+    </ul>
     <p>
-      CyberX provides a <span>terminal-inspired interface</span> and practical modules including:
-      <ul style="margin:6px 0 6px 20px; color:#ccc;">
-        <li>Ethical Hacking Labs</li>
-        <li>Linux Lab Simulations</li>
-        <li>Email Breach & Password Checker</li>
-        <li>Port Scanning & IP Tracking</li>
-        <li>Text Encryption & Decryption Tools</li>
-        <li>Cryptography Labs & Simulations</li>
-        <li>Cybersecurity News & Dark Web Awareness</li>
-      </ul>
-    </p>
-    <p>
-      Each module is designed for <span>beginner-friendly learning</span> but also valuable for intermediate students. 
-      Users can follow a clear <span>ethical hacking roadmap</span> and gradually improve their cybersecurity skills in a safe environment.
+      Each module is beginner-friendly but also valuable for intermediate learners. 
+      Users can follow a clear <span>ethical hacking roadmap</span> to gradually improve their cybersecurity skills.
     </p>
   </div>
 
@@ -187,11 +217,11 @@ footer a:hover{color:#ff4444}
   <div class="section">
     <h2>ETHICAL NOTICE</h2>
     <p>
-      All activities on CyberX are <span>100% legal</span>. This platform is intended for learning purposes only.
-      Any attempt to misuse tools in real-world illegal activities is strictly discouraged. The goal is <span>knowledge building and awareness</span>.
+      All activities on CyberX are <span>100% legal</span>. This platform is intended for learning only.
+      Misusing tools in real-world illegal activities is strictly discouraged. The goal is <span>knowledge building and awareness</span>.
     </p>
     <p>
-      By supporting this platform via <a class="link-btn" href="support&donation.html">donation</a>, you help us continue developing free and safe learning resources.
+      By supporting this platform via <a class="link-btn" href="support&donation.html">donation</a>, you help continue developing free and safe learning resources.
     </p>
   </div>
 
@@ -222,4 +252,4 @@ document.addEventListener("click", (e) => {
 </script>
 
 </body>
-</html>
+  </html>
