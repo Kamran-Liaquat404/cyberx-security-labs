@@ -3,224 +3,113 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Cryptography Lab | CyberX</title>
-<meta name="description" content="Interactive Cryptography Lab: AES-GCM, RSA-OAEP, SHA/HMAC, encoding tools, password entropy, visualizations. Browser-only demos."/>
+<title>Cryptography Lab</title>
 <style>
 :root{
-  --bg:#000;
-  --neon-red:#ff3b3b;
-  --neon-green:#00ff88;
-  --neon-yellow:#ffcc00;
-  --muted:#9fb3a0;
-  --panel:rgba(8,8,8,0.7);
-  --glass:rgba(255,255,255,0.03);
-  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+  --bg:#0f0f0f;
+  --primary:#00ff88;
+  --secondary:#ff3b3b;
+  --muted:#aaa;
+  --panel:#1a1a1a;
   --radius:12px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:linear-gradient(180deg,#000,#050505 70%);color:#dfffe6;font-family:Inter,system-ui,"Segoe UI",Roboto,Arial}
-canvas#matrix{position:fixed;inset:0;z-index:-4;display:block;filter:contrast(1.05)}
-.overlay{position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.35),rgba(0,0,0,0.9));z-index:-3}
-.wrap{max-width:1200px;margin:20px auto;padding:18px;position:relative;z-index:2}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.brand{font-weight:900;color:var(--neon-red);letter-spacing:1px;font-size:22px;text-shadow:0 0 20px rgba(255,60,60,0.08)}
-.sub{color:var(--muted);font-size:13px}
-.grid{display:grid;grid-template-columns:1fr 360px;gap:18px;margin-top:18px}
-@media(max-width:980px){.grid{grid-template-columns:1fr;gap:12px}}
-.panel{background:var(--panel);padding:14px;border-radius:var(--radius);border:1px solid var(--glass);box-shadow:0 20px 60px rgba(0,0,0,0.6)}
-h1,h3{margin:0}
-h1{color:var(--neon-green);font-size:22px}
-h3{color:var(--neon-green);font-size:18px}
-p.lead{color:var(--muted);margin-top:6px;font-size:14px}
-.section{margin-top:12px;border-radius:10px;padding:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.02)}
-label{display:block;font-weight:700;margin-bottom:6px;color:var(--muted);font-size:13px}
-textarea,input,select,button{font-family:var(--mono);font-size:13px}
-textarea{width:100%;min-height:96px;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit;resize:vertical}
-input[type="text"],input[type="password"],select{width:100%;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:inherit}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--bg);color:var(--primary);line-height:1.5;min-height:100vh;padding:12px;}
+h1,h3{color:var(--primary)}
+p{color:var(--muted)}
+.panel{background:var(--panel);padding:16px;border-radius:var(--radius);margin-bottom:12px;box-shadow:0 4px 20px rgba(0,0,0,0.5);}
+input,textarea,select,button{font-family:var(--mono);font-size:14px;}
+input,textarea,select{width:100%;padding:10px;margin-top:6px;margin-bottom:6px;border-radius:8px;background:#111;border:1px solid #333;color:var(--primary);}
+textarea{resize:vertical;}
+button{cursor:pointer;padding:10px 12px;margin-top:4px;margin-bottom:4px;border:none;border-radius:8px;font-weight:700;}
+.btn-primary{background:var(--primary);color:#0f0f0f;}
+.btn-ghost{background:transparent;border:1px solid #333;color:var(--primary);}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
 .row .col{flex:1}
-.btn{padding:10px 12px;border-radius:8px;border:0;cursor:pointer;font-weight:800;transition:0.2s}
-.primary{background:linear-gradient(90deg,var(--neon-red),#990000);color:#fff}
-.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-.success{background:linear-gradient(90deg,#00cc66,#00ff88);color:#002a10}
-.small{font-size:13px;color:var(--muted)}
-.log{margin-top:10px;padding:8px;background:rgba(255,255,255,0.01);border-radius:8px;max-height:160px;overflow:auto;font-family:var(--mono);font-size:13px;color:var(--muted)}
-table{width:100%;border-collapse:collapse}
-th,td{padding:6px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.03)}
-.visual{display:flex;gap:12px;align-items:center}
-canvas#viz{width:100%;height:120px;background:rgba(0,0,0,0.2);border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
-footer{margin-top:14px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
-a.link{color:var(--neon-green);text-decoration:none}
-a.link:hover{color:var(--neon-yellow)}
-.kbd{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:6px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.log{background:#111;padding:8px;border-radius:8px;max-height:120px;overflow:auto;font-family:var(--mono);color:var(--muted);}
+@media(min-width:600px){.row{flex-wrap:nowrap}}
 </style>
 </head>
 <body>
 
-<canvas id="matrix" aria-hidden="true"></canvas>
-<div class="overlay" aria-hidden="true"></div>
+<h1>Cryptography Lab</h1>
+<p>All operations are local in your browser. Keep keys secret.</p>
 
-<div class="wrap" role="application" aria-label="Cryptography Lab">
-<header>
-  <div>
-    <div class="brand">Cryptography Lab</div>
-    <div class="sub">AES-GCM • RSA-OAEP • SHA/HMAC • Encoders • Password Entropy • Visualizations</div>
+<div class="panel">
+  <h3>Input / Plaintext</h3>
+  <textarea id="inputText" placeholder="Type text here..."></textarea>
+  <div class="row">
+    <button class="btn-ghost" id="fillDemo">Demo Text</button>
+    <button class="btn-ghost" id="clearInput">Clear</button>
   </div>
-</header>
-
-<main class="grid">
-<!-- LEFT: Lab UI -->
-<section class="panel">
-  <h1>Interactive Cryptography Experiments</h1>
-  <p class="lead">All operations run locally in the browser. Keep keys secret. Use responsibly.</p>
-
-  <!-- Plaintext -->
-  <div class="section">
-    <label>Plaintext / Input</label>
-    <textarea id="inputText" placeholder="Type text here..."></textarea>
-    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-      <button id="fillDemo" class="btn ghost">Demo Text</button>
-      <button id="clearInput" class="btn ghost">Clear</button>
-    </div>
-  </div>
-
-  <!-- AES -->
-  <div class="section">
-    <label>Symmetric Encryption — AES-GCM</label>
-    <div class="row" style="margin-bottom:8px">
-      <div class="col"><input id="symPass" type="password" placeholder="Passphrase"></div>
-      <div style="width:160px"><select id="symAlg">
-        <option value="aes-gcm-256">AES-GCM 256</option>
-        <option value="aes-gcm-128">AES-GCM 128</option>
-      </select></div>
-      <div style="width:120px"><select id="symIter">
-        <option value="100000">100k iter</option>
-        <option value="200000" selected>200k iter</option>
-        <option value="400000">400k iter</option>
-      </select></div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
-      <button id="symEncrypt" class="btn primary">Encrypt</button>
-      <button id="symDecrypt" class="btn ghost">Decrypt</button>
-      <button id="symDownload" class="btn ghost" disabled>Download JSON</button>
-    </div>
-    <div class="small" style="margin-top:8px">Output: Base64 JSON (v1) with salt/iv/ct/alg.</div>
-  </div>
-
-  <!-- RSA -->
-  <div class="section">
-    <label>Asymmetric Encryption — RSA-OAEP (2048)</label>
-    <div class="row">
-      <button id="genRsa" class="btn primary">Generate Keypair</button>
-      <button id="exportPub" class="btn ghost" disabled>Export Public</button>
-      <button id="exportPriv" class="btn ghost" disabled>Export Private</button>
-    </div>
-    <textarea id="rsaPeerPub" rows="3" placeholder="Paste receiver's public PEM"></textarea>
-    <div class="row" style="margin-top:8px">
-      <button id="rsaEncryptBtn" class="btn primary">Encrypt with PEM</button>
-      <button id="rsaDecryptBtn" class="btn ghost">Decrypt</button>
-    </div>
-    <div class="small" style="margin-top:6px">RSA for small messages; use hybrid AES+RSA for large data.</div>
-  </div>
-
-  <!-- Hash/HMAC -->
-  <div class="section">
-    <label>Hashing & HMAC</label>
-    <div class="row">
-      <select id="hashAlgo"><option value="SHA-256">SHA-256</option><option value="SHA-512">SHA-512</option></select>
-      <button id="hashBtn" class="btn ghost">Hash</button>
-      <input id="hmacKey" type="text" placeholder="HMAC key (optional)">
-      <button id="hmacBtn" class="btn primary">Compute HMAC</button>
-    </div>
-    <div style="margin-top:8px" id="hashOut" class="small">Result: —</div>
-  </div>
-
-  <!-- Encoders -->
-  <div class="section">
-    <label>Encoding Tools</label>
-    <div class="row">
-      <select id="encSelect">
-        <option value="b64e">Base64 Encode</option>
-        <option value="b64d">Base64 Decode</option>
-        <option value="hexe">Hex Encode</option>
-        <option value="hexd">Hex Decode</option>
-        <option value="rev">Reverse Text</option>
-        <option value="caesar3">Caesar Cipher +3</option>
-      </select>
-      <button id="encRun" class="btn ghost">Run</button>
-      <button id="encCopy" class="btn ghost">Copy</button>
-    </div>
-    <div id="encOut" class="small" style="margin-top:8px">Output: —</div>
-  </div>
-
-  <!-- Password Entropy -->
-  <div class="section">
-    <label>Password Strength & Entropy</label>
-    <div class="row">
-      <input id="pwdInput" type="text" placeholder="Type password">
-      <div style="width:140px"><button id="pwdCalc" class="btn primary">Analyze</button></div>
-    </div>
-    <div style="margin-top:8px" id="pwdResult" class="small">Entropy: — • Crack time: —</div>
-  </div>
-
-  <!-- Visualization -->
-  <div class="section">
-    <label>Bit Visualization</label>
-    <div class="visual">
-      <canvas id="viz" width="640" height="120" aria-hidden="true"></canvas>
-      <div style="flex:0 0 220px">
-        <div class="small">Mode:</div>
-        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
-          <button id="vizRandom" class="btn ghost">Random Bits</button>
-          <button id="vizXor" class="btn ghost">XOR Plain vs Cipher</button>
-          <button id="vizStop" class="btn ghost">Stop</button>
-        </div>
-        <div class="small" style="margin-top:10px">Visualize diffusion & randomness.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="log" id="log">Lab ready. All operations are local to your browser.</div>
-</section>
-
-<!-- RIGHT PANEL: History / Keys / Links -->
-<aside class="panel">
-  <h3>Tools, History & Notes</h3>
-  <div class="section">
-    <label>History (LocalStorage)</label>
-    <div id="historyList" class="small">No saved items yet.</div>
-    <div class="row" style="margin-top:8px">
-      <button id="clearHist" class="btn ghost">Clear</button>
-      <button id="exportHist" class="btn ghost">Export JSON</button>
-    </div>
-  </div>
-  <div class="section">
-    <label>Import / Export Keys</label>
-    <div class="row" style="margin-top:8px;flex-wrap:wrap">
-      <button id="impPrivBtn" class="btn ghost">Import Private PEM</button>
-      <button id="impPubBtn" class="btn ghost">Import Public PEM</button>
-      <input id="fileInput" type="file" accept=".pem,.txt,.json" style="display:none"/>
-    </div>
-    <div class="small" style="margin-top:6px">Import keys only from trusted sources.</div>
-  </div>
-  <div class="section">
-    <label>Quick Learning Links</label>
-    <ul class="small" style="margin-top:6px">
-      <li><a class="link" href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto" target="_blank" rel="noopener">Web Crypto API (MDN)</a></li>
-      <li><a class="link" href="https://nvlpubs.nist.gov/" target="_blank" rel="noopener">NIST Crypto Standards</a></li>
-      <li><a class="link" href="https://en.wikipedia.org/wiki/Cryptography" target="_blank" rel="noopener">Cryptography Overview</a></li>
-    </ul>
-  </div>
-</aside>
-</main>
 </div>
 
-<script>
-// log helper
-function log(msg){const el=document.getElementById('log');el.textContent=new Date().toLocaleTimeString()+' • '+msg+'\n'+el.textContent;}
+<div class="panel">
+  <h3>Symmetric AES-GCM</h3>
+  <input type="password" id="symPass" placeholder="Passphrase">
+  <select id="symAlg"><option>AES-256</option><option>AES-128</option></select>
+  <select id="symIter"><option>100k iter</option><option selected>200k iter</option><option>400k iter</option></select>
+  <div class="row">
+    <button class="btn-primary" id="symEncrypt">Encrypt</button>
+    <button class="btn-ghost" id="symDecrypt">Decrypt</button>
+  </div>
+</div>
 
-// random matrix / visualization can be added later
-</script>
+<div class="panel">
+  <h3>Asymmetric RSA-OAEP (2048)</h3>
+  <div class="row">
+    <button class="btn-primary" id="genRsa">Generate Keypair</button>
+    <button class="btn-ghost" id="exportPub" disabled>Export Public</button>
+    <button class="btn-ghost" id="exportPriv" disabled>Export Private</button>
+  </div>
+  <textarea id="rsaPeerPub" placeholder="Paste receiver's public PEM"></textarea>
+  <div class="row">
+    <button class="btn-primary" id="rsaEncryptBtn">Encrypt</button>
+    <button class="btn-ghost" id="rsaDecryptBtn">Decrypt</button>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Hash / HMAC</h3>
+  <div class="row">
+    <select id="hashAlgo"><option>SHA-256</option><option>SHA-512</option></select>
+    <button class="btn-ghost" id="hashBtn">Hash</button>
+    <input id="hmacKey" type="text" placeholder="HMAC key">
+    <button class="btn-primary" id="hmacBtn">Compute HMAC</button>
+  </div>
+  <div class="log" id="hashOut">Result: —</div>
+</div>
+
+<div class="panel">
+  <h3>Encoding Tools</h3>
+  <div class="row">
+    <select id="encSelect">
+      <option>Base64 Encode</option>
+      <option>Base64 Decode</option>
+      <option>Hex Encode</option>
+      <option>Hex Decode</option>
+      <option>Reverse Text</option>
+      <option>Caesar +3</option>
+    </select>
+    <button class="btn-ghost" id="encRun">Run</button>
+  </div>
+  <div class="log" id="encOut">Output: —</div>
+</div>
+
+<div class="panel">
+  <h3>Password Strength & Entropy</h3>
+  <div class="row">
+    <input id="pwdInput" type="text" placeholder="Password">
+    <button class="btn-primary" id="pwdCalc">Analyze</button>
+  </div>
+  <div class="log" id="pwdResult">Entropy: — • Crack time: —</div>
+</div>
+
+<div class="panel">
+  <h3>Log</h3>
+  <div class="log" id="log">Lab ready. Browser-only operations.</div>
+</div>
 
 </body>
-  </html>
+    </html>
