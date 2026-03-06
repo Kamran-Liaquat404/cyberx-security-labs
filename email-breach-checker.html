@@ -1,252 +1,208 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Email Breach — Simulation / Awareness</title>
-  <meta name="description" content="Email Breach Simulation (demo) — safe client-side checker, remediation tips, and links to trusted breach-check services. Educational only." />
-  <style>
-    :root{
-      --bg:#000; --accent:#00ff88; --danger:#ff5555; --muted:#9fb3aa; --panel: rgba(0,10,6,0.7);
-      --glass: rgba(255,255,255,0.02);
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
-      --radius:12px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;padding:0;background:#000;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:#dfffe6}
-    canvas#matrix{position:fixed;inset:0;z-index:-3;filter:contrast(1.05)}
-    .overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.85));z-index:-2}
-    .wrap{max-width:1100px;margin:28px auto;padding:18px}
-    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
-    .brand{font-weight:900;color:var(--accent);letter-spacing:1px;font-size:20px}
-    .sub{color:var(--muted);font-size:13px}
-    .panel{background:var(--panel);padding:18px;border-radius:var(--radius);border:1px solid var(--glass);box-shadow:0 8px 36px rgba(0,255,120,0.03)}
-    .grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
-    @media (max-width:980px){ .grid{grid-template-columns:1fr} }
-    h1{margin:0;color:var(--accent);font-size:22px}
-    p.lead{color:var(--muted);margin-top:8px}
-    /* form */
-    .checker{display:flex;gap:8px;margin-top:12px}
-    input[type="email"]{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-size:15px}
-    button{padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:linear-gradient(90deg,#003322,#004433);color:#eafff0;font-weight:800;cursor:pointer}
-    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
-    .results{margin-top:14px;padding:12px;border-radius:10px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.02);min-height:120px}
-    .badge{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.02);color:var(--muted);font-weight:700}
-    .danger{color:var(--danger);font-weight:900}
-    .ok{color:var(--accent);font-weight:900}
-    .tip{margin-top:10px;color:var(--muted);font-size:14px}
-    .list{margin:10px 0 0 0;padding-left:18px;color:var(--muted)}
-    .link{color:var(--accent);font-weight:800;text-decoration:none}
-    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-    .footer-note{margin-top:14px;color:#bcdcc5;font-size:13px}
-    .report-area{margin-top:8px;white-space:pre-wrap;background:#03100b;padding:10px;border-radius:8px;color:#cfeee1;font-family:var(--mono);font-size:13px}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Email Breach — Safe Demo Checker</title>
+<meta name="description" content="Email Breach Simulation — safe client-side demo checker, remediation tips, and trusted resources. Fully mobile-friendly & educational." />
+<style>
+:root{
+  --bg:#000;
+  --accent:#00ff88;
+  --danger:#ff5555;
+  --muted:#9fb3aa;
+  --panel: rgba(0,10,6,0.7);
+  --glass: rgba(255,255,255,0.02);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+  --radius:12px;
+  --maxw: 1000px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;padding:0;background:#000;color:#dfffe6;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial}
+canvas#matrix{position:fixed;inset:0;z-index:-3;filter:contrast(1.05)}
+.overlay{position:fixed;inset:0;background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.85));z-index:-2}
+.wrap{max-width:var(--maxw);margin:28px auto;padding:18px}
+header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:18px}
+.brand{font-weight:900;color:var(--accent);letter-spacing:1px;font-size:22px}
+.sub{color:var(--muted);font-size:14px;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 360px;gap:18px}
+@media (max-width:980px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--panel);padding:18px;border-radius:var(--radius);border:1px solid var(--glass);box-shadow:0 8px 36px rgba(0,255,120,0.03);transition:transform 0.15s}
+.panel:hover{transform:translateY(-2px)}
+h1{margin:0;color:var(--accent);font-size:22px}
+p.lead{color:var(--muted);margin-top:8px}
+.checker{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+input[type="email"]{flex:1;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-size:15px;min-width:180px}
+button{padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:linear-gradient(90deg,#003322,#004433);color:#eafff0;font-weight:800;cursor:pointer;flex-shrink:0;transition:all 0.15s}
+button:hover{box-shadow:0 0 8px var(--accent);transform:scale(1.03)}
+button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted)}
+.results{margin-top:14px;padding:12px;border-radius:10px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.02);min-height:120px}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.02);color:var(--muted);font-weight:700}
+.danger{color:var(--danger);font-weight:900}
+.ok{color:var(--accent);font-weight:900}
+.tip{margin-top:10px;color:var(--muted);font-size:14px}
+.list{margin:10px 0 0 18px;color:var(--muted)}
+.link{color:var(--accent);font-weight:800;text-decoration:none}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.footer-note{margin-top:14px;color:#bcdcc5;font-size:13px}
+.report-area{margin-top:8px;white-space:pre-wrap;background:#03100b;padding:10px;border-radius:8px;color:#cfeee1;font-family:var(--mono);font-size:13px}
+</style>
 </head>
 <body>
-  <canvas id="matrix" aria-hidden="true"></canvas>
-  <div class="overlay" aria-hidden="true"></div>
+<canvas id="matrix" aria-hidden="true"></canvas>
+<div class="overlay" aria-hidden="true"></div>
 
-  <div class="wrap">
-    <header>
-      <div>
-        <div class="brand">Email Breach</div>
-        <div class="sub">Safe demo checker • educational • no backend calls</div>
-      </div>
-    </header>
-
-    <main class="grid">
-      <!-- left: main interactive panel -->
-      <section class="panel" aria-labelledby="title">
-        <h1 id="title">Check an Email for Breaches (Demo)</h1>
-        <p class="lead">This is a client-side **simulation** that demonstrates how an email breach checker UI works. For **real** checks, use official services (link on the right). This demo never sends your email anywhere.</p>
-
-        <form id="checkerForm" onsubmit="return false;" aria-label="Email breach simulator">
-          <label for="emailInput" style="display:block;margin-top:12px;font-weight:800;color:var(--muted)">Enter email address</label>
-          <div class="checker">
-            <input id="emailInput" type="email" placeholder="name@example.com" required aria-required="true" />
-            <button id="checkBtn" type="submit">Simulate Check</button>
-            <button id="realBtn" type="button" class="secondary" title="Open trusted checker">Open Real Checker</button>
-          </div>
-        </form>
-
-        <div id="results" class="results" aria-live="polite" aria-atomic="true">
-          <div class="badge">Status: <span id="statusLabel">Idle</span></div>
-          <div id="summary" style="margin-top:10px;color:var(--muted)">No check performed yet.</div>
-        </div>
-
-        <div class="controls" aria-hidden="false">
-          <button id="downloadReport" class="secondary" title="Download breach report (demo)">Download Report (Demo)</button>
-          <button id="clearBtn" class="secondary">Clear</button>
-        </div>
-
-        <div class="tip">
-          <strong>How this demo works:</strong>
-          <ol class="list">
-            <li>It validates the email format locally.</li>
-            <li>It uses a deterministic simulation (not a remote lookup) to generate a safe mock result.</li>
-            <li>Use the real checker link to verify against public breach databases.</li>
-          </ol>
-        </div>
-
-        <div class="footer-note">
-          <strong>Important:</strong> To perform a real breach search use official services (e.g., Have I Been Pwned). Do not paste sensitive credentials here. This demo is educational and for UI/UX only.
-        </div>
-      </section>
-
-      <!-- right: resources -->
-      <aside class="panel" aria-labelledby="resourcesTitle">
-        <h3 id="resourcesTitle">Trusted Resources & Remediation</h3>
-        <p class="muted">Real services & helpful resources (open in new tab):</p>
-        <ul style="margin-top:8px;color:var(--muted);line-height:1.5">
-          <li><a class="link" href="https://haveibeenpwned.com/" target="_blank" rel="noopener noreferrer">Have I Been Pwned — official</a> (search emails, use API for automation)</li>
-          <li><a class="link" href="https://monitor.firefox.com/" target="_blank" rel="noopener noreferrer">Firefox Monitor</a></li>
-          <li><a class="link" href="https://www.google.com/search?q=check+if+email+breached" target="_blank" rel="noopener noreferrer">Search verified breach reports</a></li>
-        </ul>
-
-        <h3 style="margin-top:12px">If an email is breached — Immediate steps</h3>
-        <ol style="margin-top:8px;color:var(--muted);line-height:1.6">
-          <li>Change passwords immediately on affected services (use strong unique passwords).</li>
-          <li>Enable MFA / 2FA wherever possible (authenticator apps or hardware keys recommended).</li>
-          <li>Check for reused passwords — rotate any account using same password.</li>
-          <li>Monitor bank & important accounts for suspicious activity; inform your bank if needed.</li>
-          <li>Use a password manager to generate and store unique credentials.</li>
-          <li>Consider credit monitoring if personal identifying data was exposed.</li>
-        </ol>
-
-    </main>
-
-    <!-- report modal area (hidden block used for download) -->
-    <div id="reportBlock" style="display:none"></div>
+<div class="wrap">
+<header>
+  <div>
+    <div class="brand">Email Breach</div>
+    <div class="sub">Safe client-side demo • Educational • Mobile-friendly</div>
   </div>
+</header>
 
-  <script>
+<main class="grid">
+<!-- LEFT PANEL -->
+<section class="panel" aria-labelledby="title">
+<h1 id="title">Email Breach Simulator</h1>
+<p class="lead">Client-side demo only. No data is sent. For real checks, use official services on the right panel.</p>
 
-    // Simple deterministic simulation logic:
-    // We will not query any external DB. Instead we create a safe deterministic "breach fingerprint"
-    // based on a hash of the email (so same email always yields same result in demo).
-    (function(){
-      const form = document.getElementById('checkerForm');
-      const emailInput = document.getElementById('emailInput');
-      const checkBtn = document.getElementById('checkBtn');
-      const realBtn = document.getElementById('realBtn');
-      const results = document.getElementById('results');
-      const statusLabel = document.getElementById('statusLabel');
-      const summary = document.getElementById('summary');
-      const downloadReport = document.getElementById('downloadReport');
-      const clearBtn = document.getElementById('clearBtn');
+<form id="checkerForm" onsubmit="return false;" aria-label="Email breach simulator">
+  <label for="emailInput" style="display:block;margin-top:12px;font-weight:800;color:var(--muted)">Enter email address</label>
+  <div class="checker">
+    <input id="emailInput" type="email" placeholder="name@example.com" required />
+    <button id="checkBtn" type="submit">Simulate</button>
+    <button id="realBtn" type="button" class="secondary" title="Open trusted checker">Real Checker</button>
+  </div>
+</form>
 
-      function simpleHash(s){
-        // simple non-cryptographic hash (deterministic) to simulate different outcomes
-        let h = 2166136261 >>> 0;
-        for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
-        return (h >>> 0).toString(16);
+<div id="results" class="results" aria-live="polite" aria-atomic="true">
+  <div class="badge">Status: <span id="statusLabel">Idle</span></div>
+  <div id="summary" style="margin-top:10px;color:var(--muted)">No check performed yet.</div>
+</div>
+
+<div class="controls">
+  <button id="downloadReport" class="secondary">Download Report</button>
+  <button id="clearBtn" class="secondary">Clear</button>
+</div>
+
+<div class="tip">
+  <strong>Demo Mechanics:</strong>
+  <ol class="list">
+    <li>Validates email format locally.</li>
+    <li>Generates deterministic safe simulation results.</li>
+    <li>Official checker links available for real checks.</li>
+  </ol>
+</div>
+
+<div class="footer-note">
+  <strong>Important:</strong> This demo is for UI/UX and educational purposes only. Do not paste sensitive credentials here.
+</div>
+</section>
+
+<!-- RIGHT PANEL -->
+<aside class="panel" aria-labelledby="resourcesTitle">
+<h3 id="resourcesTitle">Trusted Resources & Remediation</h3>
+<p class="muted">Open in a new tab:</p>
+<ul style="margin-top:8px;color:var(--muted);line-height:1.5">
+  <li><a class="link" href="https://haveibeenpwned.com/" target="_blank" rel="noopener">Have I Been Pwned</a></li>
+  <li><a class="link" href="https://monitor.firefox.com/" target="_blank" rel="noopener">Firefox Monitor</a></li>
+  <li><a class="link" href="https://www.google.com/search?q=check+if+email+breached" target="_blank" rel="noopener">Search Verified Breach Reports</a></li>
+</ul>
+
+<h3 style="margin-top:12px">Immediate Steps if Breached</h3>
+<ol style="margin-top:8px;color:var(--muted);line-height:1.6">
+  <li>Change passwords immediately.</li>
+  <li>Enable MFA / 2FA wherever possible.</li>
+  <li>Check for reused passwords across accounts.</li>
+  <li>Monitor bank and important accounts for suspicious activity.</li>
+  <li>Use a password manager to generate unique credentials.</li>
+  <li>Consider credit monitoring if personal data was exposed.</li>
+</ol>
+</aside>
+</main>
+</div>
+
+<script>
+(function(){
+  const $ = id=>document.getElementById(id);
+  const form = $('checkerForm'), emailInput=$('emailInput'), checkBtn=$('checkBtn'), realBtn=$('realBtn');
+  const results=$('results'), statusLabel=$('statusLabel'), summary=$('summary');
+  const downloadReport=$('downloadReport'), clearBtn=$('clearBtn');
+
+  function simpleHash(s){
+    let h=2166136261>>>0; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}
+    return (h>>>0).toString(16);
+  }
+
+  function simulateBreach(email){
+    const h=simpleHash(email.toLowerCase()), last=parseInt(h.slice(-2),16), severity=last%10;
+    let status='safe', matches=[];
+    if(severity<=2){status='no-breach';matches=[];}
+    else if(severity<=5){status='low';matches=['example-service-2016 (email only)'];}
+    else if(severity<=7){status='medium';matches=['forum-leak-2018 (email+pass)', 'newsletter-2019'];}
+    else {status='high';matches=['corp-db-2020 (email+pass)','old-shop-2015','pastebin-2014'];}
+    const simulatedDate=new Date(Date.now()-(last%365)*24*60*60*1000).toISOString().slice(0,10);
+    return {status,matches,simulatedDate,fingerprint:h};
+  }
+
+  function renderResult(email){
+    statusLabel.textContent='Checking...';
+    summary.textContent='Simulating lookup…';
+    setTimeout(()=>{
+      const res=simulateBreach(email);
+      if(res.status==='no-breach'){
+        statusLabel.innerHTML='<span class="ok">No breach found (demo)</span>';
+        summary.innerHTML='<strong>Result:</strong> No breach found in this simulation.<br><span class="muted">Tip: Use official services for real checks.</span>';
+      } else {
+        statusLabel.innerHTML='<span class="danger">Potential breach (demo)</span>';
+        summary.innerHTML=`<strong>Result:</strong> Appears in <strong>${res.matches.length}</strong> simulated breaches.<br>
+          <strong>Example matches:</strong><ul style="color:var(--muted);margin:6px 0 0 18px">${res.matches.map(m=>'<li>'+escapeHtml(m)+'</li>').join('')}</ul>
+          <div style="margin-top:8px;color:var(--muted)">Simulated first found date: ${escapeHtml(res.simulatedDate)}</div>
+          <div style="margin-top:10px;color:var(--muted)"><strong>Reminder:</strong> Simulation only.</div>`;
       }
+      results.dataset.report=JSON.stringify({email,checkedAt:new Date().toISOString(),result:res});
+    },700);
+  }
 
-      function simulateBreach(email){
-        const h = simpleHash(email.toLowerCase());
-        // Use parts of hash to decide simulated severity and fake matches
-        const last = parseInt(h.slice(-2),16);
-        const severity = last % 10; // 0..9
-        // map severity to categories: 0-2 safe, 3-5 low, 6-7 medium, 8-9 high
-        let status='safe', matches = [];
-        if(severity <= 2){ status='no-breach'; matches = []; }
-        else if(severity <= 5){ status='low'; matches = ['example-service-2016 (email only)']; }
-        else if(severity <= 7){ status='medium'; matches = ['forum-leak-2018 (email+password_hash)', 'newsletter-2019']; }
-        else { status='high'; matches = ['corp-db-2020 (email+password)', 'old-shop-2015', 'pastebin-2014']; }
-        // simulated date and advice
-        const simulatedDate = new Date(Date.now() - (last % 365) * 24*60*60*1000).toISOString().slice(0,10);
-        return { status, matches, simulatedDate, fingerprint: h };
-      }
+  function isValidEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
 
-      function renderResult(email){
-        statusLabel.textContent = 'Checking...';
-        summary.textContent = 'Simulating lookup (client-side)…';
-        // small UX delay
-        setTimeout(()=>{
-          const res = simulateBreach(email);
-          if(res.status === 'no-breach'){
-            statusLabel.innerHTML = '<span class="ok">No breach found (demo)</span>';
-            summary.innerHTML = `<strong>Result:</strong> No public breach records found in this simulation. (Demo)</br><span class="muted">Tip:</span> For real checks, use official services below.`;
-          } else {
-            statusLabel.innerHTML = '<span class="danger">Potential breach (demo)</span>';
-            summary.innerHTML = `<strong>Result:</strong> The email appears in <strong>${res.matches.length}</strong> simulated breach entries (demo).<br/>
-              <strong>Example matches:</strong><ul style="color:var(--muted);margin:6px 0 0 18px">${res.matches.map(m=>'<li>'+escapeHtml(m)+'</li>').join('')}</ul>
-              <div style="margin-top:8px;color:var(--muted)">Simulated first found date: ${escapeHtml(res.simulatedDate)}</div>
-              <div style="margin-top:10px;color:var(--muted)"><strong>Reminder:</strong> This is a simulated demo result and does not represent real data.</div>`;
-          }
-          // attach for report
-          results.dataset.report = JSON.stringify({ email, checkedAt: new Date().toISOString(), result: res });
-        }, 700);
-      }
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    const email=emailInput.value.trim();
+    if(!isValidEmail(email)){
+      statusLabel.innerHTML='<span class="danger">Invalid email</span>';
+      summary.textContent='Enter a valid email address.';
+      return;
+    }
+    renderResult(email);
+  });
 
-      // Email validation helper
-      function isValidEmail(e){
-        // simple regex for validation (not exhaustive)
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
-      }
+  checkBtn.addEventListener('click',()=>form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
+  realBtn.addEventListener('click',()=>window.open('https://haveibeenpwned.com/','_blank','noopener'));
+  clearBtn.addEventListener('click',()=>{emailInput.value='';statusLabel.textContent='Idle';summary.textContent='No check performed yet.';delete results.dataset.report;});
 
-      form.addEventListener('submit', (ev)=>{
-        ev.preventDefault();
-        const email = emailInput.value.trim();
-        if(!isValidEmail(email)){
-          statusLabel.innerHTML = '<span class="danger">Invalid email</span>';
-          summary.textContent = 'Enter a valid email address (example: name@example.com).';
-          return;
-        }
-        renderResult(email);
-      });
+  downloadReport.addEventListener('click',()=>{
+    const raw=results.dataset.report; if(!raw){alert('No report — run a simulated check first.');return;}
+    const obj=JSON.parse(raw); const lines=[];
+    lines.push('=== Breach Report (Demo) ===');
+    lines.push('Email: '+obj.email); lines.push('Checked At: '+obj.checkedAt);
+    lines.push('Fingerprint (demo): '+obj.result.fingerprint);
+    lines.push('Simulated Status: '+obj.result.status);
+    lines.push('Simulated First Found: '+obj.result.simulatedDate);
+    lines.push('\nSimulated Matches:');(obj.result.matches||[]).forEach(m=>lines.push('- '+m));
+    lines.push('\nRecommended Actions:');
+    lines.push('- Change passwords on affected services');lines.push('- Enable MFA / 2FA');
+    lines.push('- Check for password reuse across accounts');lines.push('- Monitor financial accounts and enable alerts');
+    lines.push('\nNote: Frontend simulation only — no real breach data.');
+    const blob=new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob); const a=document.createElement('a');
+    a.href=url;a.download='breach-report-'+obj.email.replace(/[^a-z0-9@.]/gi,'')+'.txt';
+    document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+  });
 
-      checkBtn.addEventListener('click', ()=> form.dispatchEvent(new Event('submit', {cancelable:true, bubbles:true})));
-
-      realBtn.addEventListener('click', ()=>{
-        // open Have I Been Pwned search in new tab (user can paste email)
-        window.open('https://haveibeenpwned.com/', '_blank', 'noopener');
-      });
-
-      clearBtn.addEventListener('click', ()=>{
-        emailInput.value=''; statusLabel.textContent='Idle'; summary.textContent='No check performed yet.'; delete results.dataset.report;
-      });
-
-      downloadReport.addEventListener('click', ()=>{
-        const raw = results.dataset.report;
-        if(!raw){
-          alert('No report available — please run a simulated check first.');
-          return;
-        }
-        const obj = JSON.parse(raw);
-        const lines = [];
-        lines.push('=== Breach Report (Demo) ===');
-        lines.push('Email: ' + obj.email);
-        lines.push('Checked At: ' + obj.checkedAt);
-        lines.push('Fingerprint (demo): ' + obj.result.fingerprint);
-        lines.push('Simulated Status: ' + obj.result.status);
-        lines.push('Simulated First Found: ' + obj.result.simulatedDate);
-        lines.push('');
-        lines.push('Simulated Matches:');
-        (obj.result.matches || []).forEach(m => lines.push('- ' + m));
-        lines.push('');
-        lines.push('Recommended Actions:');
-        lines.push('- Change passwords on affected services');
-        lines.push('- Enable MFA / 2FA');
-        lines.push('- Check for password reuse across accounts');
-        lines.push('- Monitor financial accounts and enable alerts');
-        lines.push('');
-        lines.push('Note: This report is generated by a frontend simulation and does not query or reveal real breach data.');
-        const blob = new Blob([lines.join('\\n')], {type:'text/plain;charset=utf-8'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = 'breach-report-' + obj.email.replace(/[^a-z0-9@.]/gi,'') + '.txt';
-        document.body.appendChild(a); a.click(); a.remove();
-        URL.revokeObjectURL(url);
-      });
-
-      // small helper for escaping
-      function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-      // quick UX: run on Enter when in the input field
-      emailInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); form.dispatchEvent(new Event('submit')); } });
-
-    })();
-  </script>
+  function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  emailInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();form.dispatchEvent(new Event('submit'));}});
+})();
+</script>
 </body>
-</html>
+  </html>
