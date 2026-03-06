@@ -5,13 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact | CyberX</title>
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
 body{
-  background:#000;
-  color:#fff;
-  font-family:"Courier New", monospace;
+  background:#F8F9FA;
+  color:#111827;
+  font-family:'Inter', sans-serif;
+  line-height:1.6;
+  overflow-x:hidden;
 }
 
 /* ===== HEADER ===== */
@@ -20,15 +24,19 @@ header{
   justify-content:space-between;
   align-items:center;
   padding:18px 24px;
-  border-bottom:1px solid #111;
+  background:#FFFFFF;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  position:sticky;
+  top:0;
+  z-index:100;
 }
-
 .logo{
   font-size:22px;
-  letter-spacing:2px;
   font-weight:bold;
+  letter-spacing:1px;
+  color:#1E3A8A;
 }
-.logo span{color:#0f0}
+.logo span{color:#10B981;}
 
 .menu-btn{
   font-size:26px;
@@ -39,26 +47,29 @@ header{
 /* ===== DROPDOWN ===== */
 .dropdown{
   position:fixed;
-  top:0;
+  top:60px;
   right:18px;
-  width:230px;
-  background:#050505;
-  border:1px solid #222;
+  width:220px;
+  background:#FFFFFF;
+  border:1px solid #D1D5DB;
+  border-radius:10px;
   transform:translateY(-120%);
   transition:0.35s ease;
   z-index:999;
+  box-shadow:0 10px 20px rgba(0,0,0,0.15);
 }
-.dropdown.active{transform:translateY(60px)}
+.dropdown.active{transform:translateY(0);}
 .dropdown a{
   display:block;
-  padding:13px 16px;
-  color:#ccc;
+  padding:14px 16px;
+  color:#1E3A8A;
   text-decoration:none;
-  border-bottom:1px solid #111;
+  border-bottom:1px solid #E5E7EB;
+  transition:0.2s;
 }
 .dropdown a:hover{
-  background:#0a0a0a;
-  color:#0f0;
+  background:#EFF6FF;
+  color:#0F172A;
 }
 
 /* ===== CONTAINER ===== */
@@ -70,60 +81,95 @@ header{
 
 /* ===== SECTION ===== */
 .section{
-  background:#050505;
-  border:1px solid #111;
-  padding:30px;
+  background:#FFFFFF;
+  border-radius:12px;
+  padding:28px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
+.section:hover{
+  transform: translateY(-4px);
+  box-shadow:0 10px 25px rgba(0,0,0,0.15);
+}
 .section h2{
-  color:#0f0;
+  color:#1E3A8A;
+  font-size:22px;
   margin-bottom:14px;
-  letter-spacing:1px;
 }
-
 .section p{
-  color:#ccc;
-  font-size:14px;
-  line-height:1.7;
-  margin-bottom:8px;
+  color:#374151;
+  font-size:15px;
+  margin-bottom:10px;
+}
+.section a{
+  color:#1E3A8A;
+  text-decoration:none;
+  transition:0.2s;
+}
+.section a:hover{
+  color:#10B981;
+  text-decoration:underline;
 }
 
-.section a{
-  color:#ccc;
+/* ===== BUTTON-LIKE LINKS ===== */
+.link-btn{
+  display:inline-block;
+  padding:10px 18px;
+  margin:6px 4px;
+  color:#FFFFFF;
+  background:#1E3A8A;
+  border-radius:8px;
   text-decoration:none;
+  font-size:14px;
+  font-weight:600;
+  transition:0.25s ease;
 }
-.section a:hover{color:#0f0}
+.link-btn:hover{
+  background:#10B981;
+  color:#FFFFFF;
+  transform:translateY(-2px) scale(1.03);
+}
 
 /* ===== FOOTER ===== */
 footer{
   margin-top:60px;
-  padding:22px;
+  padding:24px;
   text-align:center;
-  border-top:1px solid #111;
-  font-size:13px;
-  color:#777;
+  background:#1E3A8A;
+  color:#FFFFFF;
+  font-size:14px;
+  border-top-left-radius:12px;
+  border-top-right-radius:12px;
 }
 footer a{
-  color:#ccc;
+  color:#10B981;
+  margin:0 12px;
   text-decoration:none;
-  margin:0 10px;
+  transition:0.2s;
 }
-footer a:hover{color:#0f0}
+footer a:hover{
+  color:#FFFFFF;
+  text-decoration:underline;
+}
 
 /* ===== MOBILE ===== */
 @media(max-width:600px){
-  .logo{font-size:18px}
+  .logo{font-size:18px;}
+  .section{padding:20px;}
+  .link-btn{padding:8px 14px;font-size:13px;}
 }
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header>
   <div class="logo">Cyber<span>X</span></div>
   <div class="menu-btn" id="menuBtn">⋮</div>
 </header>
 
+<!-- DROPDOWN -->
 <div class="dropdown" id="dropdown">
   <a href="index.html">Dashboard</a>
   <a href="about.html">About</a>
@@ -131,6 +177,7 @@ footer a:hover{color:#0f0}
   <a href="support&donation.html">Support & Donation</a>
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="container">
 
   <div class="section">
@@ -138,46 +185,31 @@ footer a:hover{color:#0f0}
 
     <p>
       CyberX is an independent cybersecurity learning initiative built for
-      ethical education, awareness and skill development. If you want to
-      connect, collaborate, report issues or support this project, you can
-      contact me using the details below.
+      ethical education, awareness and skill development. Connect, collaborate, report issues, or support via the details below.
     </p>
-
-    <br>
 
     <p><b>Name:</b> Kamran Liaquat</p>
     <p><b>WhatsApp / Call:</b> 0330‑3638383</p>
-    <p><b>Email:</b> thekamranliaquat@gmail.com</p>
+    <p><b>Email:</b> <a href="mailto:thekamranliaquat@gmail.com">thekamranliaquat@gmail.com</a></p>
 
-    <br>
-
-    <p>
-      I actively share cybersecurity knowledge, simulations, awareness content
-      and learning updates on social platforms:
-    </p>
-
-    <br>
-
+    <p>Social Platforms:</p>
     <p><b>GitHub:</b> <a href="https://github.com/Kamran-Liaquat404" target="_blank">github.com/Kamran-Liaquat404</a></p>
     <p><b>TikTok:</b> <a href="https://www.tiktok.com/@thehackerpoint" target="_blank">@thehackerpoint</a></p>
     <p><b>Facebook:</b> <a href="https://www.facebook.com/profile.php?id=61585341008880" target="_blank">Official Profile</a></p>
 
-    <br>
-
-    <p style="color:#777;font-size:13px;">
-      ⚠️ All communication and content are intended strictly for ethical and
-      legal purposes. CyberX does not support or promote illegal activities.
+    <p style="color:#6B7280;font-size:13px;margin-top:12px;">
+      ⚠️ All communication is intended strictly for ethical and legal purposes. CyberX does not support or promote illegal activities.
     </p>
   </div>
 
 </div>
 
+<!-- FOOTER -->
 <footer>
-  © 2026 CyberX
-  <br><br>
-  <a href="about.html">About</a>
-  <a href="terms.html">Terms & Policies</a>
+  <a href="about.html">About</a> |
+  <a href="terms.html">Terms & Policies</a> |
   <a href="support&donation.html">Support & Donation</a>
+  <p style="margin-top:6px;">&copy; 2026 CyberX All Rights Reserved</p>
 </footer>
 
 <script>
@@ -196,4 +228,4 @@ document.addEventListener("click", (e) => {
 </script>
 
 </body>
-</html>
+    </html>
