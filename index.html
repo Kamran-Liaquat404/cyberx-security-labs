@@ -5,13 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CyberX | Ethical Security Platform</title>
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
 body{
-  background:#000;
-  color:#fff;
-  font-family:"Courier New", monospace;
+  background:#F8F9FA;
+  color:#111827;
+  font-family:'Inter', sans-serif;
   overflow-x:hidden;
 }
 
@@ -21,17 +23,20 @@ header{
   justify-content:space-between;
   align-items:center;
   padding:18px 24px;
-  border-bottom:1px solid #111;
+  background:#FFFFFF;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  position:sticky;
+  top:0;
+  z-index:100;
 }
-
 .logo{
   font-size:22px;
-  letter-spacing:2px;
   font-weight:bold;
+  letter-spacing:1px;
+  color:#1E3A8A;
 }
-.logo span{color:#0f0}
+.logo span{color:#10B981;}
 
-/* ===== THREE DOT ===== */
 .menu-btn{
   font-size:26px;
   cursor:pointer;
@@ -41,27 +46,29 @@ header{
 /* ===== DROPDOWN ===== */
 .dropdown{
   position:fixed;
-  top:0;
+  top:60px;
   right:18px;
-  width:230px;
-  background:#050505;
-  border:1px solid #222;
+  width:220px;
+  background:#FFFFFF;
+  border:1px solid #D1D5DB;
+  border-radius:10px;
   transform:translateY(-120%);
   transition:0.35s ease;
   z-index:999;
-  box-shadow:0 15px 40px rgba(26, 26, 26, 0.8);
+  box-shadow:0 10px 20px rgba(0,0,0,0.15);
 }
-.dropdown.active{transform:translateY(60px)}
+.dropdown.active{transform:translateY(0);}
 .dropdown a{
   display:block;
-  padding:13px 16px;
-  color:#ccc;
+  padding:14px 16px;
+  color:#1E3A8A;
   text-decoration:none;
-  border-bottom:1px solid #111;
+  border-bottom:1px solid #E5E7EB;
+  transition:0.2s;
 }
 .dropdown a:hover{
-  background:#0a0a0a;
-  color:#0f0;
+  background:#EFF6FF;
+  color:#0F172A;
 }
 
 /* ===== LAYOUT ===== */
@@ -78,96 +85,91 @@ header{
   gap:22px;
 }
 
-/* ===== BUTTONS ===== */
+/* ===== PROFESSIONAL BUTTONS ===== */
 .tool-btn{
-  height:62px;
   display:flex;
   align-items:center;
   justify-content:center;
   text-decoration:none;
-  color:#ffffff;
-  background:linear-gradient(180deg,#282727,#6663631a);
-  border:1px solid #222;
+  font-weight:600;
+  font-size:15px;
   letter-spacing:1.2px;
-  font-size:14px;
+  color:#fff;
+  background: linear-gradient(145deg, #1E3A8A, #16326B);
+  border-radius:12px;
+  border:none;
+  padding:16px 0;
+  min-height:64px;
+  width:100%;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15),0 2px 4px rgba(0,0,0,0.08) inset;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   cursor:pointer;
   position:relative;
-
-  box-shadow:
-    0 0 0 rgba(0,0,0,0),
-    0 6px 0 #000;
-
-  transition:0.18s ease;
+  overflow:hidden;
 }
-
-/* subtle glow line */
+.tool-btn:hover{
+  transform: translateY(-4px) scale(1.03);
+  background: linear-gradient(145deg, #2450B0, #1A2A63);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.18),0 4px 8px rgba(0,0,0,0.1) inset;
+}
+.tool-btn:active{
+  transform: translateY(2px) scale(0.98);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12),0 2px 4px rgba(0,0,0,0.06) inset;
+}
 .tool-btn::after{
   content:"";
   position:absolute;
   inset:0;
-  box-shadow:0 0 0 rgba(255,0,0,0);
-  transition:0.18s;
+  border-radius:12px;
+  box-shadow:0 0 0 rgba(255,255,255,0);
+  transition:0.35s ease;
 }
-
-.tool-btn:hover{
-  color:#23c414;
-  border-color:#ffffff;
-  box-shadow:
-    0 0 18px rgba(26, 77, 16, 0.35),
-    0 6px 0 #000;
-}
-
 .tool-btn:hover::after{
-  box-shadow:0 0 25px rgba(255,0,0,0.25);
-}
-
-.tool-btn:active{
-  transform:translateY(3px);
-  box-shadow:
-    0 2px 0 #ffffff,
-    inset 0 0 12px #000;
+  box-shadow:0 0 25px rgba(26, 77, 216, 0.35);
 }
 
 /* ===== SECTIONS ===== */
 .section{
   margin-top:55px;
-  padding:28px;
-  background:#050505;
-  border:1px solid #111;
+  padding:32px;
+  background:#FFFFFF;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
 }
-
 .section h2{
-  color:#0f0;
-  margin-bottom:12px;
-  letter-spacing:1px;
+  color:#1E3A8A;
+  font-size:22px;
+  margin-bottom:14px;
 }
-
 .section p{
-  color:#ccc;
-  font-size:14px;
-  line-height:1.7;
+  color:#374151;
+  font-size:15px;
+  line-height:1.8;
 }
 
 /* ===== FOOTER ===== */
 footer{
   margin-top:60px;
-  padding:22px;
+  padding:24px;
   text-align:center;
-  border-top:1px solid #111;
-  font-size:13px;
-  color:#777;
+  background:#1E3A8A;
+  color:#FFFFFF;
+  font-size:14px;
 }
-
 footer a{
-  color:#ccc;
-  text-decoration:none;
+  color:#10B981;
   margin:0 12px;
+  text-decoration:none;
 }
-footer a:hover{color:#0f0}
+footer a:hover{
+  color:#FFFFFF;
+  text-decoration:underline;
+}
 
 /* ===== MOBILE ===== */
 @media(max-width:600px){
-  .logo{font-size:18px}
+  .logo{font-size:18px;}
+  .tool-btn{font-size:13px;padding:14px 0;min-height:56px;}
 }
 </style>
 </head>
@@ -220,7 +222,7 @@ footer a:hover{color:#0f0}
   <div class="section">
     <h2>LEARNING ENVIRONMENT</h2>
     <p>
-      The platform provides a dark, terminal-inspired interface to help users
+      The platform provides a modern, professional interface to help users
       stay focused and immersed. Each module represents a practical concept,
       allowing users to explore cybersecurity tools, simulations and awareness
       without risking real systems.
@@ -264,4 +266,4 @@ document.addEventListener("click", (e) => {
 </script>
 
 </body>
-</html>
+  </html>
