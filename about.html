@@ -5,17 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About CyberX | Ethical Security Platform</title>
 
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
   background:#F8F9FA;
   color:#111827;
-  font-family:'Inter', sans-serif;
-  line-height:1.6;
+  font-family:"Courier New", monospace;
   overflow-x:hidden;
+  line-height:1.6;
 }
 
 /* ===== HEADER ===== */
@@ -37,7 +34,6 @@ header{
   color:#1E3A8A;
 }
 .logo span{color:#10B981;}
-
 .menu-btn{
   font-size:26px;
   cursor:pointer;
@@ -62,54 +58,55 @@ header{
 .dropdown a{
   display:block;
   padding:14px 16px;
-  color:#1E3A8A;
+  color:#374151;
   text-decoration:none;
   border-bottom:1px solid #E5E7EB;
   transition:0.2s;
 }
 .dropdown a:hover{
   background:#EFF6FF;
-  color:#0F172A;
+  color:#10B981;
 }
 
 /* ===== CONTAINER ===== */
 .container{
-  max-width:950px;
-  margin:40px auto;
+  max-width:900px;
+  margin:50px auto;
   padding:0 18px;
 }
 
-/* ===== SECTIONS ===== */
+/* ===== SECTION ===== */
 .section{
-  margin-top:35px;
-  padding:28px;
   background:#FFFFFF;
+  border:1px solid #D1D5DB;
+  padding:28px;
+  margin-bottom:30px;
   border-radius:12px;
   box-shadow:0 4px 16px rgba(0,0,0,0.08);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .section:hover{
-  transform: translateY(-4px);
+  transform:translateY(-4px);
   box-shadow:0 10px 25px rgba(0,0,0,0.15);
 }
 .section h2{
   color:#1E3A8A;
-  font-size:22px;
-  margin-bottom:14px;
-}
-.section p{
-  color:#374151;
-  font-size:15px;
   margin-bottom:12px;
+  letter-spacing:1px;
+}
+.section p, .section li{
+  color:#374151;
+  font-size:14px;
+  line-height:1.7;
+  margin-bottom:10px;
 }
 .section span{
   color:#10B981;
   font-weight:600;
 }
 .section ul{
-  margin:6px 0 6px 20px;
-  color:#374151;
-  list-style-type: disc;
+  padding-left:20px;
+  margin-top:10px;
 }
 
 /* ===== BUTTON-LIKE LINKS ===== */
@@ -134,30 +131,26 @@ header{
 /* ===== FOOTER ===== */
 footer{
   margin-top:60px;
-  padding:24px;
+  padding:22px;
   text-align:center;
   background:#1E3A8A;
-  color:#FFFFFF;
   font-size:14px;
+  color:#FFFFFF;
   border-top-left-radius:12px;
   border-top-right-radius:12px;
 }
 footer a{
   color:#10B981;
-  margin:0 12px;
   text-decoration:none;
+  margin:0 12px;
   transition:0.2s;
 }
-footer a:hover{
-  color:#FFFFFF;
-  text-decoration:underline;
-}
+footer a:hover{color:#FFFFFF}
 
 /* ===== MOBILE ===== */
 @media(max-width:600px){
   .logo{font-size:18px;}
   .section{padding:20px;}
-  .link-btn{padding:8px 14px;font-size:13px;}
 }
 </style>
 </head>
@@ -182,22 +175,18 @@ footer a:hover{
 <!-- MAIN CONTENT -->
 <div class="container">
 
-  <!-- SECTION 1: INTRODUCTION -->
   <div class="section">
     <h2>ABOUT CYBERX</h2>
     <p>
-      CyberX is a fully <span>legal</span> ethical security platform, built for learners who want to explore the world of cybersecurity in a safe environment.
-      Founded by <span>Kamran Liaquat</span> in <span>2023</span>, it provides an educational hub for ethical hacking and digital security.
+      CyberX is a fully <span>legal</span> ethical security platform, built for learners who want to explore cybersecurity in a safe environment. Founded by <span>Kamran Liaquat</span> in <span>2023</span>.
     </p>
     <p>
-      The platform simulates real-world security tools and concepts, allowing beginners and intermediate learners to understand networks, systems, and cybersecurity threats without risking real systems.
+      It provides an educational hub for ethical hacking and digital security, simulating real-world tools and concepts for learners without risking real systems.
     </p>
   </div>
 
-  <!-- SECTION 2: FEATURES -->
   <div class="section">
     <h2>FEATURES & LEARNING</h2>
-    <p>CyberX provides a <span>modern, terminal-inspired interface</span> with practical modules including:</p>
     <ul>
       <li>Ethical Hacking Labs</li>
       <li>Linux Lab Simulations</li>
@@ -207,18 +196,12 @@ footer a:hover{
       <li>Cryptography Labs & Simulations</li>
       <li>Cybersecurity News & Dark Web Awareness</li>
     </ul>
-    <p>
-      Each module is beginner-friendly but also valuable for intermediate learners. 
-      Users can follow a clear <span>ethical hacking roadmap</span> to gradually improve their cybersecurity skills.
-    </p>
   </div>
 
-  <!-- SECTION 3: ETHICAL NOTICE -->
   <div class="section">
     <h2>ETHICAL NOTICE</h2>
     <p>
-      All activities on CyberX are <span>100% legal</span>. This platform is intended for learning only.
-      Misusing tools in real-world illegal activities is strictly discouraged. The goal is <span>knowledge building and awareness</span>.
+      All activities on CyberX are <span>100% legal</span> and for learning purposes only. Misusing tools in illegal activities is strictly prohibited.
     </p>
     <p>
       By supporting this platform via <a class="link-btn" href="support&donation.html">donation</a>, you help continue developing free and safe learning resources.
@@ -229,27 +212,21 @@ footer a:hover{
 
 <!-- FOOTER -->
 <footer>
-  <a href="contact.html">Contact</a> |
-  <a href="terms.html">Terms & Policies</a> |
-  <a href="about.html">About</a> |
+  <a href="contact.html">Contact</a>
+  <a href="terms.html">Terms & Policies</a>
+  <a href="about.html">About</a>
   <a href="support&donation.html">Support & Donation</a>
-  <p style="margin-top:6px;">&copy; 2026 CyberX All Rights Reserved</p>
+  <p style="margin-top:6px;">© 2026 CyberX</p>
 </footer>
 
 <script>
 const menuBtn = document.getElementById("menuBtn");
 const dropdown = document.getElementById("dropdown");
-
-menuBtn.onclick = () => {
-  dropdown.classList.toggle("active");
-};
-
+menuBtn.onclick = () => { dropdown.classList.toggle("active"); };
 document.addEventListener("click", (e) => {
-  if (!menuBtn.contains(e.target) && !dropdown.contains(e.target)) {
-    dropdown.classList.remove("active");
-  }
+  if(!menuBtn.contains(e.target) && !dropdown.contains(e.target)){ dropdown.classList.remove("active"); }
 });
 </script>
 
 </body>
-  </html>
+                                           </html>
