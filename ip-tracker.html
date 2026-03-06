@@ -1,170 +1,54 @@
-<!doctype html>
+    <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>IP Tracker Simulator — Educational Lab</title>
-
-<meta name="description" content="Educational IP Geolocation Simulator. Fully client-side, deterministic demo. No real tracking or network access."/>
-
+<meta name="description/>
 <style>
 :root{
   --bg:#000;
   --neon:#ff3b3b;
   --accent:#00ff88;
   --muted:#9fb3a0;
-  --panel:rgba(6,8,10,0.75);
-  --glass:rgba(255,255,255,0.04);
+  --panel:rgba(6,8,10,0.85);
+  --glass:rgba(255,255,255,0.05);
   --radius:14px;
   --mono:ui-monospace,Menlo,monospace;
 }
 
-*{box-sizing:border-box}
-html,body{
-  margin:0;
-  background:linear-gradient(180deg,#000,#020202 70%);
-  color:#dfffe6;
-  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
-}
-
-.wrap{
-  max-width:1100px;
-  margin:auto;
-  padding:18px;
-}
-
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:12px;
-}
-
-.brand{
-  font-size:20px;
-  font-weight:900;
-  color:var(--neon);
-}
-
-.sub{
-  font-size:13px;
-  color:var(--muted);
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 380px;
-  gap:18px;
-  margin-top:18px;
-}
-
-@media(max-width:980px){
-  .grid{grid-template-columns:1fr}
-}
-
-.panel{
-  background:var(--panel);
-  border:1px solid var(--glass);
-  border-radius:var(--radius);
-  padding:16px;
-}
-
-h1,h3,h4{margin:0;color:var(--accent)}
-
-.lead{
-  margin-top:8px;
-  color:var(--muted);
-  font-size:14px;
-}
-
-.row{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:12px;
-}
-
-input{
-  flex:1;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,0.06);
-  background:transparent;
-  color:inherit;
-  font-family:var(--mono);
-}
-
-button{
-  padding:10px 14px;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
-  font-weight:800;
-}
-
-.primary{
-  background:linear-gradient(90deg,var(--neon),#990000);
-  color:#fff;
-}
-
-.ghost{
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.08);
-  color:var(--muted);
-}
-
-.results{
-  margin-top:12px;
-  background:rgba(0,0,0,0.45);
-  border:1px solid rgba(255,255,255,0.04);
-  border-radius:10px;
-  padding:12px;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-
-td,th{
-  padding:6px;
-  text-align:left;
-  border-bottom:1px dashed rgba(255,255,255,0.05);
-  font-size:13px;
-}
-
-.map{
-  margin-top:12px;
-  height:260px;
-  border-radius:8px;
-  border:1px solid rgba(255,255,255,0.04);
-  overflow:hidden;
-}
-
-.history{
-  margin-top:10px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-footer{
-  margin-top:18px;
-  font-size:13px;
-  color:var(--muted);
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:10px;
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:linear-gradient(180deg,#000,#020202 70%);color:#dfffe6;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;}
+.wrap{max-width:1100px;margin:auto;padding:18px;}
+header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.brand{font-size:20px;font-weight:900;color:var(--neon);}
+.sub{font-size:13px;color:var(--muted);}
+.grid{display:grid;grid-template-columns:1fr 380px;gap:18px;margin-top:18px;}
+@media(max-width:980px){.grid{grid-template-columns:1fr;}}
+.panel{background:var(--panel);border:1px solid var(--glass);border-radius:var(--radius);padding:16px;}
+h1,h3,h4{margin:0;color:var(--accent);}
+.lead{margin-top:8px;color:var(--muted);font-size:14px;}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;font-family:var(--mono);}
+button{padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:800;}
+.primary{background:linear-gradient(90deg,var(--neon),#990000);color:#fff;}
+.ghost{background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--muted);}
+.results{margin-top:12px;background:rgba(0,0,0,0.45);border:1px solid rgba(255,255,255,0.04);border-radius:10px;padding:12px;}
+table{width:100%;border-collapse:collapse;margin-top:10px;}
+td,th{padding:6px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.05);font-size:13px;}
+.map{margin-top:12px;height:260px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);overflow:hidden;}
+.history{margin-top:10px;display:flex;flex-direction:column;gap:8px;}
+.history button{padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;text-align:left;}
+footer{margin-top:18px;font-size:13px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+@media(max-width:700px){
+  .grid{grid-template-columns:1fr;}
+  .map{height:200px;}
+  header{flex-direction:column;align-items:flex-start;}
 }
 </style>
 </head>
-
 <body>
 <div class="wrap">
-
 <header>
   <div>
     <div class="brand">IP Tracker — Simulator</div>
@@ -173,19 +57,14 @@ footer{
 </header>
 
 <main class="grid">
-
 <section class="panel">
 <h1>IP Geolocation Simulator</h1>
-<p class="lead">
-Enter any IP or domain. This tool generates <strong>deterministic simulated results</strong>
-for ethical hacking education and UI practice only.
-</p>
+<p class="lead">Enter any IP or domain. Generates <strong>deterministic simulated results</strong> for ethical hacking education and UI practice only.</p>
 
 <div class="row">
   <input id="target" placeholder="IP or domain (e.g. 8.8.8.8)">
   <button class="primary" id="lookup">Simulate</button>
 </div>
-
 <div class="row">
   <button class="ghost" id="clear">Clear</button>
 </div>
@@ -217,27 +96,18 @@ for ethical hacking education and UI practice only.
 <h3>History</h3>
 <div id="history" class="history"></div>
 </aside>
-
 </main>
 </div>
 
 <script>
 const qs=id=>document.getElementById(id);
-
-function hash(s){
-  let h=2166136261;
-  for(let c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}
-  return h>>>0;
-}
-
-function rand(seed){
-  return ()=> (seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296;
-}
-
+let hist=[];
+function hash(s){let h=2166136261; for(let c of s){h^=c.charCodeAt(0); h=Math.imul(h,16777619);} return h>>>0;}
+function rand(seed){return ()=> (seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296;}
 function simulate(input){
   const r=rand(hash(input));
-  const countries=["Pakistan","USA","Germany","UK","Japan","India"];
-  const cities=["Karachi","Lahore","Berlin","London","Tokyo","Mumbai"];
+  const countries=["Pakistan","USA","Germany","UK","Japan","India","France","Brazil","Canada"];
+  const cities=["Karachi","Lahore","Berlin","London","Tokyo","Mumbai","Paris","Rio","Toronto"];
   return{
     ip:input,
     isp:"Demo ISP",
@@ -250,6 +120,17 @@ function simulate(input){
   }
 }
 
+function addHistory(entry){
+  if(!hist.includes(entry)) hist.unshift(entry);
+  const hDiv=qs("history"); hDiv.innerHTML="";
+  hist.forEach(ip=>{
+    const b=document.createElement("button");
+    b.textContent=ip;
+    b.onclick=()=>{ qs("target").value=ip; qs("lookup").click();}
+    hDiv.appendChild(b);
+  });
+}
+
 qs("lookup").onclick=()=>{
   const t=qs("target").value.trim();
   if(!t) return alert("Enter IP or domain");
@@ -260,6 +141,7 @@ qs("lookup").onclick=()=>{
   qs("table").style.display="";
   qs("map").style.display="";
   qs("mapFrame").src=`https://www.openstreetmap.org/export/embed.html?marker=${r.lat},${r.lon}`;
+  addHistory(t);
 };
 
 qs("clear").onclick=()=>{
@@ -271,4 +153,4 @@ qs("clear").onclick=()=>{
 };
 </script>
 </body>
-</html>
+  </html>
